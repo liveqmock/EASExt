@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.projectmanage.dao.PmChangeMapper">
+	<resultMap id="BaseResultMap"
+		type="com.creditease.eas.projectmanage.bean.PmChange">
+		<id column="FID" property="id" jdbcType="INTEGER" />
+		<result column="BEFOREPM" property="beforePm" jdbcType="VARCHAR" />
+		<result column="BEFOREPMID" property="beforePmId" jdbcType="INTEGER" />
+		<result column="AFTERPM" property="afterPm" jdbcType="VARCHAR" />
+		<result column="AFTERPMID" property="afterPmId" jdbcType="INTEGER" />
+		<result column="LOANNUMBER" property="loanNumber" jdbcType="VARCHAR" />
+		<result column="FCREATEUSERID" property="fCreateUserId" jdbcType="INTEGER" />
+		<result column="FCREATEUSERNAME" property="fCreateUserName" jdbcType="VARCHAR" />
+		<result column="FCREATETIME" property="fCreateTime" jdbcType="DATE" />
+		<result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+		<result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+		<result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+		<result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+		<result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		FID,BEFOREPM,BEFOREPMID,AFTERPM,AFTERPMID,LOANNUMBER,FCREATEUSERNAME,FCREATEUSERID,FCREATETIME
+	</sql>
+
+	<sql id="BaseWhereCondition">
+		<if test="userName != null and userName != ''">
+			and FCREATEUSERNAME like '${userName}'
+			</if>
+		<if test="loanNo != null and loanNo != ''">
+			and LOANNUMBER like '${loanNo}'
+			</if>
+	</sql>
+
+	<sql id="Order_Rule">
+		order by FID desc
+ 	</sql>
+
+	<!-- 查询pm变更总数目 -->
+	<select id="getPmChangeTotalCounts" resultType="int">
+		select count(fid) from t_pro_pmchange where 1=1
+		<include refid="BaseWhereCondition" />
+	</select>
+
+	<!-- 返回数据集合 -->
+	<select id="queryAllPmChangeList" resultType="Map" parameterType="map">
+		Select * FROM(Select ROWNUM as ROWNO,
+		FID,BEFOREPM,BEFOREPMID,AFTERPM,AFTERPMID,LOANNUMBER,FCREATEUSERNAME,FCREATEUSERID,to_char(FCREATETIME,'yyyy-mm-dd hh24:mi:ss') FCREATETIME     
+		from t_pro_pmchange
+		<where>
+			ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+			<include refid="BaseWhereCondition" />
+		</where>
+		)
+		where ROWNO &gt;= #{startRow,jdbcType=INTEGER}
+		<include refid="Order_Rule" />
+	</select>
+	<!--添加pm变更记录 -->
+    <insert id="insertPmChange" parameterType="com.creditease.eas.projectmanage.bean.PmChange">
+      <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   	 	select COMMON_SEQ.NEXTVAL from dual
+	  </selectKey>
+		insert into t_pro_pmchange(<include refid="Base_Column_List"/>) 
+			values(#{id,jdbcType=INTEGER},#{beforePm,jdbcType=VARCHAR},#{beforePmId,jdbcType=INTEGER},
+			#{afterPm,jdbcType=VARCHAR},#{afterPmId,jdbcType=INTEGER},#{loanNumber,jdbcType=VARCHAR},
+			#{fCreateUserName,jdbcType=VARCHAR},#{fCreateUserId,jdbcType=INTEGER},SYSDATE)
+    </insert>
+</mapper>

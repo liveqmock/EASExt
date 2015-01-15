@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="sendPortInfo" extends="json-default" namespace="/sendPortInfo">
+		<!-- 已发送房屋合同预警邮件明细模块 -->
+		<action name="sendPortInfo" class="com.creditease.eas.warn.action.SendPortInfoAction">
+			<result name="view">/sendportinfo/sendPortInfoView.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+    </package>    
+</struts>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="financegroup" extends="json-default" namespace="/financegroup">
+		<action name="financeGroupAction" class="financeGroupAction" >
+			<result name="queryPageJson" type="json">
+				 <param name="root">pagination</param>
+				 <param name="excludeNullProperties">true</param>  
+			</result>
+			 <result name="edit">/pages/financerentcontract/financegroup/financegroupEdit.jsp</result>
+		</action>	
+    </package>    
+</struts>

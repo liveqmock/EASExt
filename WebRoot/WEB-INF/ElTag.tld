@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"     
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"     
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+    http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"     
+    version="2.0">   
+    <!-- 定义函数版本 -->
+	<tlib-version>1.0</tlib-version>
+	<!-- 定义函数名称 -->
+	<short-name>el</short-name>
+	<!-- 验证一个角色是否是管理员权限
+		鉴于当前权限设计的现状，验证是否是管理员权限，只能先用角色id进行判断
+	 -->
+	<function>
+		<name>validIsAdmin</name>
+		<function-class>com.creditease.eas.util.elfunction.ElTag</function-class>
+		<function-signature>
+			boolean validIsAdmin(java.util.List,java.lang.Integer)
+		</function-signature>
+	</function>
+	<function>
+		<name>catchUrl</name>
+		<function-class>com.creditease.eas.util.elfunction.ElTag</function-class>
+		<function-signature>
+			java.lang.String catchUrl()
+		</function-signature>
+	</function>
+	<function>
+		<name>getDictionaryValue</name>
+		<function-class>com.creditease.eas.util.elfunction.ElTag</function-class>
+		<function-signature>
+			java.lang.String getDictionaryValue(java.util.List,java.lang.Integer)
+		</function-signature>
+		<description>根据字典的id获得字典的值</description>
+	</function>
+	<function>
+		<name>getDictionaryValueByItemid</name>
+		<function-class>com.creditease.eas.util.elfunction.ElTag</function-class>
+		<function-signature>
+			java.lang.String getDictionaryValueByItemid(java.util.List,java.lang.String)
+		</function-signature>
+		<description>根据字典的子项关键字获得字典的值</description>
+	</function>
+	
+</taglib>

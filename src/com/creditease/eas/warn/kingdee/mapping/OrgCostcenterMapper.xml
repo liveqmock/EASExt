@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.warn.kingdee.dao.OrgCostcenterMapper">
+<resultMap id="BaseResultMap" type="com.creditease.eas.warn.bean.OrgCostcenter" >
+    <id column="fid" property="fid" jdbcType="VARCHAR" />
+    <result column="fname_l2" property="fname_l2" jdbcType="VARCHAR" />
+    <result column="fdisplayname_l2" property="fdisplayname_l2" jdbcType="VARCHAR" />
+    <result column="fnumber" property="fnumber" jdbcType="VARCHAR" />
+</resultMap>
+	<sql id="selectSql">
+	  <if test="fname_l2!=null and fname_l2!=''">
+	  and fname_l2 like '%${fname_l2}%'
+	  </if>
+	</sql>
+	<sql id="allColumn">
+	 fid,fname_l2,fdisplayname_l2,fnumber
+	</sql>
+	<!-- 根据成本中心查询成本中心编码 -->
+	<select id="selectCostcenterCount" resultType="int"  parameterType="map">
+		select count(*) from t_org_costcenter t 
+		<where> 1=1 <include refid="selectSql"/> </where>
+	</select>
+	<!-- 查询所有的信息 -->
+	<select id="selectAllCostcenter" resultMap="BaseResultMap" parameterType="map">
+	    select * FROM(select ROWNUM as ROWNO,<include refid="allColumn"/> FROM t_org_costcenter 
+      <where>
+        ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+       <include refid="selectSql"/>
+      </where> )
+      where ROWNO &gt;= #{startRow,jdbcType=INTEGER}  
+	</select>
+	<!-- 根据成本中心编号获得fid -->
+	<select id="selectById" parameterType="java.lang.String" resultType="java.lang.String" >
+	select t.fid from t_org_costcenter t where t.fnumber=#{fnumber,jdbcType=VARCHAR}
+	</select>
+	<!-- 根据fid集合获得所有信息 -->
+	<select id="selectByFname"  resultMap="BaseResultMap">
+	   select t.* from t_org_costcenter t where t.fid in 
+	   <foreach collection="list" index="index" item="tag" open="(" separator="," close=")">
+			 #{tag}
+       </foreach>
+	</select>
+	<!-- 根据成本中心名称获得fid -->
+	<select id="selectIdByFname" parameterType="java.lang.String" resultType="java.lang.String">
+	select t.fid from t_org_costcenter t where t.fname_l2 like #{fname_l2,jdbcType=VARCHAR}
+	</select>
+	<!--根据fid获得详细信息  -->
+	<select id="selectFname" resultMap="BaseResultMap" resultType="java.lang.String">
+	select * from t_org_costcenter t where t.fid=#{fid,jdbcType=VARCHAR}
+	</select>
+	<!-- 根据成本中心编号集合获得所有信息 -->
+	<select id="selectByIds" resultMap="BaseResultMap">
+	 select t.* from t_org_costcenter t where t.fnumber in 
+	   <foreach collection="list" index="index" item="tag" open="(" separator="," close=")">
+			 #{tag}
+       </foreach>
+	</select>
+</mapper>

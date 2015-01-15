@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>   
+	<!--  Quartz中时间表达式的设置  时间格式:  s m h d m w(?) y(?) ,   分别对应: 秒>分>小时>日>月>周>年,   -->
+	<!-- 行政房屋合同预警调用要调用的工作类 -->
+	<bean id="portInfoQuartzJob" class="com.creditease.eas.warn.service.impl.InterfacePersonServiceImpl"></bean>
+	<!-- 财务房租合同信息要调用的工作类 -->
+	<bean id="FinanceQuartzJob" class="com.creditease.eas.warn.service.impl.FinanceRentContractServiceImpl"></bean>
+     <bean id="dcontractQuartzJob" class="com.creditease.eas.doc.service.impl.DcontractServiceImpl"></bean>
+    <!-- 合同到期提醒 -->
+    <bean id="expireTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!-- 调用的类 -->
+        <property name="targetObject">
+            <ref bean="portInfoQuartzJob"/>
+        </property>
+        <!-- 调用类中的方法 -->
+        <property name="targetMethod">
+            <value>expire</value>
+        </property>
+        <property name="concurrent" value="false"/>
+    </bean>
+     <!--  描述：给乔燕霞发送邮件的定时任务（汇总三种类型需要提醒的合同数据，生成excel，以附件形式发送） -->
+    <bean id="FinanceTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <!--    调用的类 -->
+    <property name="targetObject">
+            <ref bean="FinanceQuartzJob"/>
+        </property>
+<!--        调用类中的方法   -->
+        <property name="targetMethod">
+            <value>sendEmailToJiao</value>
+        </property>
+        <property name="concurrent" value="false"/>
+    </bean> 
+    <!--  描述：给王祺发送邮件的定时任务（汇总创建合同时、合同变更时、合同到期时合同数据
+	 * (remark字段包括合同的创建时间、创建人、修改时间以及修改人这些信息)，生成excel，以附件形式发送， 提醒周期为每周一次） -->
+    <!-- <bean id="FinanceUpdateTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        调用的类 --><!--
+    <property name="targetObject">
+            <ref bean="FinanceQuartzJob"/>
+        </property>
+        调用类中的方法   
+        <property name="targetMethod">
+            <value>sendEmailToWang</value>
+        </property>
+        <property name="concurrent" value="false"/>
+    </bean>
+-->
+    
+    
+    
+    <bean id="documentTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+<!--    调用的类 -->
+    <property name="targetObject">
+            <ref bean="dcontractQuartzJob"/>
+        </property>
+<!--        调用类中的方法   -->
+        <property name="targetMethod">
+            <value>time</value>
+        </property>
+        <property name="concurrent" value="false"/>
+       
+    </bean> 
+    
+   <!-- 付款提醒 -->
+    <bean id="payfeesTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+       <property name="targetObject">
+           <ref bean="portInfoQuartzJob"/>
+       </property>
+       <property name="targetMethod">
+           <value>payfees</value>
+       </property>
+       <property name="concurrent" value="false"/>
+   </bean>
+    
+    <!-- 系统自动发出提醒（节假日提醒） -->
+    <bean id="sendPortTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+       <property name="targetObject">
+           <ref bean="portInfoQuartzJob"/>
+       </property>
+       <property name="targetMethod">
+           <value>sendPort</value>
+       </property>
+       <property name="concurrent" value="false"/>
+   </bean>
+        
+   <!-- 邮件汇总发送给总接口人提醒 -->
+   <bean id="sendorgmailTtask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      <property name="targetObject">
+          <ref bean="portInfoQuartzJob"/>
+      </property>
+      <property name="targetMethod">
+          <value>sendorgmail</value>
+      </property>
+      <property name="concurrent" value="false"/>
+  </bean>
+        
+   <!-- 合同到期提醒Trigger	-->
+  <bean id="expireTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	  <property name="jobDetail">
+	      <ref bean="expireTask"/>
+	  </property>
+	  <!-- 0 20 14 * * ? 表示每天14:20点运行 -->
+	  <property name="cronExpression">
+	      <value>0 20 14 * * ?</value>
+	  </property>
+  </bean>
+        
+  <!-- 付款提醒Trigger	-->
+  <bean id="payfeesTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      <property name="jobDetail">
+          <ref bean="payfeesTask"/>
+      </property>
+      <property name="cronExpression">
+	  <!-- 0 20 15 * * ? 表示每天15:20点运行 -->
+          <value>0 20 15 * * ?</value>
+      </property>
+  </bean>
+        
+  <!-- 系统自动发出提醒Trigger	-->
+  <bean id="sendPortTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      <property name="jobDetail">
+          <ref bean="sendPortTask"/>
+      </property>
+      <property name="cronExpression">
+	  <!-- 0 20 16 * * ? 表示每天16:20点运行 -->
+          <value>0 20 16 * * ?</value>
+      </property>
+  </bean>
+        
+   <!-- 邮件汇总发送给总接口人Trigger -->
+   <bean id="sendorgmailTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      <property name="jobDetail">
+          <ref bean="sendorgmailTtask"/>
+      </property>
+      <property name="cronExpression">
+	  <!-- 0 20 18 * * ? 表示每天18:20点运行 -->
+          <value>0 20 17 * * ?</value>
+      </property>
+  </bean>
+<!--    合同信息到期提醒 -->
+     <bean id="dcontractTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      <property name="jobDetail">
+          <ref bean="documentTask"/>
+      </property>
+      <property name="cronExpression">
+<!--	     0 0 10 * * ? 表示每天10:00,14:00,17:00点运行 -->
+          <value>0 0 10,14,17 * * ?</value>
+      </property>
+  </bean>     
+ <!-- 合同付款，到期，节假日提醒 -->
+     <bean id="FinanceTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      <property name="jobDetail">
+          <ref bean="FinanceTask"/>
+      </property>
+      <property name="cronExpression">
+<!--	     0 0 10 * * ? 表示每天13:00点运行 -->
+          <value>0 0 13 * * ?</value>
+      </property>
+  </bean>   
+    
+  <!-- 合同信息变更提醒 -->
+<!--     <bean id="FinanceUpdateTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">-->
+<!--      <property name="jobDetail">-->
+<!--          <ref bean="FinanceUpdateTask"/>-->
+<!--      </property>-->
+<!--      <property name="cronExpression">-->
+<!--	每周一  上午15:00 -->
+<!--          <value>0 0 15 ? * MON</value>-->
+<!--      </property>-->
+<!--  </bean>     -->
+
+  <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+  <bean id="startQuertz_port" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+      <property name="triggers">
+          <list>
+              <ref bean="expireTrigger"/>
+              <ref bean="payfeesTrigger"/>
+              <ref bean="sendPortTrigger"/>
+              <ref bean="sendorgmailTrigger"/>
+              <ref bean="dcontractTrigger"/>
+              <ref bean="FinanceTrigger"/>
+<!--              <ref bean="FinanceUpdateTrigger"/>-->
+          </list>
+      </property>
+  </bean>
+  
+</beans>

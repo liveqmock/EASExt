@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.PerformanceMapper" >
+  <resultMap id="performanceInfo" type="com.creditease.eas.compliance.bean.Performance" >
+    <id column="FID" property="fid" jdbcType="DECIMAL" />
+    <result column="FCOMPLANANTPERFORMANCE" property="fcomplanantPerformance" jdbcType="VARCHAR"/>
+    <result column="FTERMPERFORMANCE" property="ftermPerformance" jdbcType="VARCHAR"/>
+    <result column="FCOMPLAINID" property="fcomplainId" jdbcType="DECIMAL"/>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    fid,fcomplanantperformance,ftermperformance,fcomplainid 
+  </sql>
+  
+  
+   <select id="selectPerformanceInfoByComplainId" resultMap="performanceInfo" parameterType="int">
+    	select <include refid="Base_Column_List"/> from t_com_performance t where t.fcomplainid =#{fcomplainid,jdbcType=DECIMAL}
+  </select>
+  
+  <delete id="deletePerformanceInfoByComplainId" parameterType="int">
+  		delete from t_com_performance t where t.fcomplainid=#{complainId}
+  </delete>
+  
+  <insert id="insert" parameterType="com.creditease.eas.compliance.bean.Performance">
+  	  <selectKey keyProperty="fid" resultType="int" order="BEFORE">
+		select T_COM_PerformanceINFO_SEQ.nextval from dual
+		</selectKey>
+		insert into t_com_performance
+		  (FID,FCOMPLANANTPERFORMANCE,FCOMPLAINID)
+		values
+ 			(
+ 			 #{fid,jdbcType=DECIMAL},#{fcomplanantPerformance,jdbcType=VARCHAR},#{fcomplainId,jdbcType=DECIMAL}	
+ 			 )
+  </insert>
+  
+  
+</mapper>

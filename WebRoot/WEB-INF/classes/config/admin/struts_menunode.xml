@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="menunode" extends="json-default" namespace="/menunode">
+		<action name="menunodeaction" class="menunodeAction" method="selectAllNodeResult">
+			<result name="success">/menunode.jsp</result>
+		</action>
+    </package>    
+</struts>

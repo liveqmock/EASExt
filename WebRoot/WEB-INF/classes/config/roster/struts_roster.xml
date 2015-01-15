@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="roster" extends="json-default" namespace="/roster">
+    	<action name="rosterAction" class="rosterAction">
+    	<result name="queryPageJson" type="json">
+				 <param name="root">pagination</param>
+				 <param name="excludeNullProperties">true</param>  
+		</result>
+		
+		<result name="queryManyEditJson" type="json">
+				 <param name="root">pagination</param>
+				 <param name="excludeNullProperties">true</param>  
+		</result>
+		
+		<result name="queryDictionaryData" type="json">
+				 <param name="root">pagination</param>
+				 <param name="excludeNullProperties">true</param>  
+		</result>
+		<result name="edit">/pages/roster/editRoster.jsp</result>
+		<result name="view">/pages/roster/viewRoster.jsp</result>
+		<result name="viewErrorData">/pages/roster/rosterErrorData.jsp</result>
+		<result name="manyeditinfo">/pages/roster/rostermanyeditinfo.jsp</result>
+    	</action>
+    </package>   
+    <package name="rosterorgadmin" extends="json-default" namespace="/rosterorgadmin">
+    	<action name="rosterOrgAdminAction" class="rosterOrgAdminAction">
+		<result name="view">/pages/roster/rosterOrgAdmin.jsp</result>
+    	</action>
+    </package>   
+</struts>

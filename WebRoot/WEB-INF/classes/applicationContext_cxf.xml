@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+	
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+		
+<!--		http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd-->
+<!--		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.0.xsd-->
+<!--		http://cxf.apache.org/transports/http/configuration  http://cxf.apache.org/schemas/configuration/http-conf.xsd"> -->
+<!--		" >-->
+		
+<!--		<http-conf:conduit="*.http-conduit">-->
+<!--			<http-conf:client="" ReceiveTimeout="60000"/>-->
+<!--		</http-conf:conduit>-->
+<!--		<http-conf:conduitname="*.http-conduit">-->
+<!--		  <http-conf:clientConnectionTimeout="10000"ReceiveTimeout="20000"/> -->
+<!--　　　     </http-conf:conduitname>-->
+
+		
+   	<import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml"/> 
+    <bean id="messageSendServiceImpl" class="com.creditease.eas.hr.webService.impl.MessageSendServiceImpl"/>
+    
+    <bean id="aegisBean" class="org.apache.cxf.aegis.databinding.AegisDatabinding" /> 
+    <bean id="jaxWsServiceFactoryBean" class="org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean" scope="prototype">
+		 <property name="wrapped" value="true" />
+		 <property name="dataBinding" ref="aegisBean" />
+   	</bean>
+	<!-- 码表信息的接口 -->
+      <jaxws:endpoint id="messageSendService"
+                implementor="#messageSendServiceImpl"
+                address="/messageSendService">
+                <jaxws:serviceFactory>
+						<ref bean="jaxWsServiceFactoryBean" />
+				  </jaxws:serviceFactory>
+                </jaxws:endpoint>
+         
+         
+         <!-- OA组织，备用金负责人，是否借款 -->
+<!--		<bean id="SeparationProcessesBean" class="com.creditease.eas.hr.service.impl.SeparationProcessesServiceImpl" />-->
+<!--	  		 <jaxws:server id="separationProcessesService" address="/separationProcessesService">-->
+<!--				<jaxws:serviceBean>-->
+<!--					<ref bean="SeparationProcessesBean"/>-->
+<!--				</jaxws:serviceBean>-->
+<!--		</jaxws:server>-->
+		<!-- OA组织，人事接口人 -->
+<!--		<bean id="personnelInterfaceBean" class="com.creditease.eas.hr.service.impl.PersonnelInterfaceServiceImpl" />-->
+<!--	  		 <jaxws:server id="personnelInterfaceService" address="/personnelInterfaceService">-->
+<!--				<jaxws:serviceBean>-->
+<!--					<ref bean="personnelInterfaceBean"/>-->
+<!--				</jaxws:serviceBean>-->
+<!--		</jaxws:server>-->
+
+
+
+		<!-- OA组织，离职流程接口 -->
+		<bean id="employeeInfoServiceBean" class="com.employeeinfo.EmployeeInfoServiceImpl" />
+	  		 <jaxws:server id="employeeInfoService" address="/employeeInfoService">
+				<jaxws:serviceBean>
+					<ref bean="employeeInfoServiceBean"/>
+				</jaxws:serviceBean>
+		</jaxws:server>
+
+
+
+		<!-- OA组织，固定资产接口人 -->
+		
+		
+<!--		<bean id="fixedAssetsBean" class="com.creditease.eas.hr.service.impl.FixedAssetsServiceImpl" />-->
+<!--	  		 <jaxws:server id="fixedAssetsService" address="/fixedAssetsService">-->
+<!--				<jaxws:serviceBean>-->
+<!--					<ref bean="fixedAssetsBean"/>-->
+<!--				</jaxws:serviceBean>-->
+<!--		</jaxws:server>-->
+        <!--OA组织，职位，人员信息的接口 --> 
+       <bean id="messageSendServiceBean" class="com.creditease.eas.hr.service.impl.OAMessageSendServiceImpl" />
+	   <jaxws:server id="oaMessageSendService" address="/oamessageSendService">
+				<jaxws:serviceBean>
+					<ref bean="messageSendServiceBean"/>
+				</jaxws:serviceBean>
+		</jaxws:server>
+		
+		 <!--根据邮箱获得员工的12位员工编码 --> 
+       <bean id="EmailForEmployeeCodeServiceBean" class="com.creditease.eas.hr.service.impl.EmailForEmployeeCodeServiceImpl" />
+	   <jaxws:server id="emailForEmployeeCodeService" address="/emailForEmployeeCodeService">
+				<jaxws:serviceBean>
+					<ref bean="EmailForEmployeeCodeServiceBean"/>
+				</jaxws:serviceBean>
+		</jaxws:server>
+		
+		 <!--读取hr系统中带有备用金标志的人员 -->
+       <bean id="DepositInfoServiceBean" class="com.creditease.eas.hr.service.impl.DepositInfoServiceImpl" />
+	   <jaxws:server id="depositInfoService" address="/depositInfoService">
+				<jaxws:serviceBean>
+					<ref bean="DepositInfoServiceBean"/>
+				</jaxws:serviceBean>
+		</jaxws:server>
+		
+			<!--银行信息 --> 
+				 <bean id="bankInformationBean" class="com.creditease.eas.hr.service.impl.BankInformationServiceImpl" />
+	   <jaxws:server id="bankInformationService" address="/bankInformationService">
+				<jaxws:serviceBean>
+					<ref bean="bankInformationBean"/>
+				</jaxws:serviceBean>
+		</jaxws:server>
+		
+		 <!--特殊人员接口根据员工编码返回职位编码 --> 
+<!--       <bean id="SpecialWorkerServiceBean" class="com.creditease.eas.hr.service.impl.SpecialWorkerServiceImpl" />-->
+<!--	   <jaxws:server id="specialWorkerService" address="/specialWorkerService">-->
+<!--				<jaxws:serviceBean>-->
+<!--					<ref bean="SpecialWorkerServiceBean"/>-->
+<!--				</jaxws:serviceBean>-->
+<!--		</jaxws:server>-->
+		
+		
+		
+		 <!--内网人员基础资料 --> 
+      <bean id="basePersonInfoBean" class="com.creditease.eas.hr.service.impl.BasePersonInfoServiceImpl" />
+	   <jaxws:server id="basePersonInfoService" address="/basePersonInfoService">
+				<jaxws:serviceBean>
+					<ref bean="basePersonInfoBean"/>
+				</jaxws:serviceBean>
+		</jaxws:server>
+		
+		
+		
+       <!-- 固定资产卡片的接口 -->
+       <bean id="capticalAssetBean" class="com.creditease.eas.hr.webService.payment.impl.CapticalAssetServiceImpl"/>
+       <jaxws:endpoint id="paymentId" 
+                implementor="#capticalAssetBean"
+                address="/capticalAsset" />
+       <!-- 供应商的信息 -->
+       <bean id="supplierServiceImplBean" class="com.creditease.eas.hr.webService.supplier.impl.SupplierServiceImpl" />
+       <jaxws:endpoint id="supplierServiceid" 
+                implementor="#supplierServiceImplBean"
+                address="/supplier" ></jaxws:endpoint>
+    	 <!-- AMS接口 -->
+       <bean id="easfinancialInfoWSServiceBean" class="com.creditease.eas.finance.service.impl.EASfinancialInfoWSServiceImpl" />
+<!--       <jaxws:endpoint id="easfinancialInfoWSServiceBeanId" -->
+<!--                implementor="#easfinancialInfoWSServiceBean"-->
+<!--                address="/EASfinancialInfoWS"/>-->
+		<jaxws:server id="easfinancialInfoWSServiceBeanId" address="/EASfinancialInfoWS">
+				<jaxws:serviceBean>
+					<ref bean="easfinancialInfoWSServiceBean"/>
+				</jaxws:serviceBean>
+			</jaxws:server>
+		<!-- 招聘系统 -->
+		<bean id="recruitmentBean" class="com.creditease.eas.recruitment.service.impl.RecruitmentWSServiceImpl" />
+		<jaxws:server id="recruitmentBeanId" address="/RecruitmentBean">
+				<jaxws:serviceBean>
+					<ref bean="recruitmentBean"/>
+				</jaxws:serviceBean>
+			</jaxws:server>
+		<!-- EAS调用短信平台接口 -->
+	   <bean id="sendCellBean" class="com.creditease.eas.hr.service.impl.WSSendCellServiceImpl" />
+	   <jaxws:server id="easSendCellBean" address="/eassendCell">
+				<jaxws:serviceBean>
+					<ref bean="sendCellBean"/>
+				</jaxws:serviceBean>
+		</jaxws:server>
+		<!-- MIS服务提供基础的信息给销管系统 -->
+	   <bean id="salesManagerBean" class="com.creditease.eas.hr.service.impl.SalesManagerServiceImpl" />
+	   <jaxws:server id="salesManagerBeanId" address="/salesManager">
+				<jaxws:serviceBean>
+					<ref bean="salesManagerBean"/>
+				</jaxws:serviceBean>
+				</jaxws:server>
+			
+		<!-- MIS服务系统对接微信平台接口-->
+	   <bean id="microMessageExpansionBean" class="com.creditease.eas.webservices.service.impl.MicroMessageExpansionServicesImpl" />
+	   <jaxws:server id="microMessageExpansionBeanId" address="/microMessageExpansion">
+			<jaxws:serviceBean>
+				<ref bean="microMessageExpansionBean"/>
+			</jaxws:serviceBean>
+		</jaxws:server>
+		
+		<!-- MIS服务系统对投米接口-->
+	   <bean id="itoumiBean" class="com.creditease.eas.webservices.service.impl.ItoumiServiceImpl" />
+	   <jaxws:server id="itoumiBeanBeanId" address="/itoumi">
+			<jaxws:serviceBean>
+				<ref bean="itoumiBean"/>
+			</jaxws:serviceBean>
+		</jaxws:server>
+		
+		<!-- MIS服务系统对宜信钱包-->
+	   <bean id="cepurseBean" class="com.creditease.eas.webservices.service.impl.CEPurseServiceImpl" />
+	   <jaxws:server id="cepurseBeanId" address="/cepurse">
+			<jaxws:serviceBean>
+				<ref bean="cepurseBean"/>
+			</jaxws:serviceBean>
+		</jaxws:server>
+		
+		<!-- 宜信V课堂系统接口 -->
+		<bean id="emailWhetherJobBean" class="com.creditease.eas.webservices.service.impl.EmailWhetherJobServiceImpl"/>
+	   <jaxws:server id="emailWhetherJobService" address="/emailWhetherJobService">
+				<jaxws:serviceBean>
+					<ref bean="emailWhetherJobBean"/>
+				</jaxws:serviceBean>
+		</jaxws:server>
+		
+<!--	验证方法-->
+<!--		<jaxws:inInterceptors>-->
+<!--			<ref bean=""/>-->
+<!--		</jaxws:inInterceptors>-->
+<!--		<bean id="complainForAntiFraudServiceBean" class="com.creditease.eas.compliance.webservice.impl.ComplainForAntiFraudServiceImpl" />-->
+<!-- 		<jaxws:server id="complainForAntiFraudService" address="/complainForAntiFraudService">-->
+<!--			<jaxws:serviceBean>-->
+<!--				<ref bean="complainForAntiFraudServiceBean"/>-->
+<!--			</jaxws:serviceBean>-->
+<!--		</jaxws:server>-->
+
+</beans>

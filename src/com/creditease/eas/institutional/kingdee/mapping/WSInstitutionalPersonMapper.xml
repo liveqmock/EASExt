@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.institutional.kingdee.dao.WSInstitutionalPersonMapper" >
+	
+	
+	<!-- 查询人员信息属性 -->
+	<select id="selectPerson"  resultType="com.creditease.webservice.dto.UserInfoDTO">
+	select * from ( 
+		select t1.cfoldnumber as oldId,t1.fnumber as newId,
+		CASE WHEN f.fnumber in (003,004) THEN 'false'   ELSE 'true'   END AS enabled --0表示不可用 1表示可用 
+		,t11.fname_l2 as levelOneOrg,t3.CFSECRETTYPE as grade,t2.cfmail as email,t1.fname_l2 as name
+         from T_BD_Person t1
+         inner join T_HR_PersonContactMethod t2 on t2.Fpersonid = t1.Fid 
+         left join T_HR_BDEmployeeType e on e.fid = t1.femployeetypeid
+         left join T_HR_EmployeeFenLei f on f.fid = e.femployeefenleiid 
+    	 left join T_ORG_PositionMember Pm  on t1.fid = Pm.FPersonID and Pm.Fisprimary=1
+    	 left join T_ORG_Position Po  on Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1 
+    	 left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+    	 left join v_org_split_new t11 on (t11.rootnum = A.fnumber and t11.FTERRITORY ='D')
+    	 left join CT_HR_Positionclass t3 on t3.fid = Po.Cfzwdjid 
+    	 where  t1.FDeletedStatus=1  and A.fnumber not like '%.%'
+    	 		
+		<if test="beginTime != null and beginTime !=''"> 
+			and (
+				( t1.fcreatetime>=#{beginTime} 
+					 <if test="endTime != null and endTime !=''"> 
+					 and t1.fcreatetime &lt;=#{endTime}
+					 </if>
+				 ) 
+				or ( t1.FLastUpdateTime>=#{beginTime}
+					<if test="endTime != null and endTime !=''"> 
+					 and t1.FLastUpdateTime&lt;=#{endTime} 
+					</if>
+					)
+		)
+		 </if>
+		 <if test="beginTime ==null or beginTime ==''">
+		 	<if test="endTime != null and endTime !=''">
+		 	and (
+		 	t1.fcreatetime &lt;=#{endTime} or t1.FLastUpdateTime&lt;=#{endTime}  
+		 	)
+		 	</if>
+		 </if>
+			order by t1.fnumber 
+			) 
+		<!-- 	where rownum &lt;= 1000  --> 
+	</select>
+	
+	
+	
+</mapper>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.admin.dao.MenuMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.admin.bean.Menu" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="LEAF" property="leaf" jdbcType="INTEGER" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="TARGET" property="target" jdbcType="VARCHAR" />
+    <result column="TITLE" property="title" jdbcType="VARCHAR" />
+    <result column="URL" property="url" jdbcType="VARCHAR" />
+    <result column="PID" property="parentId" jdbcType="INTEGER" />
+    <result column="SUBSEQUENCE" property="subSequence" jdbcType="INTEGER" />
+    <result column="CREATETIME" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="LEVELID" property="level" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <resultMap id="previewMap" type="map" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="LEAF" property="leaf" jdbcType="INTEGER" />
+    <result column="LEAFNAME" property="leafName" jdbcType="VARCHAR" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="TARGET" property="target" jdbcType="VARCHAR" />
+    <result column="TARGETNAME" property="targetName" jdbcType="VARCHAR" />
+    <result column="TITLE" property="title" jdbcType="VARCHAR" />
+    <result column="URL" property="url" jdbcType="VARCHAR" />
+    <result column="PID" property="parentId" jdbcType="INTEGER" />
+    <result column="PARENTNAME" property="parentName" jdbcType="VARCHAR" />
+    <result column="SUBSEQUENCE" property="subSequence" jdbcType="INTEGER" />
+    <result column="CREATETIME" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="LEVELID" property="level" jdbcType="INTEGER" />
+    <result column="LEVELNAME" property="levelName" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    ID, LEAF, NAME, TARGET, TITLE, URL, PID, SUBSEQUENCE,CREATETIME, LEVELID
+  </sql>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select <include refid="Base_Column_List" /> from T_MENUNODE where ID = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from T_MENUNODE where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.creditease.eas.admin.bean.Menu" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   		select T_MENU_SEQ.NEXTVAL from dual
+	</selectKey>
+    	insert into T_MENUNODE (<include refid="Base_Column_List" />)
+    	values (#{id,jdbcType=INTEGER}, #{leaf,jdbcType=INTEGER}, (#{name,jdbcType=VARCHAR}), 
+	      #{target,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, 
+	      #{parentId,jdbcType=INTEGER}, #{subSequence,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},#{level,jdbcType=INTEGER})
+  </insert>
+  
+  <update id="updateByPrimaryKey" parameterType="com.creditease.eas.admin.bean.Menu" >
+    update T_MENUNODE SET 
+    	LEAF = #{leaf,jdbcType=INTEGER},
+	    NAME = #{name,jdbcType=VARCHAR},
+	    TARGET = #{target,jdbcType=VARCHAR},
+	    TITLE = #{title,jdbcType=VARCHAR},
+	    URL = #{url,jdbcType=VARCHAR},
+	    PID = #{parentId,jdbcType=INTEGER},
+	    SUBSEQUENCE = #{subSequence,jdbcType=INTEGER},
+	    LEVELID = #{level,jdbcType=INTEGER}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  
+   	<select id="getTotalCounts" resultType="int">
+ 		select count(id) from T_MENUNODE 
+	</select>
+	  
+	<select id="queryPage" resultMap="previewMap" parameterType="map">
+		select *
+	  		from (select * from (
+       			select b.name parentName, a.* from (SELECT 
+					case LEAF when 0 then '否' when 1 then '是' end leafName,
+					case target when '_blank' then '新窗口' when '_parent' then '父窗口' when '_self' then '默认窗口'
+				   		when '_top' then '整个窗口' when 'main' then '框架窗口' end targetName,
+					case LEVELID when 1 then '一级菜单' when 2 then '二级菜单' end levelName, 
+       				rownum rowno, <include refid="Base_Column_List"/> FROM T_MENUNODE 
+                	START WITH ID in
+                   		(select t.id from T_MENUNODE t where t.pid is null)
+               		CONNECT BY pid = PRIOR ID) a left join T_MENUNODE b on a.pid = b.id) 
+			<where> 
+				<![CDATA[ROWNUM <= #{endRow,jdbcType=INTEGER}]]> 
+			</where>) 
+		<where>
+			<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	  
+	<select id="findByLevel" resultMap="BaseResultMap" parameterType="map">
+		SELECT * FROM (SELECT <include refid="Base_Column_List"/> FROM T_MENUNODE 
+		                 START WITH ID IN
+		                            (SELECT T.ID FROM T_MENUNODE T WHERE T.PID IS NULL)
+		                CONNECT BY PID = PRIOR ID)
+		<where> 
+			1=1
+
+			<if test="level!=null"> AND LEVELID = #{level,jdbcType=INTEGER} </if>
+			<if test="menuid!=null"> AND ID = #{menuid,jdbcType=INTEGER}</if>
+			 ORDER BY SUBSEQUENCE
+		</where> 
+	</select>
+	
+	<select id="seleMenu" resultMap="BaseResultMap">
+		select id,name from T_MENUNODE
+	</select>
+<!-- 获取同级菜单的节点顺序的最大值 -->
+	<select id="getMaxSubSequence" resultType="int">
+		select nvl(max(t.subsequence)+1,1) from t_menunode t 
+		<where>
+			<choose>
+				<when test="parentId!=null and parentId!='' "> t.pid =#{parentId,jdbcType=VARCHAR}</when>
+				<otherwise> t.pid is null</otherwise>
+			</choose>
+		</where>
+	</select>
+	
+	<!-- 查找所有父级菜单 -->
+	<select id="seleteAllParentMenuIds" resultType="int">
+ 		select t.id from T_MENUNODE t where t.leaf ='0'
+	</select>
+	
+	<!-- 根据父级菜单id查找此父级菜单所有子菜单及自己 -->
+	<select id="queryTreeByParent" resultMap="BaseResultMap" parameterType="String">
+ 		select * from T_MENUNODE t where t.id = #{parentId} or t.pid = #{parentId}
+	</select>
+</mapper>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="messageSMPSend" extends="struts-default" namespace="/hrnew">
+		<!-- 配置自定义拦截器LoginedCheckInterceptor -->
+		<action name="hrnew" class="messageChangeSMPSendAction"> 
+		    <result name="sendsuccess">/smp/sendsuccess.jsp</result>
+		    <result name="sendFailure">/smp/sendFailure.jsp</result>
+		    <result name="sendSMPMessageTest">/smp/sendSMPMessageTest.jsp</result>
+		</action>
+    </package>    
+</struts>

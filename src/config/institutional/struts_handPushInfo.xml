@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="eas2rp" extends="json-default" namespace="/pushInfoToRP">
+		<action name="pushOrgInitInfo" class="handPushInfoAction" method="pushOrgInitInfo">
+		</action>
+		<action name="pushPersonInitInfo" class="handPushInfoAction" method="pushPersonInitInfo">
+		</action>
+		<action name="pushPersonAvocationInfo" class="handPushInfoAction" method="pushPersonAvocationInfo">
+		</action>
+		<action name="handSendMailToPerson" class="handPushInfoAction" method="handSendMailToPerson">
+		</action>
+    </package>    
+</struts>

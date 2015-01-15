@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.PersonnelInterfaceMapper" >
+<!-- 根据组织ID 类型ID获取人员编码，类型名称 
+	因为用的是inner join,所以查询的都是符合条件的
+-->
+ <select id="getPersonnelInterfaceByOrgId" resultType="HashMap" parameterType="map">
+  <![CDATA[  
+		  select pf.fpersonnum usercode,ad.fid as deptid,ad.fname_l2 as deptname
+		  from t_ba_personnelinterface pf
+		  inner join (select tp.fid,tp.fname_l2,flevel
+			from t_org_admin tp
+			connect by prior tp.fparentid=tp.fid
+			 start with fid= #{fid}
+	     ) ad on ad.fid = pf.forgid 
+	      where pf.fftypeid0 like '%${ftypeid}%'
+	      order by ad.flevel desc
+	    ]]> 
+  </select>
+   <!-- 查询组织的上级组织的相关信息 -->
+ <select id="getParentId" resultType="HashMap" parameterType="string">
+	 <![CDATA[  
+		 select fid,fname_l2,flevel from(select tp.fid,tp.fname_l2,flevel
+		  from t_org_admin tp
+		connect by prior tp.fparentid=tp.fid
+		 start with fid=#{fid})
+		   order by flevel desc
+	 ]]> 
+  </select>
+    <!-- 根据接口人对应的编码和接口人的类别id，查询对应的接口人信息 -->
+ 	<select id="getPersonnelInterfaceByPerId" resultType="HashMap" parameterType="map">
+	select pf.fpersonnum usercode,ad.fid as deptid,ad.fname_l2 as deptname
+ 	from t_ba_personnelinterface pf
+  	left join t_org_admin ad on ad.fid = pf.forgid 
+   	where pf.fpersonnum=#{fnumber} and  pf.fftypeid0 like '%${ftypeid}%'
+  </select> 
+   <!-- 查询接口人类别 -->
+  <select id="getPersonnelInterfaceTypeById" resultType="map" parameterType="string">
+	 select fid,fname_l2 fname,fnumber from t_ba_personnelinterfacetype
+	 where 1=1
+	 <if test="_parameter != null and _parameter != ''">
+	 	and  fid = #{_parameter}
+	 </if>
+  </select> 
+</mapper>

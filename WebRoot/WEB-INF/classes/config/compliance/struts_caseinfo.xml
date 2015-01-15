@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="caseinfo" extends="json-default" namespace="/caseinfo">
+		<action name="caseinfo" class="caseInfoAction" >
+		   <!-- 测试重复提交的问题 -->
+<!--			<result name="addCompliant">/pages/compliance/caseinfo/addCase.jsp</result>
+					/pages/compliance/caseinfo/addCase.jsp?fid=${fid}
+-->
+			<!-- 
+			<result name="addCompliant" type="redirect">
+				<param name="location">/pages/compliance/caseinfo/addCase.jsp</param>
+				<param name="fid">${fid}</param>
+			</resutl>	
+			 -->
+			<result name="addCompliant">/pages/compliance/caseinfo/addCase.jsp</result>
+			<result name="editCompliant">/pages/compliance/caseinfo/editComplaint.jsp</result>
+			<result name="addCaseInfo">/pages/compliance/caseinfo/casList.jsp</result>
+			<result name="editCase">/pages/compliance/caseinfo/editCase.jsp</result>
+			<result name="viewCaseInfo">/pages/compliance/caseinfo/viewCaseInfo.jsp</result>
+			<result name="updateCompliant">/pages/compliance/caseinfo/casList.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>
+			</result>
+		</action>
+		
+		
+		<action name="log" class="com.creditease.eas.compliance.action.LogAction" >
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>
+			</result>
+		</action>
+    </package>    
+</struts>

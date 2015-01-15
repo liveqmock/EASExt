@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.change.eas.kingdee.dao.BaseUnitMapper" >
+  <resultMap id="BaseResultMap" type="com.change.eas.partner.bean.BaseUnit" >
+    <result column="FCODE" property="fcode" jdbcType="VARCHAR" />
+    <result column="FNAME_L2" property="fname_l2" jdbcType="VARCHAR" />
+    <result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="BaseWhereCondition">
+		<if test="fname_l2 != null and fname_l2 !=''">
+			and fname_l2 LIKE CONCAT(CONCAT('%', #{fname_l2}), '%')
+		</if>
+   </sql>
+  
+  <select id="queryBaseUnit" parameterType="map" resultMap="BaseResultMap">
+   select fcode,fname_l2,fnumber
+  from t_org_baseunit 
+ where fname_l2 like '%有限合伙%'
+   and FIsCompanyOrgUnit = 1
+   and fnumber not like '%.%'
+   and FIsOUSealUp = 0
+   and fnumber != '200'
+   <include refid="BaseWhereCondition"/>
+   </select>
+   
+   <select id="queryBaseUnitPage" parameterType="map" resultMap="BaseResultMap">
+   SELECT * FROM ( SELECT A.*, ROWNUM RN FROM (
+     select fcode,fname_l2,fnumber
+  from t_org_baseunit 
+ where fname_l2 like '%有限合伙%'
+   and FIsCompanyOrgUnit = 1
+   and fnumber not like '%.%'
+   and FIsOUSealUp = 0
+   and fnumber != '200'
+   <include refid="BaseWhereCondition"/>
+   ) A WHERE #{end}>ROWNUM ) WHERE RN >= #{start}
+   </select>
+   
+   <select id="queryBaseUnitPageJson" parameterType="map" resultMap="BaseResultMap">
+   select * FROM (select ROWNUM as ROWNO,t.* from (
+   select fcode,fname_l2,fnumber
+  from t_org_baseunit 
+ where fname_l2 like '%有限合伙%'
+   and FIsCompanyOrgUnit = 1
+   and fnumber not like '%.%'
+   and FIsOUSealUp = 0
+   and fnumber != '200'
+   <include refid="BaseWhereCondition"/>) t 
+     where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER}
+    
+   </select>
+</mapper>

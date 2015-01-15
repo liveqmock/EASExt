@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.warn.kingdee.dao.CommonPersonInfoSerachMapper">
+	<!-- 查询人员的上级的信息:查询出来的信息还需要再过滤 -->
+	<select id="selectHighLeverPersonByPositionId" resultType="map" parameterType="string">
+		select p.fid as personId,p.fname_l2 pname,p.femail email,p.fbackupemail fbackupemail,
+	     A.FID as deptId,
+         A.Fname_L2 as deptname,
+         A.Fnumber as deptcode,
+		 Po.Fid as positionId,
+		 Po.Fname_L2 as positionname,
+		 m.cfmail as cfmail
+		 from t_bd_person P 
+		 left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+		 inner join T_ORG_PositionMember Pm  on (P.fid = Pm.FPersonID and Pm.Fisprimary=1)
+		 join T_ORG_Position Po  on Po.fid = Pm.FPositionID
+		 left  join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+		 where Po.Fid in (select Ph.Fparentid  from  T_ORG_PositionHierarchy Ph where Ph.FChildID = #{positionId,jdbcType=VARCHAR})
+		 and P.FDeletedStatus = 1
+	</select>
+	<!-- 查询部门负责人的sql -->
+	<select id="selectResponsePersonInfo" resultType="map" parameterType="string">
+       	  select p.fid as personId,p.fname_l2 pname,m.femail email,p.fbackupemail fbackupemail,
+	       A.FID as deptId,
+	       A.Fname_L2 as deptname,
+	       A.Fnumber as deptcode,
+	       Po.Fid as positionId,
+	       Po.Fname_L2 as positionname,
+	       m.cfmail as cfmail 
+	       from t_org_admin A 
+	       left join T_ORG_Position Po  on Po.fid = A.FResponPositionID 
+	       left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid
+	       left join t_bd_person p on p.fid = Pm.Fpersonid
+	       left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+           where A.flevel = 3 and A.fisleaf =0 and A.fisousealup = 0
+           and A.fname_l2 =(select substr(fdisplayname_l2,instr(fdisplayname_l2,'_',1,2)+1,instr(fdisplayname_l2,'_',1,3)-instr(fdisplayname_l2,'_',1,2)-1)　from t_org_admin t
+           inner join t_org_position po on Po.Fadminorgunitid = t.Fid 
+           where po.fid = #{positionId,jdbcType=VARCHAR}) and P.FDeletedStatus = 1     
+	</select>
+</mapper>

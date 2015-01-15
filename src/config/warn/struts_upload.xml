@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="upload" extends="json-default" namespace="/upload">
+		<!-- 发送的明细信息 -->
+		<action name="upload" class="uploadAction">
+		    <result name="add">/person/personAdd.jsp</result>
+		</action>
+    </package>    
+</struts>

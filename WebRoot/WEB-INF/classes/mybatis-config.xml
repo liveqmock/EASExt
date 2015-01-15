@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 配置数据库方言  目前只有mysql和oracle两种-->
+	<properties resource="eas02.properties" >
+		<property name="dialect" value="oracle"/>
+	</properties>
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC"/>
+			<dataSource type="POOLED">
+				<property name="driver" value="${jdbc.driverClassName}"/>
+				<property name="url" value="${jdbc.url}"/>
+				<property name="username" value="${jdbc.username}"/>
+				<property name="password" value="${jdbc.password}"/>
+				<property name="poolMaximumActiveConnections" value="${poolMaximumActiveConnections}"/>
+				<property name="poolMaximumIdleConnections" value="${poolMaximumIdleConnections}"/>
+				<property name="poolMaximumCheckoutTime" value="${poolMaximumCheckoutTime}"/>
+				<property name="poolTimeToWait" value="${poolTimeToWait}"/>
+			</dataSource>
+		</environment>
+	</environments>
+	<!-- 映射文件 -->
+	<mappers>
+		<!-- 预警信息 -->
+		<mapper resource="com/creditease/eas/warn/kingdee/mapping/PersonMapper.xml" />
+		<mapper resource="com/creditease/eas/warn/kingdee/mapping/PersonDataMapper.xml" />
+		<mapper resource="com/creditease/eas/warn/kingdee/mapping/ContractMapper.xml" />
+		<mapper resource="com/creditease/eas/warn/kingdee/mapping/CommonPersonInfoSerachMapper.xml"/>
+		<!-- 信管中心新需求用到的文件 -->
+		<mapper resource="com/creditease/eas/warn/kingdee/mapping/FuseTubeMapper.xml"/>
+		<!-- 自由的选择部门 -->
+		<mapper resource="com/creditease/eas/warn/kingdee/mapping/AdminControlMapper.xml" />
+		<!-- 推送及码表需要提供的webservice -->
+		<mapper resource="com/creditease/eas/hr/kingdee/mapping/MessageSendMapper.xml" />
+		<!-- 新的推送接口信息 -->
+		<mapper resource="com/creditease/eas/hr/kingdee/mapping/OAMessageSendMapper.xml"/>
+		<!-- 内网需要的数据 -->
+		<mapper resource="com/creditease/eas/hr/kingdee/mapping/NeiWangMapper.xml"/>
+		<!-- 付款单需要的webservice服务 -->
+		<mapper resource="com/creditease/eas/hr/kingdee/mapping/PayMentMapper.xml"/>
+		<!-- 供应商需要的webservice服务 -->
+			<mapper resource="com/creditease/eas/hr/kingdee/mapping/WSSupplierMapper.xml"/>
+		<!-- 测试用 -->
+		<!--<mapper resource="com/creditease/eas/mail/mapping/MailMapper.xml" /> -->
+		<mapper resource="com/creditease/eas/hr/kingdee/mapping/WSSupplierMapper.xml"/> 
+		<!--gmg 查询行政组织单元 -->
+		<mapper resource="com/creditease/eas/warn/kingdee/mapping/OrgAdminMapper.xml"/>
+ 		<mapper resource="com/creditease/eas/warn/mapping/OrgAdminChMapper.xml"/>  
+ 		<mapper resource="com/creditease/eas/warn/mapping/OrgManagerMapper.xml"/>
+ 		<!-- 服务 -->
+		<mapper resource="com/creditease/eas/finance/kingdee/mapping/EASfinancialInfoWSMapper.xml"/>
+		<mapper resource="com/creditease/eas/finance/kingdee/mapping/EASAsstProgramWSMapper.xml"/>
+		<!-- SMP接口推送  -->
+	    <mapper resource="com/creditease/eas/hrnew/kingdee/mapping/WSSMPPersonMapper.xml"/>
+	    <!-- 招聘系统 -->
+	    <mapper resource="com/creditease/eas/recruitment/kingdee/mapping/RecruitmentMapper.xml"/>
+	    <!-- 文檔管理 -->
+	     <mapper resource="com/creditease/eas/doc/mapping/DcontractMapper.xml"/>
+	      <!-- 财务房屋合同信息 -->
+	     <mapper resource="com/creditease/eas/warn/kingdee/mapping/OrgCostcenterMapper.xml"/>
+	      <!-- 合规 -->
+	     <mapper resource="com/creditease/eas/compliance/kingdee/mapping/CompAdminMapping.xml"/>
+	     <!-- 新入职员工信息 -->
+	     <mapper resource="com/creditease/eas/email/kingdee/mapping/PersonInfoMapper.xml"/>
+	      <!-- 根据人员编码判断是否备用金负责人及获取员工个人借款 -->
+	     <mapper resource="com/creditease/eas/hr/kingdee/mapping/PersonInfoMapper.xml"/>
+	      <!-- 0A离职流程接口 -->
+	     <mapper resource="com/creditease/eas/hr/kingdee/mapping/PersonnelInterfaceMapper.xml"/>
+	      <!-- 根据人员编码,组织id获取固定资产接口人 -->
+	    <mapper resource="com/creditease/eas/hr/kingdee/mapping/FixedAssetsMapper.xml"/>
+	    
+	    <!-- 根据邮箱获得员工的12位员工编码 -->
+	    <mapper resource="com/creditease/eas/hr/kingdee/mapping/EmailForEmployeeCodeMapper.xml"/>
+	    
+	     <!-- 读取hr系统中带有备用金标志的人员 -->
+	    <mapper resource="com/creditease/eas/hr/kingdee/mapping/DepositInfoMapper.xml"/>
+	    
+	     <!-- 特殊人员接口根据员工编码返回职位编码 -->
+	    <mapper resource="com/creditease/eas/hr/kingdee/mapping/SpecialWorkerMapper.xml"/>
+	    
+	    
+	      <!-- 内网人员基础资料 -->
+	    <mapper resource="com/creditease/eas/hr/kingdee/mapping/BasePersonInfoMapper.xml"/>
+	    
+	     	     <!-- 银行信息-->
+	    <mapper resource="com/creditease/eas/hr/kingdee/mapping/BankInformationMapper.xml"/>
+	    
+	     <!-- 销管系统 -->
+	     <mapper resource="com/creditease/eas/hr/kingdee/mapping/SalesManagerMapper.xml"/>
+	    <!-- 制度平台接口推送  -->
+	    <mapper resource="com/creditease/eas/institutional/kingdee/mapping/WSInstitutionalPersonMapper.xml"/>
+	    
+	    <!-- 制度平台接口推送  -->
+	    <mapper resource="com/creditease/eas/institutional/kingdee/mapping/WSInstitutionalPersonMapper.xml"/>
+	    <mapper resource="com/creditease/eas/institutional/kingdee/mapping/IEASOrgMapper.xml"/>
+	    <mapper resource="com/creditease/eas/institutional/kingdee/mapping/IEASPersonMapper.xml"/>
+	    <!-- 小微接口 -->
+	    <mapper resource="com/creditease/eas/hr/kingdee/mapping/MicropayMapper.xml"/>
+	    
+	    <!-- 数据字典 -->
+	     <mapper resource="com/creditease/eas/dictionary/mapping/DictionaryBaseMapper.xml"/>
+	     <mapper resource="com/creditease/eas/dictionary/mapping/DictionaryItemMapper.xml"/>
+	     <!-- 投三花名册 -->
+	     <mapper resource="com/creditease/eas/roster/mapping/RosterMapper.xml"/>
+	     <!-- 投三组织结构 -->
+	     <mapper resource="com/creditease/eas/roster/mapping/RosterOrgAdminMapper.xml"/>
+	     <!-- 微信扩展平台接口 -->
+	     <mapper resource="com/creditease/eas/webservices/kingdee/mapping/EmployeeInfoMapper.xml"/>
+	        <!-- 有限合伙人金蝶接口 -->
+	    <mapper resource="com/change/eas/kingdee/mapper/BaseUtilMapper.xml"/>
+	     <!-- 投米接口 -->
+	     <mapper resource="com/creditease/eas/webservices/kingdee/mapping/ItoumiMapper.xml"/>
+	      <!--查询人员工资卡信息 -->
+	     <mapper resource="com/creditease/eas/accountr/kingdee/mapping/NetMapper.xml"/>
+	     <!-- 宜信钱包接口 -->
+	     <mapper resource="com/creditease/eas/webservices/kingdee/mapping/CEPurseMapper.xml"/>
+		<!-- 宜信V课堂系统接口-->
+	    <mapper resource="com/creditease/eas/webservices/kingdee/mapping/EmailWhetherJobMapper.xml"/>
+	</mappers>
+</configuration>	

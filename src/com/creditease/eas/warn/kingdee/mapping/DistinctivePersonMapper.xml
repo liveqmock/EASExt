@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.warn.kingdee.dao.DistinctivePersonMapper">
+    <!--
+    	 根据组织编码,查询系统中要转正的人员信息 
+    -->
+		<select id="selectRequiredPerson" resultType="map">
+			 select A.flevel as flevel,P.fid as  personId,
+	         P.FNAME_L2 as personname,
+	         P.Fnumber  as personcode,
+	         A.FID as deptId,
+	         A.Fname_L2 as deptname,
+	         A.Fnumber as deptcode,
+	         A.fdisplayname_l2 as fdisplayname,
+	         Po.fid  as positionid,
+	         Po.Fname_L2 as positionname,
+	         P.fenterdate  as fenterdate,
+	         add_months(P.fenterdate,6) as probzz,
+	         P.fformaldate  as formaldate,
+	         ct.fname_l2 as city,
+           	 ctr.FName_l2 as pqfname,
+	         ctr.FNumber as pqfnumber,
+             et.fname_l2 as emptype
+	      	 from (select t1.*,t2.fenterdate as fenterdate,t2.fformaldate as fformaldate from (select * from t_bd_person p where p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1) t1
+			 inner join (select t.fpersonid as fpersonid,t.fenterdate as fenterdate,t.fformaldate as fformaldate from t_hr_personposition t where add_months(t.fenterdate,6) &lt; sysdate or to_char(add_months(t.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM')) t2
+			 on t1.fid = t2.fpersonid) P
+		     left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+		     left join T_ORG_Position Po  on Po.fid = Pm.FPositionID 
+		     left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	         left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	         left join T_HR_BDEmployeeType et on et.fid = P.femployeetypeid
+	         left join  CT_HR_RZZG ctr on p.cfrzzgid = ctr.fid
+	         where a.fname_l2 like '%信%管%中心%' and a.fnumber not like '%.%'
+		</select>
+</mapper>

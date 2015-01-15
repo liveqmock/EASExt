@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.warn.dao.OrgAdminChMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.warn.bean.OrgAdminCh" >
+  
+    <id column="FID" property="fid" jdbcType="DECIMAL" />
+    <result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+    <result column="NAME" property="fname" jdbcType="VARCHAR" />
+    <result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+    <result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+    <result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+    <result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+    <result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+ 
+  </resultMap> 
+  
+  <select id="getTotalCounts" resultType="int">  
+            select count(FID) from T_ORG_ADMIN_CH 
+  </select>
+  
+  <select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		Select * FROM(Select ROWNUM as ROWNO,FID, FNUMBER, NAME from T_ORG_ADMIN_CH 
+		<where> 
+		<![CDATA[ROWNUM <= #{endRow,jdbcType=INTEGER}]]> 
+		</where>
+		) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+  
+   <insert id="insertOrgAdminCh" parameterType="com.creditease.eas.warn.bean.OrgAdminCh" >
+ 
+    <selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   		select ORG_TB_SEQ.NEXTVAL from dual
+	</selectKey>
+	
+    insert into T_ORG_ADMIN_CH (FID,FNUMBER,NAME,EXT1
+      )
+    values (#{fid,jdbcType=DECIMAL}, #{fnumber,jdbcType=VARCHAR}, #{fname,jdbcType=VARCHAR},#{ext1,jdbcType=VARCHAR})
+  </insert> 
+  <!-- 
+  		在EASExt库中,查询所有被选中的部门
+   -->
+   
+  <select id="allOrgAdmin" resultType="string">
+	  select t.fnumber as fnumber from T_ORG_ADMIN_CH t   
+  </select>
+  <!-- 查询对应的BP和综合管理人员 -->
+   <select id="getHomologous" resultType="map" parameterType="string">
+	  select t.fnumber as fnumber , t.fpersonemail as personmail, t.fpersonname as pname from 
+	  T_HR_HOMOLOGOUS t  where (t.ftype =2 or t.ftype =3 or t.ftype = 5) and t.fnumber = #{fnumber,jdbcType=VARCHAR}
+	  and t.fpersonemail is not null
+  </select>
+  
+  <select id="getOrgByFnumber" resultType="map" parameterType="string">
+  	 select t.fnumber as fnumber , t.fpersonemail as personmail, t.fpersonname as pname from 
+	  T_HR_HOMOLOGOUS t  where t.ftype =4 and t.fnumber  = #{fnumber,jdbcType=VARCHAR}
+  </select>
+  
+<!--  
+ 	  select
+	       t.fid  as fid,
+	       t.fnumber  as fnumber,
+	       t.name as name, 
+	       t.ext1 as ext1 
+	  from T_ORG_ADMIN_CH t   
+<select id="dynamicForeachOrgAdmin" resultType="map">-->
+<!--        select * from t_org_admin_ch where fnumber in-->
+<!--        <foreach collection="list" item="classIdList"  open="(" separator="," close=")">  -->
+<!--       		 #{classIdList}  -->
+<!--     	</foreach>  -->
+<!--  </select>-->
+    
+    <delete id="deleteAllOrgAdminCh" > 
+     delete from t_org_admin_ch
+  </delete>
+</mapper>

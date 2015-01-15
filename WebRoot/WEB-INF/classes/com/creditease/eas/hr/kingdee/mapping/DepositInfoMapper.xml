@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.DepositInfoMapper" >
+
+
+  
+ <select id="getPersoninfo" resultType="HashMap" parameterType="map">
+ <![CDATA[  
+select bankinfo,cardnum,email,orgname,personname,bankname,deptid,usercode,city from (select per.cfgzbankname as bankinfo,
+       per.cfgzcard     as cardnum,
+       t.cfmail         as email,
+       org.fname_l2     as orgname,
+       per.fname_l2     as personname,
+       pay.fname_l2     as bankname,
+        org.fid          as deptid,
+       per.fnumber      as usercode,
+       city.fname_l2    as city,
+       rownum           as rowno
+      from t_bd_person per
+      left join t_hr_personcontactmethod t on t.fpersonid = per.fid  
+      left join t_org_position pos on pos.fnumber=per.fnumber
+      left join t_org_admin org on org.fid=pos.fadminorgunitid
+      left join t_ba_payrollcardbank pay on per.cfpayrollcardbanki=pay.fid
+      left join CT_HR_Ygszd	city on city.fid=per.cfygszdid
+      where per.cfisbyj = 'true') where rowno>#{fristResult} and rowno<=#{maxResult}
+   ]]> 
+  </select>
+  
+  <select id="getCount" resultType="int">
+   <![CDATA[  
+select count(*) from (select per.cfgzbankname as bankinfo,
+       per.cfgzcard     as cardnum,
+       t.cfmail         as email,
+       org.fname_l2     as orgname,
+       per.fname_l2     as personname,
+       pay.fname_l2     as bankname,
+        org.fid          as deptid,
+       per.fnumber      as usercode,
+       city.fname_l2    as city,
+       rownum           as rowno
+      from t_bd_person per
+      left join t_hr_personcontactmethod t on t.fpersonid = per.fid  
+      left join t_org_position pos on pos.fnumber=per.fnumber
+      left join t_org_admin org on org.fid=pos.fadminorgunitid
+      left join t_ba_payrollcardbank pay on per.cfpayrollcardbanki=pay.fid
+      left join CT_HR_Ygszd	city on city.fid=per.cfygszdid
+      where per.cfisbyj = 'true')
+   ]]> 
+  </select>
+  
+  <select id="getNamePersoninfo" resultType="HashMap" parameterType="String">
+   <![CDATA[
+ select per.cfgzbankname as bankinfo,
+       per.cfgzcard     as cardnum,
+       t.cfmail         as email,
+       org.fname_l2     as orgname,
+       per.fname_l2     as personname,
+       pay.fname_l2     as bankname,
+       org.fid          as deptid,
+       per.fnumber      as usercode,
+       city.fname_l2    as city
+      from t_bd_person per
+      left join t_hr_personcontactmethod t on t.fpersonid = per.fid  
+      left join t_org_position pos on pos.fnumber=per.fnumber
+      left join t_org_admin org on org.fid=pos.fadminorgunitid
+      left join t_ba_payrollcardbank pay on per.cfpayrollcardbanki=pay.fid
+      left join CT_HR_Ygszd	city on city.fid=per.cfygszdid
+      where per.fname_l2=#{pname}
+      ]]>
+  </select>
+</mapper>

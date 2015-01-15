@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.MessageSendMapper" >
+ 	<!-- 城市信息
+ 	  	不管参数是什么，都要改成"_parameter" 
+ 	  	原因暂时未知
+ 	 -->
+ 	<select id="queryCityByCode" parameterType="string" resultType="map">
+ 		select fnumber as code,t.fname_l2 as name from CT_HR_Ygszd t
+ 		<if test="_parameter !=null and _parameter != ''">
+ 			where t.fnumber=#{_parameter,jdbcType=VARCHAR}
+ 		</if>
+ 	</select>
+ 	<!-- 职位等级-->
+ 	<select id="queryPositionGradeByCode" parameterType="string" resultType="map">
+ 		select t.fname_l2  as  name,t.fnumber as code from CT_HR_Positionclass t
+ 		<if test="_parameter !=null and _parameter != ''">
+ 			where t.fnumber=#{_parameter,jdbcType=VARCHAR}
+ 		</if>
+ 	</select>
+ 	<!--职位类别-->
+ 	<select id="queryPositionTypeByCode" parameterType="string" resultType="map">
+ 		select t.fname_l2  as  name,t.fnumber as code from T_BD_PositionType t
+ 		<if test="_parameter !=null and _parameter != ''">
+ 			where t.fnumber=#{_parameter,jdbcType=VARCHAR}
+ 		</if>
+ 	</select>
+ 	<!-- 员工状态-->
+ 	<select id="queryEmployeeStatusByCode" parameterType="string" resultType="map">
+ 		select t.fname_l2  as  name,t.fnumber as code from T_HR_BDEmployeeType t
+ 		<if test="_parameter !=null and _parameter != ''">
+ 			where t.fnumber=#{_parameter,jdbcType=VARCHAR}
+ 		</if>
+ 	</select>
+ 	<!-- 需要根据组织变更日志查询组织变动的信息
+ 			ta.FISCOSTORGUNIT as FISCOSTORGUNIT,
+ 			是否是实体正本中心，替换是否是成本中心
+ 			状态：
+ 				1.null :不是成本中心
+ 				2.0 :是成本中心
+ 				3.1：是实体成本中心
+ 			 2013年6月19日：更新
+		 	组信息不加禁用状态
+		 	注意：手动推送的时候，开始时间和结束时间都必须有
+		 	2013年7月17日：
+		 		1.根据最后修改时间去调整组织职位的顺序
+		    2013年8月15日：
+		    	使用了新的查询方式查询组织的信息
+		    2013年9月12日：
+		    	
+		    	
+	 	-->
+	<select id="queryChangeOrgInfo" resultType="map" parameterType="map">
+	  select distinct ta.FNUMBER as FNUMBER,
+      ta.FPRINCIPALID as FPRINCIPALID,
+      ta.FINDEX as FINDEX,
+      decode(ta.fnumber,'CE',ta.fnumber,tp.fnumber) as parentNumber,
+      ta.FEFFECTDATE as FEFFECTDATE,
+      ta.FINVALIDDATE as FINVALIDDATE,
+      ta.FISFREEZE as FISFREEZE,
+      ta.FIsSealUp as FISSTART,
+      ta.FORGTYPESTR as FORGTYPESTR,
+      ta.FISLEAF as FISLEAF,
+      ta.FLEVEL as FLEVEL,
+      ta.fname_L2 as FDISPLAYNAME,
+      ta.FDESCRIPTION_L2 as FDESCRIPTION,
+      ta.FSIMPLENAME as FSIMPLENAME,
+      nvl(center.FIsBizUnit,2) as FISCOSTORGUNIT,
+      ta.flastupdatetime,ta.FCREATETIME
+        from t_org_admin ta
+      left join t_org_admin tp on tp.fid = ta.FParentID
+      left join T_ORG_CostCenter center on ta.fid = center.fid
+      where 1=1
+       and ((ta.fcreatetime>=#{beginTime}  and ta.fcreatetime &lt;=#{endTime})
+		or (ta.FLastUpdateTime>=#{beginTime} and ta.FLastUpdateTime&lt;=#{endTime}))
+		<if test="fnumber != null and fnumber != ''">
+			and ta.FNUMBER = #{fnumber}
+		</if>
+	<!--and rownum &lt;= 1400
+		order by ta.FLastUpdateTime-->
+		order by ta.flevel,ta.FCREATETIME
+	</select>
+	<!-- 
+		查询一个小时之内职位变动的情况
+		创建时间
+		比当前时间
+		早1到2个小时（推送时间之内）
+		添加的信息，一个小时推送一次（如果推送失败，则隔5分钟，再推送一次
+		select * from t_bd_person t where (t.fcreatetime>=sysdate-1/24 and t.fcreatetime<=sysdate);
+		以后有什么需求的时候，要尽快的梳理里面有的可能的问题，不能够拖拖拉拉的一点点的问
+		（0.增加人员信息1.修改人员）
+		 2013年6月19日：更新
+		 	职位信息不加禁用状态
+	-->
+	<select id="queryChangePositionInfo" resultType="map">
+	   select distinct pc.fnumber  FPOSITIONLEVEL,
+	     t5.FNumber  FPOSITIONLAYER,
+	     Pt.FNumber  FJOBTYPE,
+	     Po.FSortCode  FSortCode,
+	     Po.FDeletedStatus  FDeletedStatus,
+	     Pt.FName_l2 positionType,
+	     Po.FIndex FINDEX,
+	     job.fname_l2 JOBNAME,
+	     Po.FEffectDate FEFFECTDATE,
+	     Po.FVALIDATE FINVALIDDATE,
+	     Po.FSIMPLENAME FSIMPLENAME,
+	     Po.FDESCRIPTION_L2  FDESCRIPTION_L2,
+	     Po.FNUMBER FNUMBER,
+	     Po.FNAME_L2 FPOSITIONNAME,
+	     pp.fnumber FPARENTNUMBER,
+	     A.fnumber FDEPTNUMBER,
+	     Pm.FIsPrimary FISMAINJOB,Po.fcreatetime,Po.flastupdatetime,Ph.flevel
+	    from  T_ORG_Position Po
+		left join T_ORG_PositionHierarchy Ph on Ph.Fchildid = Po.Fid
+		left join　CT_HR_Positionclass　Pc on (Pc.fid = Po.Cfzwdjid and pc.fnumber is not null)
+		left join T_BD_PositionType Pt on Pt.fid = Po.FPositionTypeID
+		left join CT_HR_Zc t5 on t5.fid = Po.cfzcid
+	    left join T_ORG_Job job　on Po.FJOBID = job.fid
+		left join t_org_position pp on pp.fid =  Ph.Fparentid
+		join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+		left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid
+		where ((Po.fcreatetime>=#{beginTime}  and Po.fcreatetime &lt;=#{endTime})
+		or (Po.FLastUpdateTime>=#{beginTime} and Po.FLastUpdateTime&lt;=#{endTime}))
+		<if test="fnumber != null and fnumber != ''">
+			and Po.FNUMBER = #{fnumber}
+		</if>
+<!--		order by po.fnumber-->
+		order by Po.fcreatetime asc,Po.flastupdatetime asc,Ph.flevel asc
+	</select>
+	<!-- 
+		查询一个小时之内添加了或者修改了的人的信息
+		创建时间
+		比当前时间
+		早1到2个小时（推送时间之内）
+		添加的信息，一个小时推送一次（如果推送失败，则隔5分钟，再推送一次
+		select * from t_bd_person t where (t.fcreatetime>=sysdate-1/24 and t.fcreatetime<=sysdate);
+		以后有什么需求的时候，要尽快的梳理里面有的可能的问题，不能够拖拖拉拉的一点点的问
+		（0.增加人员信息1.修改人员）
+		select * from t_bd_person t where (t.fcreatetime>=sysdate-1/24 and t.fcreatetime<=sysdate)
+		修改：
+			查询的是这个时间段
+			创建时间在这个时间段或者
+			修改时间在这个时间段的信息
+			如果创建时间和修改时间相同
+			则是添加，不同则是修改
+		 疑问：
+			1.在职：ht.fname_l2 fuserActive,(只给它编码）
+			员工状态
+			暂时将重复的，并且有员工编码的去掉了
+		特别提醒：
+			新添加的信息，可能邮箱为空，信息推送不过来
+			增加了去除空格的功能
+		更改记录:
+		2013年6月19日:
+		  系统中测试的信息去掉了(T_ORG_HRO)
+	-->
+	<select id="queryChangePersonInfo" resultType="map">
+		select distinct p.fname_l2 FUSERNAME,
+		substr(Pcm.Cfmail,0,instr(Pcm.Cfmail,'@',1)-1)  FLOGINNAME,
+		Pcm.cfmail FUSEREMAIL,
+		ht.fnumber FUSERACTIVE,
+		p.FIndex FUSERORDERNO,
+		p.FNATIVEPLACE_L2 FUSERSTRYLE,
+		p.fnumber FUSERCODE,
+		p.FGender  FUSERSEX,
+		p.FBirthday FBIRTHDAY,
+		<!--
+		p.FHomePhone FTELPHONE,
+		P.FCell FCELLPHONE,
+		pcm.FHomePhone FTELEPHONEHOME,
+		
+			证件类型，
+		           证件号 
+		p.FIDCardNO fidentityNo,
+		-->
+		pcm.FPostalcode FPOSTCODE,
+		Pcm.Faddress as FADDRESS,
+		<!-- 
+		comments,null
+		userFax
+		 -->
+		pp.FEnterDate FREGISTERTIME,
+		CASE
+            WHEN p.fcreatetime = p.flastupdatetime  THEN 0
+           else 1
+        END FOPERATESIGN,
+		ct.fnumber	FCITYNUMBER,
+		Po.fname_l2 FPOSITIONINFO,
+		Po.fnumber FPOSITIONCODE,
+		Pm.FIsPrimary FISMAINJOB,
+		ht.FinService FinService
+		<!-- 
+			是否有直接下属，是不是根据是否有叶子节点来判断?
+			Ph.FIsLeaf			directReports
+			问题：
+				1.有的员工没有对应的职位信息（状态为辞职了）
+				
+				2.有员工没有对应的员工所在地信息(城市信息）
+				operateSign：
+					0.增加人员信息1.修改人员
+				用户登录名：创造出来一个
+				
+				这个字段稍微有点问题
+				or (Pcm.FLastUpdateTime>=#{beginTime} and Pcm.FLastUpdateTime&lt;=#{endTime})
+		 -->
+		from t_bd_person p 
+  		left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+ 		left join T_ORG_Position Po  on Po.fid = Pm.FPositionID
+  		left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+ 		inner join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+  		left join T_HR_PersonPosition PP on (PP.Fpersonid = P.Fid and pp.FEnterDate is not null)
+		left join T_HR_BDEmployeeType ht on ht.fid = p.FEmployeeTypeID
+		left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+		left join T_ORG_PositionHierarchy Ph on Ph.Fchildid = Po.Fid
+		left join T_ORG_HRO hro on hro.fid = p.FHROrgUnitID
+		where (((p.fcreatetime>=#{beginTime} and p.fcreatetime &lt;=#{endTime})
+		or (p.FLastUpdateTime>=#{beginTime} and p.FLastUpdateTime&lt;=#{endTime}))
+		or ((PP.fcreatetime>=#{beginTime} and PP.fcreatetime &lt;=#{endTime})
+		or (PP.FLastUpdateTime>=#{beginTime} and PP.FLastUpdateTime&lt;=#{endTime}))
+		or ((Pcm.fcreatetime>=#{beginTime} and Pcm.fcreatetime &lt;=#{endTime})
+		or (Pcm.FLastUpdateTime>=#{beginTime} and Pcm.FLastUpdateTime&lt;=#{endTime}))
+	    and hro.fnumber not like '%.%')
+		or p.fid in(
+			 select distinct Pm.FPersonID from T_ORG_PositionMember Pm 
+			 inner join t_bd_person p on P.fid = Pm.FPersonID
+			 left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+			  where (Pm.fcreatetime>=#{beginTime} and Pm.fcreatetime &lt;=#{endTime})
+				or (Pm.FLastUpdateTime>=#{beginTime} and Pm.FLastUpdateTime&lt;=#{endTime})
+		)
+		order by p.fnumber
+	</select>
+</mapper>

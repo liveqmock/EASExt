@@ -1,0 +1,916 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.change.eas.partner.dao.LimitedpartnerMapper">
+
+	<resultMap id="BaseResultMap" type="com.change.eas.partner.bean.Limitedpartner">
+		<id column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="GATHERSTATUS" property="gatherstatus" jdbcType="DECIMAL" />
+		<result column="LFMAKESTATUS" property="lfmakestatus" jdbcType="DECIMAL" />
+		<result column="GSCHANGESTATUS" property="gschangestatus"
+			jdbcType="DECIMAL" />
+		<result column="TAXCHANGESTATUS" property="taxchangestatus"
+			jdbcType="DECIMAL" />
+		<result column="TABULATOR_ID" property="tabulator_id" jdbcType="DECIMAL" />
+		<result column="AUDITOR_ID" property="auditor_id" jdbcType="DECIMAL" />
+		<result column="ORDERSTATUS" property="orderstatus" jdbcType="DECIMAL" />
+		<result column="SAVESTATUS" property="savestatus" jdbcType="DECIMAL" />
+		<result column="SUBMITSTATUS" property="submitstatus" jdbcType="DECIMAL" />
+		<result column="CHECKSTATUS" property="checkstatus" jdbcType="DECIMAL" />
+		<result column="GENERALPERSON" property="generalperson"
+			jdbcType="VARCHAR" />
+		<result column="FORMERLIMITEDPARTNER" property="formerlimitedpartner"
+			jdbcType="VARCHAR" />
+		<result column="PROXY" property="proxy" jdbcType="VARCHAR" />
+		<result column="BUSINESSPLACE" property="businessplace"
+			jdbcType="VARCHAR" />
+		<result column="INVESTEDTIME" property="investedtime" jdbcType="VARCHAR" />
+		<result column="GPCONTRIBUTION" property="gpcontribution"
+			jdbcType="DOUBLE" />
+		<result column="FIGURE" property="figure" jdbcType="DECIMAL" />
+		<result column="CALCULATIONMETHOD" property="calculationmethod"
+			jdbcType="VARCHAR" />
+		<result column="GCCHANGEDATESTR" property="gcchangedatestr"
+			jdbcType="VARCHAR" />
+		<result column="SHUIWUCHNANGEDATESTR" property="shuiwuchnangedatestr"
+			jdbcType="VARCHAR" />
+
+	</resultMap>
+
+	<resultMap id="previewMap" type="map">
+		<id column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="GATHERSTATUS" property="gatherstatus" jdbcType="DECIMAL" />
+		<result column="GATHERSTATUSVALUE" property="gatherstatusValue"
+			jdbcType="VARCHAR" />
+		<result column="LFMAKESTATUS" property="lfmakestatus" jdbcType="DECIMAL" />
+		<result column="LFMAKESTATUSVALUE" property="lfmakestatusValue"
+			jdbcType="VARCHAR" />
+		<result column="GSCHANGESTATUS" property="gschangestatus"
+			jdbcType="DECIMAL" />
+		<result column="GSCHANGESTATUSVALUE" property="gschangestatusValue"
+			jdbcType="VARCHAR" />
+		<result column="TAXCHANGESTATUS" property="taxchangestatus"
+			jdbcType="DECIMAL" />
+		<result column="TAXCHANGESTATUSVALUE" property="taxchangestatusValue"
+			jdbcType="VARCHAR" />
+		<result column="TABULATOR_ID" property="tabulator_id" jdbcType="DECIMAL" />
+		<result column="AUDITOR_ID" property="auditor_id" jdbcType="DECIMAL" />
+		<result column="ORDERSTATUS" property="orderstatus" jdbcType="DECIMAL" />
+		<result column="ORDERSTATUSVALUE" property="ORDERSTATUSValue"
+			jdbcType="VARCHAR" />
+		<result column="SAVESTATUS" property="savestatus" jdbcType="DECIMAL" />
+		<result column="SAVESTATUSVALUE" property="savestatusValue"
+			jdbcType="VARCHAR" />
+		<result column="SUBMITSTATUS" property="submitstatus" jdbcType="DECIMAL" />
+		<result column="SUBMITSTATUSVALUE" property="submitstatusValue"
+			jdbcType="VARCHAR" />
+		<result column="CHECKSTATUS" property="checkstatus" jdbcType="DECIMAL" />
+		<result column="CHECKSTATUSVALUE" property="checkstatusValue"
+			jdbcType="VARCHAR" />
+		<result column="GSCHANGEDATE" property="gschangedate" jdbcType="DATE" />
+		<result column="SWCHANGEDATE" property="swchangedate" jdbcType="DATE" />
+		<result column="TOTALCONTRIBUTION" property="totalcontribution"
+			jdbcType="DOUBLE" />
+		<result column="GPCONTRIBUTIONPERCENT" property="gpcontributionpercent"
+			jdbcType="DOUBLE" />
+		<result column="GPCONTRIBUTIONPERCENTSTR" property="gpcontributionpercentstr"
+			jdbcType="VARCHAR" />
+		<result column="ISSUPPLEMENT" property="issupplement" jdbcType="DECIMAL" />
+		<result column="ISFILEPRODUCTED" property="isfileproducted"
+			jdbcType="DECIMAL" />
+		<result column="GENERALPERSON" property="generalperson"
+			jdbcType="VARCHAR" />
+		<result column="FORMERLIMITEDPARTNER" property="formerlimitedpartner"
+			jdbcType="VARCHAR" />
+		<result column="PROXY" property="proxy" jdbcType="VARCHAR" />
+		<result column="BUSINESSPLACE" property="businessplace"
+			jdbcType="VARCHAR" />
+		<result column="INVESTEDTIME" property="investedtime" jdbcType="VARCHAR" />
+		<result column="GPCONTRIBUTION" property="gpcontribution"
+			jdbcType="DOUBLE" />
+		<result column="TOTALCONTRIBUTION" property="totalcontribution"
+			jdbcType="DOUBLE" />
+		<result column="FIGURE" property="figure" jdbcType="DECIMAL" />
+		<result column="CALCULATIONMETHOD" property="calculationmethod"
+			jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="BasePartnerResultMap" type="com.change.eas.partner.bean.Partner">
+		<id column="ID" property="id" jdbcType="DECIMAL" />
+		<id column="PID" property="pid" jdbcType="DECIMAL" />
+		<result column="PARTNER_NAME" property="partner_name" jdbcType="VARCHAR" />
+		<result column="PARTNER_SEX" property="partner_sex" jdbcType="VARCHAR" />
+		<result column="PARTNER_NATION" property="partner_nation"
+			jdbcType="VARCHAR" />
+		<result column="PARTNER_ADDR" property="partner_addr" jdbcType="VARCHAR" />
+		<result column="PARTNER_IDCARD" property="partner_IDCard"
+			jdbcType="VARCHAR" />
+		<result column="PARTNER_COUNTRY" property="partner_country"
+			jdbcType="VARCHAR" />
+		<result column="PARTNER_AMOUNT" property="partner_amount"
+			jdbcType="DOUBLE" />
+		<result column="PARTNER_PERCENT" property="partner_percent"
+			jdbcType="DOUBLE" />
+		<result column="PARTNER_DATE" property="partner_date" jdbcType="VARCHAR" />
+		<result column="PARTNER_NOTE" property="partner_note" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="UserResultMap" type="com.creditease.eas.admin.bean.User">
+		<id column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="USERNAME" property="username" jdbcType="VARCHAR" />
+		<result column="PASSWORD" property="password" jdbcType="VARCHAR" />
+		<result column="EMAIL" property="email" jdbcType="VARCHAR" />
+		<result column="CREATEUSERID" property="createuserid" jdbcType="VARCHAR" />
+		<result column="CREATEUSERNAME" property="createusername"
+			jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="lawfileMap" type="com.change.eas.partner.bean.LawFile">
+		<result column="DEPARTMENT" property="department" jdbcType="VARCHAR" />
+		<result column="LIMITEDPARTNERNAME" property="limitedpartnername"
+			jdbcType="VARCHAR" />
+		<result column="LIMITEDPARTNERID" property="limitedpartnerid"
+			jdbcType="VARCHAR" />
+		<result column="CITY" property="city" jdbcType="VARCHAR" />
+		<result column="CITYID" property="cityid" jdbcType="DECIMAL" />
+		<result column="DONE" property="done" jdbcType="DECIMAL" />
+		<result column="UNDONE" property="undone" jdbcType="DECIMAL" />
+		<result column="MAKEUSER" property="makeuser" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="documentFileMap" type="com.change.eas.partner.bean.DocumentFile">
+		<result column="FILEID" property="id" jdbcType="DECIMAL" />
+		<result column="LIMITEDPARTNERNAME" property="limitedpartnername"
+			jdbcType="VARCHAR" />
+		<result column="FILENAME" property="filename" jdbcType="VARCHAR" />
+		<result column="USERNAME" property="makeuser" jdbcType="VARCHAR" />
+		<result column="filepath" property="filepath" jdbcType="VARCHAR" />
+		<result column="pid" property="pid" jdbcType="DECIMAL" />
+		<result column="TEMPLATEID" property="templateid" jdbcType="DECIMAL" />
+	</resultMap>
+
+
+
+	<insert id="saveDoumentFile" parameterType="com.change.eas.partner.bean.DocumentFile">
+		<selectKey resultType="long" keyProperty="id" order="BEFORE">
+			select
+			t_change_documentfile_seq.NEXTVAL from dual
+	</selectKey>
+		insert into t_change_documentfile
+		(FILEID,filename,USERNAME,FILEPATH,PID,TEMPLATEID)
+		values
+		(#{id,jdbcType=DECIMAL},
+		#{filename,jdbcType=VARCHAR},#{makeuser,jdbcType=VARCHAR},#{filepath,jdbcType=VARCHAR},#{pid,jdbcType=DECIMAL},#{templateid,jdbcType=DECIMAL})
+	</insert>
+
+	<sql id="Base_Column_List">
+		ID,NAME,GATHERSTATUS,LFMAKESTATUS,GSCHANGESTATUS,TAXCHANGESTATUS,GSCHANGEDATE,SWCHANGEDATE,TABULATOR_ID,AUDITOR_ID,ORDERSTATUS,SAVESTATUS,SUBMITSTATUS,CHECKSTATUS,GPCONTRIBUTION,TOTALCONTRIBUTION,GPCONTRIBUTIONPERCENT,GPCONTRIBUTIONPERCENTSTR,ISSUPPLEMENT,ISFILEPRODUCTED,GENERALPERSON,FORMERLIMITEDPARTNER,PROXY,BUSINESSPLACE,INVESTEDTIME,FIGURE,CALCULATIONMETHOD,GCCHANGEDATESTR,SHUIWUCHNANGEDATESTR
+	</sql>
+
+	<sql id="kingdee_Column_List">
+		ID,NAME,GATHERSTATUS,LFMAKESTATUS,GSCHANGESTATUS,TAXCHANGESTATUS,TABULATOR_ID,AUDITOR_ID,ORDERSTATUS,SAVESTATUS,SUBMITSTATUS,CHECKSTATUS,ISFILEPRODUCTED,GSCHANGEDATE,SWCHANGEDATE,CITYID
+	</sql>
+
+	<sql id="BasePartner_Column_List">
+		ID,PID,PARTNER_NAME,PARTNER_SEX,PARTNER_NATION,PARTNER_ADDR,PARTNER_IDCARD,PARTNER_COUNTRY,PARTNER_AMOUNT,PARTNER_PERCENT,PARTNER_PERCENTSTR,PARTNER_DATE,PARTNER_NOTE
+	</sql>
+
+	<sql id="Partner_Column_List">
+		ID,PID,PARTNER_NAME,PARTNER_SEX,PARTNER_NATION,PARTNER_ADDR,PARTNER_IDCARD,PARTNER_COUNTRY,PARTNER_AMOUNT,PARTNER_DATE,PARTNER_NOTE
+	</sql>
+
+	<sql id="BaseUser_Column_List">
+		ID,USERNAME,PASSWORD,EMAIL,CREATEUSERID,CREATEUSERNAME
+	</sql>
+
+	<!-- sql片段，查询的时候使用 -->
+	<sql id="BaseWhereCondition">
+		<if test="name != null and name !=''">
+			and name like #{name}
+		</if>
+		<if test="gatherstatus != -1">
+			and gatherstatus=#{gatherstatus,jdbcType=INTEGER}
+		</if>
+		<if test="lfmakestatus != -1">
+			and lfmakestatus=#{lfmakestatus,jdbcType=INTEGER}
+		</if>
+		<if test="gschangestatus != -1">
+			and gschangestatus=#{gschangestatus,jdbcType=INTEGER}
+		</if>
+		<if test="taxchangestatus != -1">
+			and taxchangestatus=#{taxchangestatus,jdbcType=INTEGER}
+		</if>
+	</sql>
+
+	<sql id="WhereCondition">
+		<if test="change== '工商变更完成'">
+			gschangedate=sysdate,gschangestatus=2 
+		</if>
+		<if test="change== '税务变更完成'">
+			swchangedate=sysdate,taxchangestatus=2 
+		</if>
+	</sql>
+
+	<sql id="changetimeWhereCondition">
+		<if test="change== '工商变更完成'">
+			gcchangedatestr=#{changetime,jdbcType=VARCHAR},gschangestatus=2 
+		</if>
+		<if test="change== '税务变更完成'">
+			shuiwuchnangedatestr=#{changetime,jdbcType=VARCHAR},taxchangestatus=2
+		</if>
+	</sql>
+
+	<sql id="commonCondition">
+		when 0 then '未采集' when 1 then '未完成' when 2 then '已完成' when
+		3 then '未制作'
+		when 4 then '已审核'
+		when 5 then '未暂存' when 6 then '已暂存' when
+		7 then '未提交' when 8 then '已提交'
+		when 9 then '未审核' when 10 then '已审核通过'
+	</sql>
+
+	<sql id="undoneCondition">
+		<if test="undone==0">
+			lfmakestatus=2
+    </if>
+		<if test="undone!=0">
+			lfmakestatus=1,gschangestatus=1,taxchangestatus=1,gschangedate='',swchangedate='',gcchangedatestr='',shuiwuchnangedatestr=''
+		</if>
+	</sql>
+
+
+	<sql id="lawfileCondition">
+		<if test="department != null and department !=''">
+			and dp.name=#{department,jdbcType=VARCHAR}
+   </if>
+		<if test="city != null and city !=''">
+			and c.name=#{city,jdbcType=VARCHAR}
+   </if>
+		<if test="limitedpartnername != null and limitedpartnername !=''">
+			and lp.name LIKE CONCAT(CONCAT('%',
+			#{limitedpartnername}), '%')
+   </if>
+	</sql>
+
+	<select id="getCityNameByTemplateRecordID" parameterType="long"
+		resultType="string">
+		select t.name from t_change_city t,t_change_lawtemplate la
+		where t.id=la.cityid and la.recordid=#{RecordID}
+	</select>
+
+	<select id="getData" parameterType="long" resultMap="BaseResultMap">
+		select *
+		from t_change_limitedpartner t where t.id=#{pid}
+	</select>
+
+	<select id="getPartnerData" resultMap="BasePartnerResultMap">
+		select * from
+		t_change_partner t where t.pid=#{pid}
+	</select>
+
+
+
+	<select id="getLawfileList" parameterType="map" resultMap="lawfileMap">
+		SELECT * FROM ( SELECT A.*, ROWNUM RN FROM (select distinct dp.name
+		department,
+		c.name city,
+		lp.name limitedpartnername,
+		b.donecou done,
+		(a.allcou - b.donecou) undone,
+		d.username makeuser,
+		lp.id
+		limitedpartnerid
+		from (select cityid, count(*) allcou
+		from
+		t_change_lawtemplate
+		where cityid in
+		(select cityid
+		from
+		t_change_lawtemplate
+		where recordid in
+		(select templateid
+		from
+		t_change_documentfile
+		where pid in
+		(select id
+		from
+		t_change_limitedpartner
+		where id in
+		(select pid from
+		t_change_documentfile))))
+		group by cityid) a,
+		(select pid, count(*)
+		donecou from t_change_documentfile group by pid) b,
+		t_change_lawtemplate l,
+		t_change_documentfile d,
+		t_change_limitedpartner lp,
+		t_change_city c,
+		t_change_department dp,
+		t_change_department_city dc
+		where l.recordid = d.templateid
+		and a.cityid
+		= l.cityid
+		and b.pid = d.pid
+		and d.pid = lp.id
+		and c.id = dc.cityid
+		and
+		dc.departmentid = dp.id
+		and a.cityid = c.id
+		<include refid="lawfileCondition" />
+		order by dp.name,c.name,lp.name) A WHERE #{end}>ROWNUM ) WHERE RN >=
+		#{start}
+	</select>
+	<select id="getTitLawfile" parameterType="map" resultType="int">
+		select count(*) from (select distinct dp.name department,
+		c.name city,
+		lp.name limitedpartnername,
+		b.donecou done,
+		(a.allcou - b.donecou)
+		undone,
+		d.username makeuser,
+		lp.id limitedpartnerid
+		from (select cityid,
+		count(*) allcou
+		from t_change_lawtemplate
+		where cityid in
+		(select cityid
+		from t_change_lawtemplate
+		where recordid in
+		(select templateid
+		from
+		t_change_documentfile
+		where pid in
+		(select id
+		from
+		t_change_limitedpartner
+		where id in
+		(select pid from
+		t_change_documentfile))))
+		group by cityid) a,
+		(select pid, count(*)
+		donecou from t_change_documentfile group by pid) b,
+		t_change_lawtemplate l,
+		t_change_documentfile d,
+		t_change_limitedpartner lp,
+		t_change_city c,
+		t_change_department dp,
+		t_change_department_city dc
+		where l.recordid = d.templateid
+		and a.cityid
+		= l.cityid
+		and b.pid = d.pid
+		and d.pid = lp.id
+		and c.id = dc.cityid
+		and
+		dc.departmentid = dp.id
+		and a.cityid = c.id
+		<include refid="lawfileCondition" />
+		order by dp.name,c.name,lp.name)
+	</select>
+
+	<select id="getTitDocumentFile" parameterType="long" resultType="int">
+		select count(*) from t_change_documentfile where pid=#{id}
+	</select>
+	<select id="getPartnerByPid" parameterType="map"
+		resultMap="BasePartnerResultMap">
+		SELECT * FROM ( SELECT A.*, ROWNUM RN FROM (SELECT * FROM
+		T_CHANGE_PARTNER where pid=#{pid} order by id desc) A WHERE #{end} >
+		ROWNUM) WHERE RN >= #{start}
+	</select>
+
+	<select id="getTitCountByPid" parameterType="long" resultType="int">
+		select count(*) from t_change_partner where pid=#{id}
+	</select>
+
+	<select id="getisexists" parameterType="long" resultType="int">
+		select
+		count(*) from t_change_documentfile where pid=#{pid}
+	</select>
+
+	<!-- 带参数的查询 -->
+	<select id="getTotalCountsByParams" resultType="int"
+		parameterType="map">
+		select count(*) from T_CHANGE_LIMITEDPARTNER where 1=1
+		<include refid="BaseWhereCondition" />
+	</select>
+
+	<select id="getLawFileTotalCountsByParams" resultType="int"
+		parameterType="map">
+		select count(*) from (select distinct dp.name department,
+		c.name city,
+		lp.name limitedpartnername,
+		b.donecou done,
+		(a.allcou - b.donecou)
+		undone,
+		d.username makeuser,
+		lp.id limitedpartnerid
+		from (select cityid,
+		count(*) allcou
+		from t_change_lawtemplate
+		where cityid in
+		(select cityid
+		from t_change_lawtemplate
+		where recordid in
+		(select templateid
+		from
+		t_change_documentfile
+		where pid in
+		(select id
+		from
+		t_change_limitedpartner
+		where id in
+		(select pid from
+		t_change_documentfile))))
+		group by cityid) a,
+		(select pid, count(*)
+		donecou from t_change_documentfile group by pid) b,
+		t_change_lawtemplate l,
+		t_change_documentfile d,
+		t_change_limitedpartner lp,
+		t_change_city c,
+		t_change_department dp,
+		t_change_department_city dc
+		where l.recordid = d.templateid
+		and a.cityid
+		= l.cityid
+		and b.pid = d.pid
+		and d.pid = lp.id
+		and c.id = dc.cityid
+		and
+		dc.departmentid = dp.id
+		and a.cityid = c.id
+		<include refid="lawfileCondition" />
+		)
+	</select>
+
+	<!-- 合规部查询的只能是已提交和已审核的信息表 -->
+	<select id="getTotalCountsByParams2" resultType="int"
+		parameterType="map">
+		select count(*) from T_CHANGE_LIMITEDPARTNER where 1=1 and
+		gatherstatus in(4)
+		<include refid="BaseWhereCondition" />
+	</select>
+
+	<select id="getTotalCountsByPid" resultType="int" parameterType="java.lang.Integer">
+		select count(*) from T_CHANGE_PARTNER where
+		pid=#{pid,jdbcType=INTEGER}
+  	</select>
+
+	<select id="getDocumentFileTotalCountsByPid" resultType="int"
+		parameterType="java.lang.Integer">
+		select count(*) from t_change_documentfile where
+		pid=#{pid,jdbcType=INTEGER}
+	</select>
+
+	<select id="getRepeatLimitedpartnerName" resultType="int"
+		parameterType="java.util.Map">
+		select count(*) from t_change_limitedpartner where
+		name=#{name}
+  	</select>
+
+	<select id="getSumAmountByPid" resultType="double"
+		parameterType="java.lang.Integer">
+		select sum(partner_amount) from T_CHANGE_PARTNER where
+		pid=#{pid,jdbcType=INTEGER}
+  	</select>
+
+	<select id="queryPageByParams" resultMap="previewMap"
+		parameterType="map">
+		select * FROM(select ROWNUM as ROWNO,t.* from (Select case
+		GATHERSTATUS
+		<include refid="commonCondition" />
+		end gatherstatusValue,
+		case LFMAKESTATUS
+		<include refid="commonCondition" />
+		end lfmakestatusValue,
+		case GSCHANGESTATUS
+		<include refid="commonCondition" />
+		end gschangestatusValue,
+		case TAXCHANGESTATUS
+		<include refid="commonCondition" />
+		end taxchangestatusValue,
+		case ORDERSTATUS
+		<include refid="commonCondition" />
+		end orderstatusValue,
+		case SAVESTATUS
+		<include refid="commonCondition" />
+		end savestatusValue,
+		case SUBMITSTATUS
+		<include refid="commonCondition" />
+		end submitstatusValue,
+		case CHECKSTATUS
+		<include refid="commonCondition" />
+		end checkstatusValue,
+		<include refid="Base_Column_List" />
+		from T_CHANGE_LIMITEDPARTNER where 1=1
+		<include refid="BaseWhereCondition" />
+		order by ID desc) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+		where ROWNO>= #{startRow,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryPageByParams2" resultMap="previewMap"
+		parameterType="map">
+		select * FROM(select ROWNUM as ROWNO,t.* from (Select case
+		GATHERSTATUS
+		<include refid="commonCondition" />
+		end gatherstatusValue,
+		case LFMAKESTATUS
+		<include refid="commonCondition" />
+		end lfmakestatusValue,
+		case GSCHANGESTATUS
+		<include refid="commonCondition" />
+		end gschangestatusValue,
+		case TAXCHANGESTATUS
+		<include refid="commonCondition" />
+		end taxchangestatusValue,
+		case ORDERSTATUS
+		<include refid="commonCondition" />
+		end orderstatusValue,
+		case SAVESTATUS
+		<include refid="commonCondition" />
+		end savestatusValue,
+		case SUBMITSTATUS
+		<include refid="commonCondition" />
+		end submitstatusValue,
+		case CHECKSTATUS
+		<include refid="commonCondition" />
+		end checkstatusValue,
+		<include refid="Base_Column_List" />
+		from T_CHANGE_LIMITEDPARTNER where 1=1 and gatherstatus in(4)
+		<include refid="BaseWhereCondition" />
+		order by ID desc) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+		where ROWNO>= #{startRow,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryLawFilePageByParams" resultMap="lawfileMap"
+		parameterType="map">
+		select * FROM (select ROWNUM as ROWNO,t.* from (select distinct
+		dp.name department,
+		c.name city,
+		lp.name limitedpartnername,
+		b.donecou
+		done,
+		(a.allcou - b.donecou) undone,
+		d.username makeuser,
+		lp.id
+		limitedpartnerid
+		from (select cityid, count(*) allcou
+		from
+		t_change_lawtemplate
+		where cityid in
+		(select cityid
+		from
+		t_change_lawtemplate
+		where recordid in
+		(select templateid
+		from
+		t_change_documentfile
+		where pid in
+		(select id
+		from
+		t_change_limitedpartner
+		where id in
+		(select pid from
+		t_change_documentfile))))
+		group by cityid) a,
+		(select pid, count(*)
+		donecou from t_change_documentfile group by pid) b,
+		t_change_lawtemplate l,
+		t_change_documentfile d,
+		t_change_limitedpartner lp,
+		t_change_city c,
+		t_change_department dp,
+		t_change_department_city dc
+		where l.recordid = d.templateid
+		and a.cityid
+		= l.cityid
+		and b.pid = d.pid
+		and d.pid = lp.id
+		and c.id = dc.cityid
+		and
+		dc.departmentid = dp.id
+		and a.cityid = c.id
+		<include refid="lawfileCondition" />
+		order by dp.name,c.name,lp.name) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+		where ROWNO>= #{startRow,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryPartnerPageByParams" parameterType="map"
+		resultMap="BasePartnerResultMap">
+		select * FROM (select ROWNUM as ROWNO,t.* from (select
+		<include refid="BasePartner_Column_List" />
+		from T_CHANGE_PARTNER
+		where PID=#{pid,jdbcType=INTEGER} order by id
+		desc) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+		where ROWNO>= #{startRow,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryDocumentFilePageByParams" parameterType="map"
+		resultMap="documentFileMap">
+		select id,limitedpartnername,filename,makeuser FROM (select ROWNUM as
+		ROWNO,t.* from (select d.fileid id,lp.name
+		limitedpartnername,d.filename,d.username makeuser
+		from
+		t_change_documentfile d,t_change_limitedpartner lp where lp.id=d.pid
+		and d.pid=#{pid,jdbcType=INTEGER} order by id desc) t
+		where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+		where ROWNO>= #{startRow,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectLimitedpartnerList" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from T_CHANGE_LIMITEDPARTNER
+	</select>
+
+	<select id="findLimitedpartnerById" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from T_CHANGE_LIMITEDPARTNER
+		where ID=#{id,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectPartnerById" parameterType="java.lang.Integer"
+		resultMap="BasePartnerResultMap">
+		select
+		<include refid="BasePartner_Column_List" />
+		from T_CHANGE_PARTNER
+		where ID=#{id,jdbcType=INTEGER}
+	</select>
+
+	<select id="findUserById" resultMap="UserResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="BaseUser_Column_List" />
+		from T_USER
+		where ID=#{id,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectPartnerListByPID" parameterType="java.lang.Integer"
+		resultMap="BasePartnerResultMap">
+		select
+		<include refid="BasePartner_Column_List" />
+		from T_CHANGE_PARTNER
+		where PID=#{pid,jdbcType=INTEGER}
+	</select>
+
+	<select id="getTotalCounts" resultType="int">
+		select count(id) from
+		T_CHANGE_LIMITEDPARTNER
+	</select>
+	<!--
+		<select id="lawfilelist" resultMap="lawfileMap"> select distinct
+		lf.department, c.name city, lp.name limitedpartnername, lf.done,
+		lf.undone, lf.makeuser from t_change_lawfile lf,
+		t_change_limitedpartner lp, city c where c.id = lf.cityid and
+		lp.cityid = c.id order by lf.department, c.name </select>
+	-->
+
+	<!--
+		<select id="lawfilelist" resultMap="lawfileMap" parameterType="map">
+		select lp.name limitedpartnername, a.count_done_document done,
+		b.count_all_document - a.count_done_document undone, from
+		t_change_limitedpartner lp, (select d.limitedpartnerid, count(1)
+		count_done_document from t_change_document d group by
+		d.limitedpartnerid) a, (select l.cityid, count(1) count_all_document
+		from t_change_lawtemplate l group by l.cityid) b where 1=1 and lp.id =
+		a.limitedpartnerid and lp.cityid = b.cityid and c.id = lp.cityid
+		<include refid="lawfileCondition"/> order by
+		c.parentdepartment,lp.name </select>
+	-->
+	<select id="lawfilelist" resultMap="lawfileMap">
+		select distinct dp.name department,
+		c.name city,
+		lp.name
+		limitedpartnername,
+		b.donecou done,
+		(a.allcou - b.donecou) undone,
+		d.username makeuser,
+		lp.id limitedpartnerid
+		from (select cityid,
+		count(*) allcou
+		from t_change_lawtemplate
+		where cityid in
+		(select cityid
+		from t_change_lawtemplate
+		where recordid in
+		(select templateid
+		from
+		t_change_documentfile
+		where pid in
+		(select id
+		from
+		t_change_limitedpartner
+		where id in
+		(select pid from
+		t_change_documentfile))))
+		group by cityid) a,
+		(select pid, count(*)
+		donecou from t_change_documentfile group by pid) b,
+		t_change_lawtemplate l,
+		t_change_documentfile d,
+		t_change_limitedpartner lp,
+		t_change_city c,
+		t_change_department dp,
+		t_change_department_city dc
+		where l.recordid = d.templateid
+		and a.cityid
+		= l.cityid
+		and b.pid = d.pid
+		and d.pid = lp.id
+		and c.id = dc.cityid
+		and
+		dc.departmentid = dp.id
+		and a.cityid = c.id
+		<include refid="lawfileCondition" />
+		order by dp.name,c.name,lp.name
+	</select>
+
+	<select id="queryDocumentFile" parameterType="map" resultMap="documentFileMap">
+		SELECT id,limitedpartnername,filename,makeuser FROM ( SELECT A.*,
+		ROWNUM RN FROM (select d.fileid id,lp.name
+		limitedpartnername,d.filename,d.username makeuser from
+		t_change_documentfile d,t_change_limitedpartner lp where lp.id=d.pid
+		and d.pid=#{pid} order by id) A WHERE #{end} > ROWNUM) WHERE RN >=
+		#{start}
+	 </select>
+
+	<select id="queryPage" resultMap="previewMap" parameterType="map">
+		select *
+		from (select case GATHERSTATUS when 0 then '未采集' when 1 then
+		'未完成' when 2
+		then '已完成' when 3 then '已审核' end gatherstatusValue,
+		case
+		LFMAKESTATUS
+		when 0 then '未制作' when 1 then '未完成' when 2 then '已完成' end
+		lfmakestatusValue,
+		case GSCHANGESTATUS when 0 then '未完成' when 1 then
+		'已完成' end gschangestatusValue,
+		case TAXCHANGESTATUS when 0 then '未完成'
+		when 1 then '已完成' end
+		taxchangestatusValue,
+		rownum rowno,
+		<include refid="Base_Column_List" />
+		FROM T_CHANGE_LIMITEDPARTNER
+		<where> 
+				<![CDATA[ROWNUM <= #{endRow,jdbcType=INTEGER}]]>
+		</where>
+		)
+		<where>
+			<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]>
+		</where>
+	</select>
+
+	<select id="getPartnerAllIDCard" resultMap="BasePartnerResultMap"
+		parameterType="java.lang.Integer">
+		select * from t_change_partner
+		WHERE PID=#{pid,jdbcType=INTEGER}
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		T_CHANGE_LIMITEDPARTNER where ID = #{id,jdbcType=INTEGER}
+	</delete>
+
+	<delete id="deletePartnerById" parameterType="java.lang.Integer">
+		delete from
+		T_CHANGE_PARTNER where ID = #{id,jdbcType=INTEGER}
+	</delete>
+
+	<delete id="deleteDocumentFile" parameterType="java.util.Map">
+		delete from
+		t_change_documentfile where fileid=#{fileid} and pid=#{pid}
+	</delete>
+
+	<delete id="deleteLawTemplate" parameterType="java.lang.Integer">
+		delete from
+		t_change_lawtemplate where
+		recordid=#{templateID,jdbcType=INTEGER}
+	</delete>
+
+	<insert id="insert" parameterType="com.change.eas.partner.bean.Limitedpartner">
+		<selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="BEFORE">
+			select T_LIMITEDPARTNERMAPPER_SEQ.NEXTVAL from dual
+	</selectKey>
+		insert into T_CHANGE_LIMITEDPARTNER (
+		<include refid="Base_Column_List" />
+		)
+		values (#{id,jdbcType=DECIMAL}, #{name,jdbcType=VARCHAR},
+		(#{gatherstatus,jdbcType=DECIMAL}),
+		#{lfmakestatus,jdbcType=DECIMAL},
+		#{gschangestatus,jdbcType=DECIMAL},
+		#{taxchangestatus,jdbcType=DECIMAL})
+	</insert>
+
+	<insert id="insertPartner">
+		<selectKey resultType="long" keyProperty="id" order="BEFORE">
+			select
+			T_PARTNER_SEQ.NEXTVAL from dual
+	</selectKey>
+		insert into T_CHANGE_PARTNER (
+		<include refid="Partner_Column_List" />
+		)
+		values
+		(#{id,jdbcType=DECIMAL},#{pid,jdbcType=DECIMAL},#{partner_name,jdbcType=VARCHAR},
+		#{partner_sex,jdbcType=VARCHAR},#{partner_nation,jdbcType=VARCHAR},#{partner_addr,jdbcType=VARCHAR},
+		#{partner_IDCard,jdbcType=VARCHAR},#{partner_country,jdbcType=VARCHAR},#{partner_amount,jdbcType=DOUBLE},
+		#{partner_date,jdbcType=VARCHAR},#{partner_note,jdbcType=VARCHAR})
+	</insert>
+
+	<update id="updateLimitedPartnerBySupplement" parameterType="java.util.Map">
+		update T_CHANGE_LIMITEDPARTNER set
+		generalperson=#{generalperson},formerlimitedpartner=#{formerlimitedpartner},
+		proxy=#{proxy},businessplace=#{businessplace},investedtime=#{investedtime},gpcontribution=#{gpcontribution},
+		gpcontributionpercent=#{gpcontributionpercent},gpcontributionpercentstr=#{gpcontributionpercentstr},totalcontribution=#{totalcontribution},
+		figure=#{figure},calculationmethod=#{calculationmethod},issupplement=13
+		where id=#{id}
+  </update>
+
+	<insert id="insertLimitedpartner" parameterType="com.change.eas.partner.bean.Limitedpartner">
+		<selectKey resultType="long" keyProperty="id" order="BEFORE">
+			select
+			T_LIMITEDPARTNERMAPPER_SEQ.NEXTVAL from dual
+	</selectKey>
+		insert into T_CHANGE_LIMITEDPARTNER (
+		<include refid="kingdee_Column_List" />
+		)
+		values (#{id,jdbcType=DECIMAL},
+		#{name,jdbcType=VARCHAR},0,3,1,1,-1,-1,0,5,7,9,12,'','',0)
+	</insert>
+
+	<update id="updateGatherstatus" parameterType="java.util.Map">
+		update
+		T_CHANGE_LIMITEDPARTNER set
+		gatherstatus=#{orderstatus},orderstatus=#{orderstatus}
+		where id=#{id}
+	</update>
+
+	<update id="updateSavestatus" parameterType="java.util.Map">
+		update
+		T_CHANGE_LIMITEDPARTNER set
+		savestatus=#{savestatus},tabulator_id=#{tabulator_id}
+		where id=#{id}
+	</update>
+
+	<update id="updateSubmitstatus" parameterType="java.util.Map">
+		update
+		T_CHANGE_LIMITEDPARTNER set
+		submitstatus=#{submitstatus},tabulator_id=#{tabulator_id}
+		where
+		id=#{id}
+  </update>
+
+	<update id="updateCheckstatus" parameterType="java.util.Map">
+		update
+		T_CHANGE_LIMITEDPARTNER set
+		checkstatus=#{checkstatus},auditor_id=#{auditor_id}
+		where id=#{id}
+	</update>
+
+	<update id="updateTime" parameterType="java.util.Map">
+		update T_CHANGE_LIMITEDPARTNER set
+		<include refid="WhereCondition" />
+		where id=#{pid}
+	</update>
+
+	<update id="updateChangeTime" parameterType="java.util.Map">
+		update T_CHANGE_LIMITEDPARTNER set
+		<include refid="changetimeWhereCondition" />
+		where id=#{pid}
+	</update>
+
+	<update id="updatePartner" parameterType="java.util.Map">
+		update T_CHANGE_PARTNER
+		set
+		partner_name=#{partner_name},partner_sex=#{partner_sex},partner_nation=#{partner_nation},
+		partner_addr=#{partner_addr},partner_IDCard=#{partner_IDCard},partner_country=#{partner_country},partner_amount=#{partner_amount},
+		partner_date=#{partner_date},partner_note=#{partner_note}
+		where
+		id=#{id}
+  </update>
+
+	<update id="updatePartnerpercentById" parameterType="java.util.Map">
+		update
+		T_CHANGE_PARTNER set
+		partner_percent=#{partner_percent},partner_percentstr=#{partner_percentstr}
+		where id=#{id}
+  </update>
+
+	<update id="updateLawFileStatus" parameterType="java.util.Map">
+		update T_CHANGE_LIMITEDPARTNER set
+		<include refid="undoneCondition" />
+		where id=#{id}
+	</update>
+
+	<update id="updateLimitedpartnerstatus" parameterType="java.lang.Integer">
+		update
+		T_CHANGE_LIMITEDPARTNER set
+		lfmakestatus=3,gschangestatus=1,taxchangestatus=1,gschangedate='',swchangedate='',gcchangedatestr='',shuiwuchnangedatestr=''
+		where id=#{pid}
+  </update>
+
+
+</mapper>

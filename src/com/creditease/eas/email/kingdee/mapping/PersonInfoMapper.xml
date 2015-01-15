@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.email.kingdee.dao.PersonInfoMapper" >
+  <sql id="BaseWhereCondition">
+		<if test="fname != null and fname !=''">and  t1.fname_l2 like '%${fname}%'</if>
+		<if test="fnumber != null and fnumber !=''">and  t1.fnumber like '%${fnumber}%'</if>
+		<if test="datatype != null and datatype !='' and datatype == 0">
+				and t2.cfisupdateforhand is null
+		</if>
+		<if test="datatype != null and datatype !='' and datatype == 1">
+			and  t2.cfisupdateforhand is not null
+		</if>
+   </sql>
+ <!-- 带分页的查询 -->
+  <select id="queryPage" resultType="map" parameterType="map">
+ 	select * from (
+		select  ROWNUM AS ROWNO,t.* from (
+			select  t1.fname_l2 as fname,t4.fname_l2 as position, t1.fnumber as fnumber,t2.cfmail as email,
+				t10.FDisplayName_l2 as fdisplayname,to_char(t2.FCreateTime,'yyyy-MM-dd') as creattime
+			from   T_BD_Person t1
+         	inner join T_HR_PersonContactMethod t2 on t2.Fpersonid = t1.Fid
+ 			left join t_hr_personposition t3 on t1.fid = t3.fpersonid 
+			left join T_ORG_PositionMember  t5 on t5.fpersonid =t1.fid
+			left join t_org_position t4 on t4.fid=t5.fpositionid  
+			left join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+ 			left join  t_hr_EmpEnrollBizBillentry t14 on t1.fid=t14.fpersonid  
+			left join t_hr_EmpEnrollBizBill  t15  on t14.fbillid=t15.fid 
+			left join T_HR_BDEmployeeType e on e.fid = t1.femployeetypeid
+			left join T_HR_EmployeeFenLei f on f.fid = e.femployeefenleiid
+			where 1=1 and  t1.FDeletedStatus = 1 
+			and t5.Fisprimary=1 
+			and f.fnumber in (001,002,005)
+			<if test="creattime == null and endtime == null and fname == null and fnumber == null and datatype == null"> 
+			and to_char(t2.FCreateTime,'yyyy-MM-dd')>= to_char(sysdate,'yyyy-MM-dd')
+			</if>
+			<if test="creattime != null and creattime !='' ">
+			and to_char(t2.FCreateTime,'yyyy-MM-dd') &gt;= '${creattime}'
+			</if>
+			<if test="endtime != null and endtime !='' ">
+			and to_char(t2.FCreateTime,'yyyy-MM-dd') &lt;= '${endtime}'
+			</if>
+			<if test="personrole != null and personrole !='' and personrole =='302'">
+				and t4.fnumber not in (
+				  select t4.fnumber from t_org_position t4
+				  inner join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+				  where t4.fname_l2 = '保洁员'
+				  or (t4.fname_l2   like '%理财经理%' and t10.flongnumber  like '%06XCXSF%')
+				  or (t4.fname_l2   like '%客户经理%' and t10.flongnumber   like '%06GDXSF%')
+				)
+			</if>
+			<include refid="BaseWhereCondition"/>
+			UNION 
+				select  t1.fname_l2 as fname,t4.fname_l2 as position, t1.fnumber as fnumber,t2.cfmail as email,
+				t10.FDisplayName_l2 as fdisplayname,to_char(t2.FCreateTime,'yyyy-MM-dd') as creattime
+				from   T_BD_Person t1
+	         	inner join T_HR_PersonContactMethod t2 on t2.Fpersonid = t1.Fid
+	 			left join t_hr_personposition t3 on t1.fid = t3.fpersonid 
+				left join T_ORG_PositionMember  t5 on t5.fpersonid =t1.fid
+				left join t_org_position t4 on t4.fid=t5.fpositionid  
+				left join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+	 			left join  t_hr_EmpEnrollBizBillentry t14 on t1.fid=t14.fpersonid  
+				left join t_hr_EmpEnrollBizBill  t15  on t14.fbillid=t15.fid 
+				left join T_HR_BDEmployeeType e on e.fid = t1.femployeetypeid
+				left join T_HR_EmployeeFenLei f on f.fid = e.femployeefenleiid
+				where 1=1 and  t1.FDeletedStatus = 1 and cfisupdateforhand is not null
+		        and cfisupdateforhand  like '手动生成邮箱%'
+				<if test="creattime == null and endtime == null and fname == null and fnumber == null and datatype == null">  
+					and	substr(cfisupdateforhand,8,length(cfisupdateforhand)) >= to_char(sysdate,'yyyymmdd')
+				</if>
+				<if test="creattime != null and creattime !='' ">
+					and substr(cfisupdateforhand,8,length(cfisupdateforhand)) >= to_char(to_date('${creattime}','yyyy-MM-dd'),'yyyymmdd')
+				 </if>
+				 <if test="endtime != null and endtime !='' ">
+					and substr(cfisupdateforhand,8,length(cfisupdateforhand)) &lt;= to_char(to_date('${endtime}','yyyy-MM-dd'),'yyyymmdd')
+				 </if>
+				<include refid="BaseWhereCondition"/>
+			)t 
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+			</where>
+			)
+			<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+			</where>
+			  order by creattime desc
+  </select>
+  <!-- 查询总数 -->
+  <select id="getTotalCountsByParams" resultType="int" parameterType="map">  
+            select count(*) from (
+            	select  t1.fname_l2 as fname,t4.fname_l2 as position, t1.fnumber as fnumber,t2.cfmail as email,
+            	t10.FDisplayName_l2 as fdisplayname,to_char(t2.FCreateTime,'yyyy-MM-dd') as creattime
+			from   T_BD_Person t1
+         		inner join T_HR_PersonContactMethod t2 on t2.Fpersonid = t1.Fid
+ 				left join t_hr_personposition t3 on t1.fid = t3.fpersonid 
+				left join T_ORG_PositionMember  t5 on t5.fpersonid =t1.fid
+				left join t_org_position t4 on t4.fid=t5.fpositionid  
+				left join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+				left join  t_hr_EmpEnrollBizBillentry t14 on t1.fid=t14.fpersonid  
+				left join t_hr_EmpEnrollBizBill  t15  on t14.fbillid=t15.fid 
+				left join T_HR_BDEmployeeType e on e.fid = t1.femployeetypeid
+				left join T_HR_EmployeeFenLei f on f.fid = e.femployeefenleiid
+			where 1=1 and  t1.FDeletedStatus = 1 and t5.Fisprimary=1 
+			and f.fnumber in (001,002,005)
+			<if test="creattime == null and endtime == null and fname == null and fnumber == null and datatype == null">  
+				and to_char(t2.FCreateTime,'yyyy-MM-dd')>= to_char(sysdate,'yyyy-MM-dd')
+			</if>
+			<if test="creattime != null and creattime !='' ">
+			and to_char(t2.FCreateTime,'yyyy-MM-dd') &gt;= '${creattime}'
+			</if>
+			<if test="endtime != null and endtime !='' ">
+			and to_char(t2.FCreateTime,'yyyy-MM-dd') &lt;= '${endtime}'
+			</if>
+			<if test="personrole != null and personrole !='' and personrole =='302'">
+				and t4.fnumber not in (
+				  select t4.fnumber from t_org_position t4
+				  inner join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+				  where t4.fname_l2 = '保洁员'
+				  or (t4.fname_l2   like '%理财经理%' and t10.flongnumber  like '%06XCXSF%')
+				  or (t4.fname_l2   like '%客户经理%' and t10.flongnumber   like '%06GDXSF%')
+				)
+			</if>
+           	<include refid="BaseWhereCondition"/>
+          UNION 
+				select  t1.fname_l2 as fname,t4.fname_l2 as position, t1.fnumber as fnumber,t2.cfmail as email,
+            	t10.FDisplayName_l2 as fdisplayname,to_char(t2.FCreateTime,'yyyy-MM-dd') as creattime
+				from   T_BD_Person t1
+	         	inner join T_HR_PersonContactMethod t2 on t2.Fpersonid = t1.Fid
+	 			left join t_hr_personposition t3 on t1.fid = t3.fpersonid 
+				left join T_ORG_PositionMember  t5 on t5.fpersonid =t1.fid
+				left join t_org_position t4 on t4.fid=t5.fpositionid  
+				left join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+	 			left join  t_hr_EmpEnrollBizBillentry t14 on t1.fid=t14.fpersonid  
+				left join t_hr_EmpEnrollBizBill  t15  on t14.fbillid=t15.fid 
+				left join T_HR_BDEmployeeType e on e.fid = t1.femployeetypeid
+				left join T_HR_EmployeeFenLei f on f.fid = e.femployeefenleiid
+				where 1=1 and  t1.FDeletedStatus = 1 and cfisupdateforhand is not null
+		       and cfisupdateforhand  like '手动生成邮箱%'
+				<if test="creattime == null and endtime == null and fname == null and fnumber == null and datatype == null">  
+					and	substr(cfisupdateforhand,8,length(cfisupdateforhand)) >= to_char(sysdate,'yyyymmdd')
+				</if>
+				<if test="creattime != null and creattime !='' ">
+					and substr(cfisupdateforhand,8,length(cfisupdateforhand)) >= to_char(to_date('${creattime}','yyyy-MM-dd'),'yyyymmdd')
+				 </if>
+				 <if test="endtime != null and endtime !='' ">
+					and substr(cfisupdateforhand,8,length(cfisupdateforhand)) &lt;= to_char(to_date('${endtime}','yyyy-MM-dd'),'yyyymmdd')
+				 </if>
+				<include refid="BaseWhereCondition"/>
+				  )
+  	</select>
+  	<!-- 导出数据 -->
+ <select id="expQuery" resultType="map" parameterType="map">
+			select  t1.fname_l2 as fname,t4.fname_l2 as position, t1.fnumber as fnumber,t2.cfmail as email,
+				t10.FDisplayName_l2 as fdisplayname,to_char(t2.FCreateTime,'yyyy-MM-dd') as creattime
+			from   T_BD_Person t1
+         	inner join T_HR_PersonContactMethod t2 on t2.Fpersonid = t1.Fid
+ 			left join t_hr_personposition t3 on t1.fid = t3.fpersonid 
+			left join T_ORG_PositionMember  t5 on t5.fpersonid =t1.fid
+			left join t_org_position t4 on t4.fid=t5.fpositionid  
+			left join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+ 			left join  t_hr_EmpEnrollBizBillentry t14 on t1.fid=t14.fpersonid  
+			left join t_hr_EmpEnrollBizBill  t15  on t14.fbillid=t15.fid 
+			left join T_HR_BDEmployeeType e on e.fid = t1.femployeetypeid
+			left join T_HR_EmployeeFenLei f on f.fid = e.femployeefenleiid
+			where 1=1 and  t1.FDeletedStatus = 1 
+			and t5.Fisprimary=1 
+			and f.fnumber in (001,002,005)
+			<if test="creattime == '' and endtime == '' and fname == '' and fnumber == '' and datatype == ''">  
+			and to_char(t2.FCreateTime,'yyyy-MM-dd')>= to_char(sysdate,'yyyy-MM-dd')
+			</if>
+			<if test="creattime != null and creattime !='' ">
+			and to_char(t2.FCreateTime,'yyyy-MM-dd') &gt;= '${creattime}'
+			</if>
+			<if test="endtime != null and endtime !='' ">
+			and to_char(t2.FCreateTime,'yyyy-MM-dd') &lt;= '${endtime}'
+			</if>
+			<if test="personrole != null and personrole !='' and personrole =='302'">
+				and t4.fnumber not in (
+				  select t4.fnumber from t_org_position t4
+				  inner join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+				  where t4.fname_l2 = '保洁员'
+				  or (t4.fname_l2   like '%理财经理%' and t10.flongnumber  like '%06XCXSF%')
+				  or (t4.fname_l2   like '%客户经理%' and t10.flongnumber   like '%06GDXSF%')
+				)
+			</if>
+			<include refid="BaseWhereCondition"/>
+			UNION 
+				select  t1.fname_l2 as fname,t4.fname_l2 as position, t1.fnumber as fnumber,t2.cfmail as email,
+				t10.FDisplayName_l2 as fdisplayname,to_char(t2.FCreateTime,'yyyy-MM-dd') as creattime
+				from   T_BD_Person t1
+	         	inner join T_HR_PersonContactMethod t2 on t2.Fpersonid = t1.Fid
+	 			left join t_hr_personposition t3 on t1.fid = t3.fpersonid 
+				left join T_ORG_PositionMember  t5 on t5.fpersonid =t1.fid
+				left join t_org_position t4 on t4.fid=t5.fpositionid  
+				left join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+	 			left join  t_hr_EmpEnrollBizBillentry t14 on t1.fid=t14.fpersonid  
+				left join t_hr_EmpEnrollBizBill  t15  on t14.fbillid=t15.fid 
+				left join T_HR_BDEmployeeType e on e.fid = t1.femployeetypeid
+				left join T_HR_EmployeeFenLei f on f.fid = e.femployeefenleiid
+				where 1=1 and  t1.FDeletedStatus = 1 and cfisupdateforhand is not null
+		        and cfisupdateforhand  like '手动生成邮箱%'
+				<if test="creattime == '' and endtime == '' and fname == '' and fnumber == '' and datatype == ''">  
+					and	substr(cfisupdateforhand,8,length(cfisupdateforhand)) >= to_char(sysdate,'yyyymmdd')
+				</if>
+				<if test="creattime != null and creattime !='' ">
+					and substr(cfisupdateforhand,8,length(cfisupdateforhand)) >= to_char(to_date('${creattime}','yyyy-MM-dd'),'yyyymmdd')
+				 </if>
+				 <if test="endtime != null and endtime !='' ">
+					and substr(cfisupdateforhand,8,length(cfisupdateforhand)) &lt;= to_char(to_date('${endtime}','yyyy-MM-dd'),'yyyymmdd')
+				 </if>
+				<include refid="BaseWhereCondition"/>
+				order by creattime desc
+  </select>
+  
+  <select id="selectPerson" resultType="map" parameterType="string">
+			select  t1.fname_l2 as fname, t1.fnumber as fnumber,t2.cfmail as email,t1.fcell as fcell
+				
+			from   T_BD_Person t1
+         	inner join T_HR_PersonContactMethod t2 on t2.Fpersonid = t1.Fid
+ 			left join t_hr_personposition t3 on t1.fid = t3.fpersonid 
+			left join T_ORG_PositionMember  t5 on t5.fpersonid =t1.fid
+			left join t_org_position t4 on t4.fid=t5.fpositionid  
+			left join t_org_admin t10 on t10.fid = t4.FAdminOrgUnitID 
+ 			left join  t_hr_EmpEnrollBizBillentry t14 on t1.fid=t14.fpersonid  
+			left join t_hr_EmpEnrollBizBill  t15  on t14.fbillid=t15.fid 
+			left join T_HR_BDEmployeeType e on e.fid = t1.femployeetypeid
+			left join T_HR_EmployeeFenLei f on f.fid = e.femployeefenleiid
+			where 1=1 and t1.fnumber = #{fnumber}
+  </select>
+</mapper>

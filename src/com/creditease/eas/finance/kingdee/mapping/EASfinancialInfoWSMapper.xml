@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.finance.kingdee.dao.EASfinancialInfoWSMapper" >
+	<!--1.01 核算主体,条件：
+			1.实体组织
+			2.财务组织-->
+ 	<select id="selectCompanyInfo"  resultType="com.creditease.eas.finance.bean.Company" parameterType="map">
+	 	select t.fnumber,t.fname_l2 fname,t.FIsGrouping FIsGrouping,t.feffectDate,t.finvalidDate,
+	 	t.fbankID,t.faddressID,act.fnumber accountNo,act.fname_l2 accountName,act.fnumber faccountTableID,t.fjuridicalPersonID,t.fisFreeze,
+	 	t.fisCompanyOrgUnit,t.fisAdminOrgUnit,t.fisSaleOrgUnit,t.fisPurchaseOrgUnit,t.fisStorageOrgUnit,t.fisProfitOrgUnit,
+	 	t.fisCostOrgUnit,t.fisUnion,t.fisHROrgUnit,t.fisTransportOrgUnit,t.fisQualityOrgUnit,t.fisStart,decode(t.fisOUSealUp,'1','0','1') as status,
+	 	t.fisLeaf,t.flevel,t.forgTypeStr,t.fdescription_l2 fdescription,t.fsimpleName fsimpleName,actbase.fnumber fbaseExgTableID,
+	 	actadjust.fnumber fadjustExgTableID,tbe.fname_l2 fbaseCurrencyIDName,tbe.fnumber fbaseCurrencyIDCode,
+	 	tbe2.fname_l2 freportCurrencyIDName,tbe2.fnumber freportCurrencyIDCode,exchangeTable.fnumber freportExgTableID,
+	 	t.FLastUpdateTime,tcomp.fnumber FParentNumber,tpt.fnumber  fPeriodTypenumber,tpt.fname_l2  fPeriodTypename,t.FIsBizUnit
+		from t_org_company t
+		  left join T_BKS_AcountScheme  tb on  tb.fid = t.FAccountSchemeID
+		  left join T_BD_Currency tbe on tbe.fid = t.FBaseCurrencyID
+		  left join T_BD_Currency tbe2 on tbe2.fid = t.FReportCurrencyID
+		  left join T_BD_AccountTable act on act.fid = t.FAccountTableID
+		  left join T_BD_ExchangeTable actbase on actbase.fid = t.FBaseExgTableID
+		  left join T_BD_ExchangeTable actadjust on actadjust.fid = t.fadjustExgTableID
+		  left join T_BD_ExchangeTable exchangeTable on exchangeTable.fid = t.FReportExgTableID
+		  left join t_org_company tcomp on tcomp.fid = t.FParentID
+		  left join T_BD_PeriodType tpt on tpt.fid = t.FAccountPeriodID
+		  where  t.FIsCompanyOrgUnit=1  and t.fnumber not like '%.%'
+		  <if test="fnumber != null and fnumber != ''">
+				and t.fnumber = #{fnumber}
+		  </if>
+		  <if test="beginTime != null and beginTime !=''">
+		  	and ( t.fcreatetime>=#{beginTime} or t.flastupdatetime >=#{beginTime} )		
+	  	  </if>
+		  order by t.fnumber
+ 	</select>
+ 	<!-- 凭证类型 -->
+ 	<select id="selectVoucherTypes" resultType="com.creditease.eas.finance.bean.VoucherTypes" parameterType="map">
+ 		select fnumber fnumber,fname_l2 fname,flastUpdateTime 
+ 		from T_BD_VoucherTypes
+ 		 where 1=1 
+ 		<if test="beginTime != null and beginTime !=''">
+		  	and ( fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime} )		
+	  	</if>
+ 		order by fnumber 
+ 	</select>
+	<!-- 科目表查询
+			select fname_l2 fname,fnumber,FLastUpdateTime from T_BD_AccountTable order by fnumber
+	 -->
+	 <select id="selectAccountTable" resultType="com.creditease.eas.finance.bean.AccountTable" parameterType="map">
+	 	select fname_l2 fname,fnumber,FLastUpdateTime from T_BD_AccountTable 
+	 	 where 1=1 
+		<if test="beginTime != null and beginTime !=''">
+			and ( fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime} )		
+		</if> 
+	 	order by fnumber
+	 </select>
+	 <!-- 科目表查询 new1  -->
+	<select id="selectAccountTableNew"  resultType="com.creditease.eas.finance.bean.AccountTable" parameterType="map">
+		select tab.fname_l2 fname,tab.fnumber,com.fnumber companyNumber,tab.FLastUpdateTime from T_BD_AccountTable tab
+		left join t_org_company com on com.fid = tab.FCompanyID
+		where 1=1
+		<if test="comFnumber != null and comFnumber != ''">
+		  and com.fnumber = #{comFnumber}
+		</if>
+		<if test="beginTime != null and beginTime !=''"> 
+			and (com.fcreatetime>=#{beginTime} or com.flastupdatetime >=#{beginTime}) 		
+		</if> 
+		order by fnumber
+	</select>
+	<!-- 会计科目类型查询 -->
+	<select id="selectAccountType"  resultType="com.creditease.eas.finance.bean.AccountType" parameterType="string">
+		select act.fname_l2 fname,at.fnumber faccountTableNumber,act2.fnumber fparentNumber,act.fproperty,
+		act.fisLeaf,act.flevel,act.fnumber,act.FLastUpdateTime 
+		from T_BD_AccountType act
+		left join T_BD_AccountType act2 on act2.fid = act.fparentID
+		left join T_BD_AccountTable at on  at.fid = act.FAccountTableID
+		where 1=1
+		<if test="faccountTableNumber != null and faccountTableNumber !=''">
+				and at.fnumber = #{faccountTableNumber}
+		 </if>
+		 <if test="beginTime != null and beginTime !=''"> 
+			and (at.fcreatetime>=#{beginTime} or at.flastupdatetime >=#{beginTime}) 		
+		</if> 
+		 order by fnumber
+	</select>
+	<!--查询会计科目的数量
+		2014-2-25：
+			添加公司字段
+		and su.FCompanyID = '00000000-0000-0000-0000-000000000000CCE7AED4'
+	-->
+	 <select id="selectAccountViewCount"  resultType="Integer" parameterType="map">
+         select count(distinct su.fnumber) from T_BD_AccountView su
+		    left join  T_BD_AccountView suparent on suparent.fid = su.FParentID
+		    left join T_BD_AsstAccount aspc on aspc.fid = su.FCAA
+		    left join T_BD_AsstAccount asp on asp.fid = su.FGAA
+		    left join T_BD_AccountType type on type.fid = su.FAccountTypeID
+		    left join T_BD_AccountTable tab on tab.fid = su.FAccountTableID
+		    left join T_ORG_Company comp on comp.fid = su.FCompanyID
+		    where 1=1 
+		    <if test="faccountTableNumber != null and faccountTableNumber != ''">
+				and tab.fnumber = #{faccountTableNumber}
+		   </if>
+			 <if test="faccountTypeNumber != null and faccountTypeNumber != ''">
+				and type.fnumber = #{faccountTypeNumber}
+		   </if>   
+		    <if test="beginTime != null and beginTime !=''"> 
+				and (su.fcreatetime>=#{beginTime} or su.flastupdatetime >=#{beginTime}) 		
+			</if>      
+			  <if test="comanyNumber != null and comanyNumber !=''">
+				and comp.fnumber = #{comanyNumber}
+		   	</if> 
+ 	</select>
+	<!-- 会计科目 
+		重复是由于公司的过滤条件没有添加
+		and su.FCompanyID = '00000000-0000-0000-0000-000000000000CCE7AED4'
+		更新记录：
+				2013-7-3：会计科目的接口，把公司的编码传给SMP部门
+				2013-12-3:增加长编码，长名称，并且去掉了distinct
+	-->
+	<select id="selectAccountView"  resultType="com.creditease.eas.finance.bean.AccountView" parameterType="map">
+         SELECT  *  FROM (select A.*, ROWNUM RN   FROM (select * from 
+	       (select  su.fnumber,su.FName_l2 fname,aspc.fname_l2 fcaaname,aspc.fnumber fcaanumber,
+	        asp.fname_l2 fgaaname,asp.fnumber fgaanumber,suparent.fnumber fparentAAIDNumber,
+	        su.fdc,type.fnumber faccountTypeNumber,tab.fnumber faccountTableNumber,su.fisLeaf,su.FLastUpdateTime,
+	        decode(su.FIsCFreeze,0,1,0) as status,comp.fnumber fcompanynumber,su.flongname_l2 ext1,su.flongnumber ext2
+		    from T_BD_AccountView su
+		    left join  T_BD_AccountView suparent on suparent.fid = su.FParentID
+		    left join T_BD_AsstAccount aspc on aspc.fid = su.FCAA
+		    left join T_BD_AsstAccount asp on asp.fid = su.FGAA
+		    left join T_BD_AccountType type on type.fid = su.FAccountTypeID
+		    left join T_BD_AccountTable tab on tab.fid = su.FAccountTableID
+		    left join T_ORG_Company comp on comp.fid = su.FCompanyID
+		    where 1=1 
+	   	    <if test="faccountTableNumber != null and faccountTableNumber != ''">
+				and tab.fnumber = #{faccountTableNumber}
+		   </if>
+			 <if test="faccountTypeNumber != null and faccountTypeNumber != ''">
+				and type.fnumber = #{faccountTypeNumber}
+		   </if>       
+		   <if test="beginTime != null and beginTime !=''">
+			and (su.fcreatetime>=#{beginTime} or su.flastupdatetime >=#{beginTime} )		
+		   </if>
+		    <if test="comanyNumber != null and comanyNumber !=''">
+				and comp.fnumber = #{comanyNumber}
+		   	</if>        
+		    )
+        ) A 
+      WHERE ROWNUM &lt;= #{max}) 
+      WHERE RN &gt;= #{min} 
+       order by fnumber
+ 	</select>
+ 	<!-- 辅助核算类型  对应的是辅助账类型 -->
+ 	<select id="selectAsstAccount" resultType="com.creditease.eas.finance.bean.AsstAccount">
+ 		select  asst.fnumber,asst.FName_l2 fname,asst.fcompanyID,asst.flastUpdateTime 
+ 		from T_BD_AsstAccount asst 
+ 		 where 1=1 and asst.fcompanyID != 'rlgAAAAABezM567U'  
+		<if test="beginTime != null and beginTime !=''">
+			and ( asst.fcreatetime>=#{beginTime} or asst.flastupdatetime >=#{beginTime} )		
+		</if> 
+ 		order by fnumber
+ 	</select>
+ 	<!-- 拆分根据
+ 		select  ast.fnumber
+	     from T_BD_AsstAccount asst
+	    left join t_bd_asstactgroupdetail de on de.fasstaccountid = asst.fid
+	    inner join t_bd_asstacttype ast on ast.fid=de.FASSTACTTYPEID 
+	    where asst.fnumber = ''
+		辅助核算类型对应的辅助核算项的编码
+ 	 -->
+ 	<select id="selectAsstAccountFnumber" resultType="com.creditease.eas.finance.bean.Asstacttype" parameterType="string">
+	   select  ast.fnumber from T_BD_AsstAccount asst
+	    left join t_bd_asstactgroupdetail de on de.fasstaccountid = asst.fid
+	    inner join t_bd_asstacttype ast on ast.fid=de.FASSTACTTYPEID 
+	    where 1=1
+	     <if test="fnumber != null and fnumber != ''">
+				and asst.fnumber = #{fnumber}
+		   </if>  
+		   <if test="beginTime != null and beginTime !=''">
+			and ( asst.fcreatetime>=#{beginTime} or asst.flastupdatetime >=#{beginTime} )		
+		</if>        
+ 	</select>
+ 	<!-- 辅助核算项目查询 -->
+ 	<select id="selectAsstacttype" resultType="com.creditease.eas.finance.bean.Asstacttype" parameterType="map">
+ 		select distinct ast.fnumber,ast.FName_l2 fname,ast.FRealDataObjAlias_l2 frealDataObjAlias,ast.flastUpdateTime
+ 		from t_bd_asstacttype ast
+	    left join t_bd_asstactgroupdetail de on ast.fid=de.FASSTACTTYPEID 
+	    left join T_BD_AsstAccount asst on asst.fid = de.fasstaccountid
+	    where 1=1
+	     <if test="fnumber != null and fnumber != ''">
+				and asst.fnumber = #{fnumber}
+		 </if> 
+		 <if test="beginTime != null and beginTime !=''">
+		  	and ( ast.fcreatetime>=#{beginTime} or ast.flastupdatetime >=#{beginTime} ) 		
+	  	  </if>
+		  order by ast.fnumber
+ 	</select>
+	<!--辅助核算项-->
+ 	<select id="selectAsstAccountProgram"  resultType="map">
+ 		 select  fnumber ,FName_l2 fname,fisocode,fbaseUnit_l2 fbaseUnit,fprecision,fdeletedStatus,flastUpdateTime 
+ 		 from T_BD_Currency 
+ 		  where 1=1 
+		<if test="beginTime != null and beginTime !=''">
+			and ( fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime} )		
+		</if> 
+		order by fnumber 
+ 	</select>
+ 	<!-- 辅助核算项  客户行数-->
+ 	 <select id="selectCustomerCount"  resultType="Integer">
+		   select count(distinct cus.fnumber)  from T_BD_Customer cus
+         	left join T_BD_customer cusp on cusp.fid = cus.fparentId 
+ 	</select>
+ 	<!-- 辅助核算项  客户-->
+ 		<select id="selectCustomer"  resultType="com.creditease.eas.finance.bean.Customer" parameterType="map">
+         SELECT *  FROM 
+         (select A.*, ROWNUM RN  FROM (select distinct cus.fnumber,cus.FName_l2 fname,cusp.fnumber fparentNumber,
+         cus.flastUpdateTime,com.fnumber fcompanynumber,(case when cus.FUsedStatus=1 then 1 when cus.FUsedStatus!=1 then 0 end) as status       
+          from t_org_company com inner join T_BD_CustomerCompanyInfo temp on temp.FComOrgID = com.fid 
+			left join T_BD_Customer cus 
+         	left join T_BD_customer cusp on cusp.fid = cus.fparentId) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+ 	</select>
+ 	<!--币别查询-->
+ 	<select id="selectCurrency"  resultType="com.creditease.eas.finance.bean.Currency" parameterType="map">
+ 		 select  fnumber ,FName_l2 fname,fisocode,fbaseUnit_l2 fbaseUnit,
+ 		 fprecision,decode(fdeletedStatus,'1','1','0') as status,flastUpdateTime 
+ 		 from T_BD_Currency 
+ 		 where 1=1  and fcreatetime is not null 
+ 		 <if test="fnumber != null and fnumber != ''">
+				and fnumber = #{fnumber}
+		   </if> 
+		   <if test="beginTime != null and beginTime !=''">
+			and ( fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime} )		
+		</if>  
+		 order by fnumber         
+ 	</select>
+ 	<!-- 税率查询 -->
+ 		<select id="selectRateOfTaxation"  resultType="com.creditease.eas.finance.bean.RateOfTaxation" parameterType="string">
+ 		 select fnumber,FName_l2  fname,fisEnabled,fdescription_l2 fdescription,flastUpdateTime,
+ 		 decode(fisEnabled,'1','1','0') as status from T_BD_GeneralAsstActType 
+ 		 where fgroupid = 'te9yXWKfSb6/O4BnNWxQXAXSzQw=' 
+ 		 <if test="fnumber != null and fnumber != ''">
+				and fnumber = #{fnumber}
+		   </if>   
+		    <if test="beginTime != null and beginTime !=''">
+			and ( fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime} ) 		
+		</if>  
+		 order by fnumber                 
+ 	</select>
+ 	<!--汇率查询 	
+ 		and tab.FNumber='01'
+ 	-->
+ 	 <select id="selectExchangeRate" resultType="com.creditease.eas.finance.bean.ExchangeRate"  parameterType="map">
+ 		select ra.fid fnumber,tab.FNumber tabfnumber,tab.FName_l2 tabfname，t1.fname_l2 srcCurfname,t2.fname_l2 targetCurfname,
+		ra.FConvertRate fconvertRate,ra.flastupdatetime,ra.FAvailTime favailTime,ra.FInvalidTime finvalidTime 
+		,t1.FNumber srcCurFnumber,t2.FNumber targetcurFnumber 
+		 from T_BD_ExchangeRate ra 
+		inner join T_BD_ExchangeAux au on au.fid = ra.FExchangeAuxID 
+		inner join T_BD_ExchangeTable tab on tab.fid = au.FExchangeTableId 
+		left join T_BD_Currency t1 on au.FSourceCurrencyID = t1.fid 
+		left join T_BD_Currency t2 on au.FTargetCurrencyID = t2.fid  
+         where 1=1 
+         <if test="beginTime != null and beginTime !=''">
+			and (ra.fcreatetime>=#{beginTime} or ra.flastupdatetime >=#{beginTime} ) 		
+		</if>  
+		order by tab.FName_l2,t1.fname_l2
+ 	</select>
+ 	<!-- 汇率表 -->
+ 	<select id="selectExchangeTable" resultType="com.creditease.eas.finance.bean.ExchangeTable" parameterType="map">
+ 		select fname_l2 fname,fnumber,flastUpdateTime from T_BD_ExchangeTable
+	  	where 1=1
+	  	<if test="beginTime != null and beginTime !=''">
+		  	and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+	  	</if>
+ 		 order by fnumber
+ 	</select>
+ 	<!-- 会计期间 -->
+ 	<select id="selectPeriod" resultType="com.creditease.eas.finance.bean.Period" parameterType="map">
+ 	   select per.fperiodYear,per.FNumber fnumber,per.FPeriodNumber FPeriodNumber,per.FBeginDate,
+ 	   FEndDate,FIsAdjustPeriod,fperiodQuarter,type.fnumber ftypeID,per.flastupdatetime 
+       from T_BD_Period per
+       left join T_BD_PeriodType type on type.fid = per.FTypeID
+       where 1=1
+       	<if test="periodYear != null and periodYear !=''">
+		  and  per.FPeriodYear = #{periodYear}
+		</if>
+       	<if test="beginTime != null and beginTime !=''">
+		  	and (per.fcreatetime>=#{beginTime} or per.flastupdatetime >=#{beginTime}) 		
+	  	</if>
+ 		 order by fnumber
+     </select>
+     <!-- 会计期间类型 -->
+ 	 <select id="selectPeriodType" resultType="com.creditease.eas.finance.bean.PeriodType" parameterType="map">
+ 	 		select fname_l2 fname,fnumber,flastupdatetime from T_BD_PeriodType 
+ 	 		 where 1=1 
+			<if test="beginTime != null and beginTime !=''">
+				and ( fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime} ) 		
+			</if> 
+ 	 		order by fnumber
+ 	 </select>
+ 	<!--成本中心 该方法已废弃
+ 	<select id="selectcostCenterQuery" resultType="com.creditease.eas.finance.bean.CostCenter" parameterType="map">
+ 		select fname_l2 fname,fid ext1,fnumber,FDisplayName_l2 as fdisplayName,fdescription_l2 as fdescription,
+ 		flevel,fisLeaf,forgTypeStr,decode(FIsSealUp,'1','0','1') as status,flastUpdateTime 
+ 		 from T_ORG_CostCenter 
+ 		 where 1 =1 and fnumber not like '%.%' 
+		<if test="beginTime != null and beginTime !=''"> 
+			and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime})		
+		</if> 
+ 		order by fnumber
+ 	</select>
+ 	-->
+ 	<!-- 组织机构 数量-->
+ 	<select id="selectBaseUnitCountQuery" resultType="Integer" parameterType="map">
+ 		  select count(*)
+	 	  from T_ORG_BaseUnit tbu
+	 		left join t_org_baseunit tbup on tbup.fid = tbu.fparentid 
+		  where  tbu.fnumber not like '%.%'
+		  <if test="beginTime != null and beginTime !=''">
+		  	and (tbu.fcreatetime>=#{beginTime} or tbu.flastupdatetime >=#{beginTime}) 		
+	  	 </if>
+ 	</select>
+ 	<!-- 组织机构 -->
+ 	<select id="selectBaseUnitQuery" resultType="com.creditease.eas.finance.bean.BaseUnit" parameterType="map">
+ 		   SELECT *  FROM (select A.*, ROWNUM RN   FROM (select * from 
+	       (select tbu.fname_l2 fname,tbu.fnumber,tbup.fnumber fparentNumber,tbu.FDisplayName_l2 as fdisplayName,tbu.fdescription_l2 as fdescription,
+	 		tbu.flevel,tbu.fisLeaf,tbu.forgTypeStr,decode(tbu.fisOUSealUp,'1','0','1') as status,tbu.flastUpdateTime,tbu.FIsAssistantOrg 
+	 		from T_ORG_BaseUnit tbu
+	 		left join t_org_baseunit tbup on tbup.fid = tbu.fparentid 
+	 		where tbu.fnumber not like '%.%'
+	 		 	  <if test="beginTime != null and beginTime !=''">
+				  	and (tbu.fcreatetime>=#{beginTime} or tbu.flastupdatetime >=#{beginTime}) 		
+			  	 </if>
+	 		)) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+ 	</select>
+ 	<!-- 凭证摘要 -->
+ 	<select id="selectVoucherAbstractQuery" resultType="com.creditease.eas.finance.bean.VoucherAbstract" parameterType="map">
+ 		select p.fname_l2 fname,p.fnumber,p.fvoucherAbstractGroupID,p.fdescription_l2 fdescription,p.flastUpdateTime
+		from  T_BD_VoucherAbstract p
+		 <if test="beginTime != null and beginTime !=''">
+		  	and (p.fcreatetime>=#{beginTime} or p.flastupdatetime >=#{beginTime}) 		
+	  	</if>        
+		order by p.fnumber
+ 	</select>
+ 	<!-- 辅助核算项-供应商总行数 -->
+ 	<select id="selectWSSuppliercount" resultType="Integer"    parameterType="com.creditease.eas.hr.bean.oa.WrapperMap">
+           select COUNT(*)  as count 
+             from  
+            (select distinct su.fname_l2 supplierName,su.fnumber supplierNumber,pr.fnumber provinceNumber,
+		    pr.fname_l2 provinceName,ct.fname_l2  cityName,ct.fnumber cityNumber,scb.FBank bankName,
+		    scb.FBankAccount bankAccount,scb.FBankAddress bankAddress     
+	        from T_BD_Supplier su
+	       left join T_BD_SupplierCompanyInfo sci on sci.FSupplierID = su.fid
+	       left join T_BD_SupplierCompanyBank scb on scb.FSupplierCompanyInfoID = sci.fid
+	       left join T_BD_Province pr on pr.fid = su.FProvinceID
+	       left join t_bd_city ct on ct.fid = su.FCityID
+           where  su.FUsedStatus = 1   
+           AND su.fname_l2 like #{supplierName}
+      )  
+ 	</select>
+ 	<!-- 辅助核算项-供应商 -->
+ 	<select id="selectWSSupplierInfo"   parameterType="com.creditease.eas.hr.bean.oa.WrapperMap">
+      SELECT *  FROM    (select A.*, ROWNUM RN   FROM (select *   from 
+       (select distinct su.fname_l2 supplierName,su.fnumber supplierNumber,pr.fnumber provinceNumber,
+		  pr.fname_l2 provinceName,ct.fname_l2  cityName,ct.fnumber cityNumber,scb.FBank bankName,
+		  scb.FBankAccount bankAccount,scb.FBankAddress bankAddress,com.fnumber fcompanynumber      
+	      from  t_org_company com 
+       inner join T_BD_SupplierCompanyInfo temp on temp.FComOrgID = com.fid
+	    left join  T_BD_Supplier su on su.fid = temp.FSupplierID
+	    left join T_BD_SupplierCompanyInfo sci on sci.FSupplierID = su.fid
+	    left join T_BD_SupplierCompanyBank scb on scb.FSupplierCompanyInfoID = sci.fid
+	    left join T_BD_Province pr on pr.fid = su.FProvinceID
+	    left join t_bd_city ct on ct.fid = su.FCityID 
+	       WHERE 
+	         su.FUsedStatus = 1   
+        	 AND   su.fname_l2 like  #{supplierName}        
+	    )
+        ) A 
+      WHERE ROWNUM &lt;= #{max} ) 
+      WHERE RN &gt;= #{min} 
+      order by fnumber
+ 	</select>
+ 	<!-- 辅助核算项-银行账户 -->
+ 	<select id="selectAccountBanksQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+ 		select acbk.fnumber,acbk.FName_l2 fname,comp.fnumber fcompanynumber,acbk.FBankAccountNumber as bankNumber,
+ 		acbk.flastUpdateTime，decode(acbk.FIsClosed,0,1,0) as status 
+ 		from T_BD_AccountBanks acbk
+ 		left join T_ORG_Company comp on comp.fid = acbk.FCompanyID
+ 		where 1=1
+		 <if test="beginTime != null and beginTime !=''">
+		  	and (acbk.fcreatetime>=#{beginTime} or acbk.flastupdatetime >=#{beginTime}) 		
+	  	</if>
+ 		order by acbk.fnumber
+ 	</select>
+ 	<!--辅助核算项-员工信息的数量 -->
+ 	<select id="selectPersonCount" resultType="Integer" parameterType="map">
+ 		select count(distinct p.fname_l2)
+		from t_bd_person p
+		inner  join T_HR_BDEmployeeType et on et.fid = p.femployeetypeId
+		left join T_ORG_HRO hro  on hro.fid = p.FHRORGUNITID
+		where p.FDeletedStatus =1 and et.finservice=1
+		 and  hro.fnumber not like  '%.%'
+		 <if test="beginTime != null and beginTime !=''">
+		  	and (p.fcreatetime>=#{beginTime} or p.flastupdatetime >=#{beginTime}) 		
+	  	</if>        
+ 	</select>
+ 	<!--辅助核算项-员工信息 -->
+ 	<select id="selectPersonQuery" resultType="com.creditease.eas.finance.bean.PersonInfo" parameterType="map">
+ 		 SELECT *  FROM    (select A.*, ROWNUM RN   FROM (select *   from 
+       (select distinct p.fname_l2 fname,p.fnumber fnumber,p.flastupdatetime flastupdatetime,p.fdeletedStatus fdeletedStatus
+		from t_bd_person p
+		inner  join T_HR_BDEmployeeType et on et.fid = p.femployeetypeId
+		left join T_ORG_HRO hro  on hro.fid = p.FHRORGUNITID
+		where p.FDeletedStatus =1 and et.finservice=1
+		 and  hro.fnumber not like  '%.%'
+		 <if test="beginTime != null and beginTime !=''">
+		  	and (p.fcreatetime>=#{beginTime} or p.flastupdatetime >=#{beginTime}) 		
+	  	</if>        
+	    )
+        ) A 
+      WHERE ROWNUM &lt;= #{max} ) 
+      WHERE RN &gt;= #{min} 
+      order by fnumber
+ 	</select>
+ 	<!-- 辅助核算项-物料 -->
+ 	<select id="selectMaterialQuery" resultType="com.creditease.eas.finance.bean.Material">
+ 		select acbk.fnumber,acbk.FName_l2 fname,acbk.flastUpdateTime 
+ 		from T_BD_Material acbk
+ 		where 1=1
+		 <if test="beginTime != null and beginTime !=''">
+		  	and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+	  	</if>
+ 		order by acbk.fnumber
+ 	</select>
+ 	<!-- 辅助核算项-行政组织的数量 -->
+ 	<select id="selectAdminCount" resultType="Integer" parameterType="map">
+ 		 select count(distinct ta.fnumber)
+		 	from t_org_admin ta
+	 	    left join t_org_admin tap on ta.fid = tap.fparentId
+		  <if test="beginTime != null and beginTime !=''">
+		  	and (ta.fcreatetime>=#{beginTime} or ta.flastupdatetime >=#{beginTime}) 		
+	  	 </if>
+ 	</select>
+ 	<!-- 
+ 		辅助核算项-行政组织
+ 	 -->
+ 	<select id="selectAdminQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+ 		   SELECT *  FROM (select A.*, ROWNUM RN   FROM (select * from 
+	       (select distinct ta.fname_l2 fname,ta.fnumber,tap.fnumber fparentNumber,
+		 	ta.flevel,ta.fisLeaf,ta.fisOUSealUp,ta.flastUpdateTime,ta.fid ext1,tap.fid ext2  
+		 	from t_org_admin ta
+	 	    left join t_org_admin tap on tap.fid = ta.fparentid
+	 		where 1=1
+	 		 	<if test="beginTime != null and beginTime !=''">
+				  	and (ta.fcreatetime>=#{beginTime} or ta.flastupdatetime >=#{beginTime}) 		
+			  	</if>
+	 		)) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+ 	</select>
+ 	<!-- 辅助核算项-内部账户-->
+ 	<select id="selectInnerAccountQuery" resultType="com.creditease.eas.finance.bean.InnerAccount">
+ 		select inac.fnumber,inac.FName_l2 fname,inac.flastUpdateTime 
+ 		from T_FS_InnerAccount inac
+ 		where 1=1
+		 <if test="beginTime != null and beginTime !=''">
+		  	and (inac.fcreatetime>=#{beginTime} or inac.flastupdatetime >=#{beginTime}) 		
+	  	</if>
+ 		order by inac.fnumber
+ 	</select>
+ 	<!-- 通过辅助核算项目，查询对应的 表名 和自定义辅助核算类别的id -->
+ 	<select id="selectTableNameByAsstActType" resultType="map" parameterType="map">
+ 			select FRealtiondataobject,FGlAsstActTypeGrpID from T_BD_AsstActType
+ 			where fnumber= #{fnumber}
+ 	</select>
+ 	<!-- 辅助核算项的数量 -->
+ 	<select id="selectAsstProgramCountQuery" resultType="Integer" parameterType="map">
+ 		 select count(*) from ${tableName}
+		 	where 1=1 
+		  <if test="beginTime != null and beginTime !=''">
+		  	and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+	  	 </if>
+	  	 <if test="fgroupid != null and fgroupid != ''">
+	  	 	and fgroupID = #{fgroupid}
+	  	</if>
+	  	<if test="fgroupid = 'rlgAAAAAXBsF0s0M'">
+	  	 	and flongnumber != '01!03!01'
+	  	</if>
+  		 <if test="beginTime != null and beginTime !=''">
+		  	and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+	  	 </if>
+ 	</select>
+ 	<!-- 辅助核算项-接口测试
+ 		传参数时，将#{tableName}改为${tableName},效果预编译 
+ 		这种方式的使用是非常不安全的，要谨慎使用
+ 		 SELECT *  FROM (select A.*, ROWNUM RN   FROM (select * from 
+	       (select distinct ta.fname_l2 fname,ta.fnumber,ta.flastUpdateTime  
+		 	from ${tableName} ta
+	 		where 1=1 
+	 		 <if test="beginTime != null and beginTime !=''">
+			  	and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+		  	 </if>
+	 		)) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+ 	 -->
+	<select id="selectAsstProgramQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		  SELECT *  FROM (select A.*, ROWNUM RN   FROM (select * from 
+	       (select distinct ta.fname_l2 fname,ta.fnumber,ta.flastUpdateTime
+		 	from ${tableName} ta
+	 		where 1=1 
+	 		 <if test="beginTime != null and beginTime !=''">
+			  	and (ta.fcreatetime>=#{beginTime} or ta.flastupdatetime >=#{beginTime}) 		
+		  	 </if>
+	 		)) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+	</select>
+	<!-- 自定义辅助核算项的查询 
+		产品-房贷那个给财务的商定好了，她们以后只用第一个房贷
+		我们给AMS提供数据也只提供第一个
+		 <if test="fgroupid = 'rlgAAAAAXBsF0s0M'">
+	  	 	and ta.flongnumber != '01.03.01'
+	  	</if>
+	  	好像在mybatis中不能使用两个相同的if条件判断
+	-->
+	<select id="selectGeneralAsstProgramQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+	  	   SELECT *  FROM (select A.*, ROWNUM RN   FROM (select * from 
+	       (select  ta.fname_l2 fname,ta.flongnumber fnumber,tap.flongnumber fparentNumber,ta.FIsEnabled,
+			ta.FIsLeaf,ta.FLevel,ta.flastUpdateTime  
+			from T_BD_GeneralAsstActType ta
+			left join T_BD_GeneralAsstActType tap on tap.fid = ta.fparentId
+		 	where ta.flongnumber != '01!03!01'
+	 		 <if test="beginTime != null and beginTime !=''">
+			  	and (ta.fcreatetime>=#{beginTime} or ta.flastupdatetime >=#{beginTime}) 		
+		  	 </if>
+		  	 <if test="fgroupid != null and fgroupid != ''">
+		  	 	and ta.fgroupID = #{fgroupid}
+		  	</if>
+	  		)) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+	</select>
+	
+	<!-- 客户信息查询	
+		修改记录：
+		2013年12月3日：增加了ext1字段
+		2014年3月3日，增加了公司编码字段
+	分页 -->
+	<select id="selectCusPageQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		 select rn,fnumber,fname,companyname,fcompanynumber,flastUpdateTime,istree,status,fparentNumber,ftreeParentNumber,ext1 from (
+      select rownum as rn,cus.fnumber as fnumber,cus.FName_l2 as fname,
+			com.fname_l2 as companyname,com.fnumber fcompanynumber,cus.flastUpdateTime as flastUpdateTime , 
+			 0 as istree,(case when cus.FUsedStatus=1 then 1 when cus.FUsedStatus!=1 then 0 end) as status 
+			 ,cusp.fnumber as fparentNumber,css.fnumber as ftreeParentNumber,cus.fnumber||' '||css.fdisplayName_l2||'_'||cus.fname_l2 ext1 
+			from t_org_company com inner join T_BD_CustomerCompanyInfo temp on temp.FComOrgID = com.fid 
+			left join T_BD_Customer cus on cus.fid = temp.FCustomerID 
+			 left join T_BD_CSSPGroup css on cus.FBrowseGroupID = css.fid 
+				left join T_BD_CSSPGroup css on cus.FBrowseGroupID = css.fid 
+		left join T_ORG_CtrlUnit org on cus.FControlUnitID = org.fid 
+		left join T_BD_customer cusp on cusp.fid = cus.fparentId 
+		 where org.fid !='rlgAAAAABCvM567U' and 
+		  css.FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000002BC122A7F' 
+		   <if test="beginTime != null and beginTime !=''"> 
+			and (cus.fcreatetime>=#{beginTime} or cus.flastupdatetime >=#{beginTime}) 		
+			</if> 
+			<if test="comanyNumber != null and comanyNumber !=''">
+				and com.fnumber = #{comanyNumber}
+		   	</if>       
+		 		and rownum &lt;= #{max} 
+		) where rn &gt;= #{min} order by fnumber asc 
+	</select>
+	
+	
+	<!-- 客商信息 分页 
+		这是什么？ and com.fnumber ='311' and cus.fnumber ='T0205308' 	
+	-->
+	<select id="pageCsspQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		select * from (
+			select rownum as rn,css.fnumber as fnumber,css.fname_l2 as fname,cssp.fnumber as ftreeparentNumber,
+			css.FLevel as flevel,css.fisleaf as fisleaf,1 as istree,css.fdeletedstatus as fdeletedstatus from t_bd_csspgroup css 
+			left join  t_bd_csspgroup cssp on cssp.fid = css.fparentid 
+			where css.FCSSPGroupStandardID = #{fsid}
+			 <if test="beginTime != null and beginTime !=''"> 
+			 and (css.fcreatetime>=#{beginTime} or css.flastupdatetime >=#{beginTime}) 	
+			</if> 
+			 and rownum &lt;= #{max} 
+	    ) where rn &gt;= #{min}  
+	    order by fnumber asc 
+<!--    order by rn -->
+	</select>
+	
+	<!-- 供应商信息查询	分页 -->
+	<select id="selectSupPageQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		 select rn,fnumber,fname,companyname,flastUpdateTime,istree,status,fparentNumber,ftreeParentNumber,fcompanynumber from (
+     select rownum as rn,sup.fnumber as fnumber,sup.FName_l2 as fname,supp.fnumber as fparentNumber,css.fnumber as ftreeParentNumber,
+     0 as istree,(case when sup.FUsedStatus=1 then 1 when sup.FUsedStatus!=1 then 0 end) as status,
+     sup.flastUpdateTime as flastUpdateTime,com.fname_l2 as companyname ,com.fnumber as fcompanynumber
+     from  t_org_company com 
+     inner join T_BD_SupplierCompanyInfo temp on temp.FComOrgID = com.fid
+	 left join  T_BD_Supplier sup on sup.fid = temp.FSupplierID
+     left join T_BD_Supplier supp on supp.fid = sup.fparentId 
+		left join T_BD_CSSPGroup css on sup.FBrowseGroupID = css.fid 
+		left join T_ORG_CtrlUnit org on  sup.FControlUnitID = org.fid   
+	 where org.fid !='rlgAAAAABCvM567U' and css.FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000001BC122A7F' 
+		<if test="beginTime != null and beginTime !=''"> 
+			and (sup.fcreatetime>=#{beginTime} or sup.flastupdatetime >=#{beginTime}) 		
+	     </if>
+	     <if test="comanyNumber != null and comanyNumber !=''">
+				and com.fnumber = #{comanyNumber}
+		</if>    
+		  and rownum &lt;= #{max} 
+		) where rn &gt;= #{min} order by fnumber asc 
+	</select>
+	<!-- 客商信息 总数
+		更改记录:2013年8月5日：
+				客户和供应商接口的中，传递的参数有问题	FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000002BC122A7F'
+				代码被写死了，应该重新更改下
+	-->
+	<select id="csspCount" resultType="int" parameterType="map">
+	select count(fid) from t_bd_csspgroup where FCSSPGroupStandardID = #{fsid}
+	<if test="beginTime != null and beginTime !=''"> 
+			and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+	</if> 
+	</select>
+	<!-- 总账系统 核算数量 -->
+	<select id="selectLedgerCountList" resultType="com.creditease.eas.finance.bean.LedgerCountBean" parameterType="map">
+		select c.fnumber as accountnumber,c.fname_l2 as accountname,vs.fnumber as vouchernumber,vs.fname_l2 as vouchertype,
+		count(c.fname_l2) as vouchercount  
+		from T_GL_Voucher v left join T_BD_VoucherTypes vs  on v.FVoucherTypeID = vs.fid  
+		left join T_ORG_Company C on C.fid = V.FCompanyID 
+		where 1=1 and v.FSourceSys = '11' 
+		 <if test="beginTime != null and beginTime !=''">
+			  	and  v.fcreatetime &gt;=#{beginTime} 		
+		  </if>
+		  <if test="endTime != null and endTime !=''">
+			  	and  v.fcreatetime &lt;=#{endTime} 		
+		  </if>
+		group by (c.fnumber,c.fname_l2,vs.fnumber,vs.fname_l2) 
+	</select>
+	<!-- 总账系统 本位币信息 (原币金额) -->
+	<select id="selectLedgerList" resultType="com.creditease.eas.finance.bean.LedgerBean" parameterType="map">
+	select c.fnumber as accountnumber,c.fname_l2 as accountname,av.fnumber as subnumber,av.fname_l2 as subname, 
+  sum(decode(ve.FEntryDC,1,ve.FOriginalAmount,0,null)) as debitmoney,
+   sum(decode(ve.FEntryDC,0,ve.FOriginalAmount,1,null)) as lendermoney   
+		from T_GL_Voucher v  
+	    left join T_ORG_Company C on C.fid = V.FCompanyID 
+	    left join T_GL_Voucherentry Ve on Ve.FBillID = V.fid 
+	left join T_BD_AccountView Av on Av.fid = Ve.FAccountID 
+	where 1=1 and v.FSourceSys = '11' 
+	 <if test="beginTime != null and beginTime !=''">
+			  	and  v.fcreatetime &gt;=#{beginTime} 		
+	</if>
+	<if test="endTime != null and endTime !=''">
+			  	and  v.fcreatetime &lt;=#{endTime} 		
+	 </if>
+	group by (c.fnumber,c.fname_l2,av.fnumber,av.fname_l2) 
+	</select>
+</mapper>

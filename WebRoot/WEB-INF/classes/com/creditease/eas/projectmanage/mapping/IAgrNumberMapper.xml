@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.projectmanage.dao.IAgrNumberMapper">
+	<resultMap id="BaseResultMap" type="com.creditease.eas.projectmanage.bean.AgreementNumber">
+		<id column="FID" property="fid" jdbcType="INTEGER" />
+		<result column="RECEIVABLEQUANTITY" property="receivableQuantity" jdbcType="INTEGER" />
+		<result column="RECEIVEDNUMBER" property="receivedNumber" jdbcType="INTEGER" />
+		<result column="FINANCIALNUMBER" property="financialNumber" jdbcType="INTEGER" />
+		<result column="ARCHIVESNUMBER" property="archivesNumber" jdbcType="INTEGER" />
+		<result column="SENDBACKNUMBER" property="sendbackNumber" jdbcType="INTEGER" />
+		<result column="REMARKS" property="remarks" jdbcType="VARCHAR" />
+		<result column="PROJECTFID" property="projectFid" jdbcType="INTEGER" />
+		<result column="AGREEMENTFID" property="agreementFid" jdbcType="INTEGER" />
+		<result column="FCREATEUSERID" property="fcreateuserId" jdbcType="INTEGER" />
+		<result column="FCREATETIME" property="fcreateTime" jdbcType="DATE" />
+		<result column="LASTUPDATERID" property="lastupdaterId" jdbcType="INTEGER" />
+		<result column="LASTUPDATETIME" property="lastupdateTime" jdbcType="DATE" />
+		<result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+		<result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+		<result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+		<result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+		<result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		FID,RECEIVABLEQUANTITY,RECEIVEDNUMBER,FINANCIALNUMBER,ARCHIVESNUMBER,SENDBACKNUMBER,REMARKS,
+		PROJECTFID,AGREEMENTFID,FCREATEUSERID,FCREATETIME,FEXT1
+	</sql>
+    <!-- 根据出借方式查询协议 -->
+    <select id="selectAgreement" resultType="int">
+    SELECT FID FROM T_PRO_AGREEMENT WHERE LOANWAYID = #{loanWayId}
+    </select>
+    <select id="selectAgrNumber" resultType="int">
+      select count(fid) from T_PRO_AGREEMENTNUMBER where PROJECTFID=#{projectFid} and fext1 = 1 and agreementFid in 
+      <foreach item="item" index="index" collection="list" open="(" separator="," close=")"> 
+        	#{item}
+     	 </foreach> 
+    </select>
+	<!-- 批量新增 -->
+     <insert id="insertAgreementNumber" parameterType="ArrayList" useGeneratedKeys="true"> 
+         <selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   			SELECT T_PRO_AGREEMENTNUMBER_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>  
+        INSERT INTO T_PRO_AGREEMENTNUMBER (<include refid="Base_Column_List"/>) 
+			  	SELECT T_PRO_AGREEMENTNUMBER_SEQ.NEXTVAL,A.* from(
+           <foreach collection="list" item="item" index="index" separator="union">   
+           SELECT #{item.receivableQuantity,jdbcType=INTEGER},#{item.receivedNumber,jdbcType=INTEGER},#{item.financialNumber,jdbcType=INTEGER},
+           #{item.archivesNumber,jdbcType=INTEGER},#{item.sendbackNumber,jdbcType=INTEGER},#{item.remarks,jdbcType=VARCHAR},#{item.projectFid,jdbcType=INTEGER},
+           #{item.agreementFid,jdbcType=INTEGER},#{item.fcreateuserId,jdbcType=INTEGER}, SYSDATE,#{item.fext1,jdbcType=VARCHAR} FROM DUAL
+          </foreach> ) A 
+    </insert>  
+    <!-- 根据贷款编号和出借方式查看合同数量信息 -->
+    <select id="queryAgrNumber" parameterType="map" resultType="map">
+	 SELECT N.*,A.AGREEMENTNAME,M.LOANNUMBER,W.LOANWAY,M.LOANNUMBER FROM T_PRO_AGREEMENTNUMBER N
+	 LEFT JOIN T_PRO_AGREEMENT A ON N.AGREEMENTFID=A.FID 
+	 LEFT JOIN T_PRO_PROJECTMANAGE M ON N.PROJECTFID=M.FID
+     LEFT JOIN T_PRO_LOANWAY W ON W.FID=M.LOANWAYID
+	 WHERE  N.AGREEMENTFID  IN 
+	 <foreach item="item" index="index" collection="list" open="(" separator="," close=")"> 
+        	#{item}
+     </foreach> 
+      AND N.PROJECTFID=#{projectFid} and n.fext1 = 1 ORDER BY A.FID ASC
+    </select>
+    <!-- 根据fid查询合同数量信息 -->
+    <select id="editAgreement" parameterType="int" resultType="map">
+     SELECT N.*,A.AGREEMENTNAME FROM T_PRO_AGREEMENTNUMBER N
+		LEFT JOIN T_PRO_AGREEMENT A ON N.AGREEMENTFID=A.FID WHERE N.FID=#{fid}
+    </select>
+    <!-- 修改合同数量 -->
+    <update id="updateAgrNumber" parameterType="com.creditease.eas.projectmanage.bean.AgreementNumber" >
+    UPDATE T_PRO_AGREEMENTNUMBER SET RECEIVABLEQUANTITY=#{receivableQuantity,jdbcType=INTEGER},RECEIVEDNUMBER=#{receivedNumber,jdbcType=INTEGER},
+    FINANCIALNUMBER=#{financialNumber,jdbcType=INTEGER},ARCHIVESNUMBER=#{archivesNumber,jdbcType=INTEGER},SENDBACKNUMBER=#{sendbackNumber,jdbcType=INTEGER},
+    REMARKS=#{remarks,jdbcType=VARCHAR},LASTUPDATERID=#{lastupdaterId,jdbcType=INTEGER},LASTUPDATETIME=SYSDATE where FID=#{fid,jdbcType=INTEGER}
+    </update>
+    	<!-- 删除合同数量信息(为删除) -->
+	<update id="deleteAgrNumber"  parameterType="Integer">
+	UPDATE T_PRO_AGREEMENTNUMBER SET FEXT1 = 0 WHERE PROJECTFID=#{fid}
+	</update>
+</mapper>

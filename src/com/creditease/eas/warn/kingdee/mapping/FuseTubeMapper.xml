@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.warn.kingdee.dao.FuseTubeMapper">
+		<!-- 
+			信用管理中心的根编码：a.flongnumber like '%05XGXSF%'
+		-->
+		<select id="selectRegularPersonInfos" resultType="map" parameterType="string">
+		  	select distinct A.flevel as flevel,P.fid as  personId,
+	         P.FNAME_L2 as personname,
+	         P.Fnumber  as personcode,
+	         A.FID as deptId,
+	         A.Fname_L2 as deptname,
+	         A.Fnumber as deptcode,
+	         A.fdisplayname_l2 as fdisplayname,
+	         Po.fid  as positionid,
+	         Po.Fname_L2 as positionname,
+	         hr.fenterdate  as fenterdate,
+	         add_months(hr.fenterdate,6) as probzz,
+	         hr.fformaldate  as formaldate,
+	         ct.fname_l2 as city,
+           	 ctr.FName_l2 as pqfname,
+	         ctr.FNumber as pqfnumber,
+             et.fname_l2 as emptype
+	      	 from t_bd_person p
+             inner join t_hr_personposition hr on p.fid = hr.fpersonid
+		     left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+		     left join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1)
+		     left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	         left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	         left join T_HR_BDEmployeeType et on et.fid = P.femployeetypeid
+			 left join T_HR_EmployeeClassify  ctr  on  p.FEmployeeClassifyID = ctr.fid
+	         where  p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1
+             and (add_months(hr.fenterdate,6) &lt; sysdate or to_char(add_months(hr.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM'))
+	 		 and a.flongnumber like #{deptCode,jdbcType=VARCHAR} and a.fnumber not like '%.%'
+	 		 order by p.fnumber asc
+	 </select>
+	 <!-- 查询合同快到期的人员的信息 信管中心 -->
+	 <select id="selectRenewalList" resultType="map" parameterType="string">
+		  select P.Fnumber as personNumber, p.fname_l2 as pname, pol.fname_l2 as politics,p.fnativeplace_l2 as nplace, po.fname_l2 
+	     as position,poty.fname_l2 as potype,emty.fname_l2 as pstatus,p.fgender as gender,floor(MONTHS_BETWEEN(sysdate,p.fbirthday)/12)  as age 
+	     ,dip.fname_l2 as degreed,edu.fgraduateschool as school,edu.fspecialty as specialty,ct.fname_l2 as posiqual,
+	      a.flongnumber as longnumber,a.fdisplayname_l2 as disname,a.fnumber as orgid,a.fname_l2 as orgname,pp.fenterdate as enterdate  
+	      from t_bd_person p 
+	      join T_HR_ContractSignBizBillEntry tc on p.fid=tc.fpersonid 
+	     left join T_BD_HRPolitical pol on p.FPoliticalFaceID=pol.fid 
+	      left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+	       left join T_ORG_Position Po  on Po.fid = Pm.FPositionID  
+	     left join T_HR_PersonDegree edu on edu.FPersonId=p.fid 
+	      left join T_BD_HRDiploma dip on edu.FDiploma=dip.fid 
+	      left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid 
+	      left join T_BD_PositionType poty on po.fpositiontypeid= poty.fid
+	      left join T_HR_BDEmployeeType emty on p.femployeetypeid=emty.fid 
+	      left join T_HR_PersonPosition PP on PP.Fpersonid = P.Fid 
+	      left join CT_HR_RZZG ct on p.cfrzzgid=ct.fid 
+	     where to_char(tc.fenddate,'yyyy-MM') = to_char(add_months(sysdate,2),'yyyy-MM') and p.FDeletedStatus = 1 and emty.Finservice=1 
+	      and p.femployeetypeid != 'rlgAAAAAExyinoWz' 
+	      and a.flongnumber like #{deptCode,jdbcType=VARCHAR} and a.fnumber not like '%.%'
+	     and Pm.Fisprimary=1 and edu.fishighest=1 order by a.flongnumber desc 
+	</select>
+</mapper>

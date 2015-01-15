@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="anxin" extends="json-default" namespace="/person">
+		<!-- 配置自定义拦截器LoginedCheckInterceptor -->
+<!--		<interceptors>-->
+<!--			<interceptor name="loginedCheck" class="com.creditease.eas.struts.interceptor.LoginedCheckInterceptor"/>-->
+<!--			<interceptor-stack name="mystack">-->
+<!--				<interceptor-ref name="loginedCheck" />-->
+<!--				<interceptor-ref name="defaultStack" />-->
+<!--			</interceptor-stack>-->
+<!--		</interceptors>	    -->
+		<!-- 定义全局result -->
+<!--		<global-results>-->
+<!--			 定义名为exception的全局result -->
+<!--		    <result name="exception">exception.jsp</result>-->
+<!--		    <result name="tologin">login.jsp</result>-->
+<!--		</global-results>-->
+		<!-- 定义全局异常映射 -->
+<!--		<global-exception-mappings>-->
+<!--			 捕捉到Exception异常(所有异常)时跳转到exception所命名的视图上 -->
+<!--			<exception-mapping exception="java.lang.Exception" result="exception"/>-->
+<!--		</global-exception-mappings>		-->
+<!--		<action name="person" class="personAction">-->
+<!--		    <result name="add">/person/personAdd.jsp</result>-->
+<!--			<result name="update">/person/personEdit.jsp</result>-->
+<!--			<result name="query">/person/personList.jsp</result>-->
+<!--		</action>-->
+		<!-- 发送的明细信息 -->
+		<action name="warn" class="waringDetailAction">
+		    <result name="add">/person/personAdd.jsp</result>
+			<result name="update">/person/personEdit.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			<result name="queryPageJsonBack">/warn/warnList.jsp</result>
+			<result name="detail">/warn/detail.jsp</result>
+			<result name="celldetail">/warn/cellDetail.jsp</result>
+			<result name="sendCellsuccess">/sendCellSuccess.jsp</result>
+			<result name="yjdetail">/warn/yj_detail.jsp</result>
+			<result name="imagecell">/warn/imageCell_detail.jsp</result>
+			<result name="warnList_delete">/warn/warnList_delete.jsp</result>
+			<result name="queryPageJsonBackDelete">/warn/warnList_delete.jsp</result>
+		</action>
+		<action name="jumb" class="jumbosmsvAction">
+			<result name="edit">/jumbosmsv/jumbosmsvEdit.jsp</result>
+			<result name="view">/jumbosmsv/jumbosmsvView.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+		
+		<action name="vari" class="variablesAction">
+		    <result name="add">/variables/variablesAdd.jsp</result>
+			<result name="edit">/variables/variablesEdit.jsp</result>
+			<result name="view">/variables/variablesView.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			<result name="queryPageJsonBack">/variables/variablesList.jsp</result>
+		</action>
+		
+		<action name="uplog" class="uploadLogAction">
+		</action>
+		
+		<action name="conf" class="configInfoAction">
+		    <result name="add">/configInfo/configInfoAdd.jsp</result>
+			<result name="edit">/configInfo/configInfoEdit.jsp</result>
+			<result name="view">/configInfo/configInfoView.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			<result name="queryPageJsonBack">/configInfo/configInfoList.jsp</result>
+			
+			<result name="test">/configInfo/success.jsp</result>
+		</action>
+		
+		<action name="orgManager" class="com.creditease.eas.warn.action.OrgManagerAction">
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			
+			<result name="querycopypeopleJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			
+			<result name="orglist" type="json">
+				<param name="root">list</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			<result name="edit">/orgmanager/editOrgManager.jsp</result>
+			<result name="editCopyPeo">/orgmanager/editCopyPeople.jsp</result>
+			
+			<result name="queryAll">/orgmanager/orgManagerList.jsp</result>
+		</action>
+		<!-- 黑名单模块 -->
+		<action name="black" class="blackListInfoAction">
+			<result name="edit">/blacklist/blacklistInfoEdit.jsp</result>
+			<result name="view">/blacklist/blacklistInfoView.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+    </package>    
+</struts>

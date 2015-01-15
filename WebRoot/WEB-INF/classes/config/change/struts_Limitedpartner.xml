@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="gbk"?> 
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+       <package name="limitedpartner" extends="json-default" namespace="/limitedpartner">
+       <global-results>
+	        <result name="math-exception">/pages/change/exception.jsp</result>
+      </global-results>
+	   <global-exception-mappings>
+		<exception-mapping result="math-exception"
+			exception="java.lang.ArithmeticException" />
+		<exception-mapping result="math-exception"
+			exception="java.lang.Exception" />
+	  </global-exception-mappings>
+		<!-- 有限合伙人变更模块 -->
+		<action name="limitedpartner" class="com.change.eas.partner.action.LimitedpartnerAction">
+		    <result name="editPartner">/pages/change/editPartner.jsp</result>
+		    
+		    
+		    <result name="todetail" type="redirectAction">/limitedpartner!detail?limitedpartner.id=${pid}</result>
+		    <!--<result name="todetailByerror" type="redirectAction">/limitedpartner!detail?pid=${pid}&amp;error=${error}</result>
+		    -->
+		    <result name="todetailByerror" type="redirectAction">
+		     <param name="actionName">/limitedpartner!detail</param>
+		     <param name="pid">${pid}</param>
+		     <param name="error">${error}</param>
+		     <param name="encode">true</param>
+		    </result>
+		    <result name="todetaillist">/pages/change/gatherinformationdetaillist.jsp</result>
+		    <!--
+		    <result name="detail">/pages/change/gatherInformationdetail.jsp</result>
+		    -->
+		    <result name="detail">/pages/change/gatherInformationdetail_easyui.jsp</result>
+		   <!--
+		   <result name="checkdetail">/pages/change/gatherInformationcheckdetail.jsp</result>
+		    -->
+		    <result name="checkdetail">/pages/change/gatherInformationcheckdetail_easyui.jsp</result>
+		    <result name="addPartnerUI">/pages/change/addPartner.jsp</result>
+		    <result name="supplementLimitedPartnerUI">/pages/change/supplementLimitedPartner.jsp</result>
+		    <result name="editsupplementLimitedPartnerUI">/pages/change/editsupplementLimitedPartner.jsp</result>
+		    <result name="supplementLimitedPartnerPreview">/pages/change/supplementLimitedPartnerPreview.jsp</result>
+		    <!--
+		    <result name="addLimitedPartnerUI">/pages/change/addLimitedPartner.jsp</result>
+		    -->
+		    <result name="addLimitedPartnerUI">/pages/change/listLimitedPartner_easyui.jsp</result>
+		    <result name="listLimitedPartner">/pages/change/listLimitedPartner.jsp</result>
+		    <result name="newLimitedPartner">/pages/change/gatherInformation.jsp</result>
+		    <result name="lawfilelist">/pages/change/listredirect.jsp</result>
+		    <result name="listDocumentFile">/pages/change/listDocumentFile.jsp</result>
+		    <result name="listDocumentFileJson">/pages/change/listDocumentFile_easyui.jsp</result>
+		    <result name="lawfile">/pages/change/lawfile.jsp</result>
+		    <result name="buildLawfile">/pages/change/buildLawfile.jsp</result>
+		    
+		     <result name="addTemplatePage">/pages/change/template/addTemplatePage.jsp</result>
+		    <result name="addTemplate">/pages/change/template/addTemplate.jsp</result>
+		    
+		    <result name="buildLawfileCheck">/pages/change/buildLawfileCheck.jsp</result>
+		    <!--
+		    <result name="listMark">/pages/change/mark/listMark.jsp</result>
+		    -->
+		    <result name="listMark">/pages/change/mark/listMark_easyui.jsp</result>
+		    <result name="listMark_PageJson">/limitedpartner!queryMarkPageJson</result>
+		    <result name="listMark_redirect">/pages/change/markpagelist.jsp</result>
+		    <result name="addMark">/pages/change/mark/addMark.jsp</result>
+		    <result name="error">/pages/change/error.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+			</result>
+			<result name="success" type="stream">  
+               <param name="contentType">text/plain</param>  
+               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+               <param name="inputName">downloadFile</param>  
+               <param name="bufferSize">1024</param>  
+           </result>
+		</action>
+		
+    </package> 
+</struts>

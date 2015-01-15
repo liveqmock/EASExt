@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.admin.dao.ExtDataBaseMapper" >
+  <!-- 查询记录是否已经存在 -->
+	<select id="findExists" parameterType="map" resultType="int">
+		SELECT COUNT(${columnName}) FROM ${tableName} WHERE ${columnName} = #{columnValue}
+	</select>
+	
+	<!-- 查询记录是否已经存在 -->
+	<select id="findUserExists" parameterType="map" resultType="int">
+		SELECT COUNT(${columnName}) FROM ${tableName} WHERE ${columnName} = #{columnValue} and stutas=0
+	</select>
+</mapper>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.ChargeInfoMapper" >
+  <resultMap id="chargeInfo" type="com.creditease.eas.compliance.bean.ChargeInfo" >
+    <id column="FID" property="fid" jdbcType="DECIMAL" />
+    <result column="FRECEIVETYPE" property="freceiveType" jdbcType="VARCHAR"/>
+    <result column="FTYPE" property="ftype" jdbcType="VARCHAR"/>
+    <result column="FMODE" property="fmode" jdbcType="VARCHAR"/>
+    <result column="FAMOUNT" property="famount" jdbcType="VARCHAR"/>
+    <result column="FRISKEVALUATE" property="friskvaluate" jdbcType="VARCHAR"/>
+    <result column="FBACKCOUNT" property="fbackcount" jdbcType="VARCHAR"/>
+    <result column="FCOMPLAINANTPERFORMANCE" property="fcomplanantPerformance" jdbcType="VARCHAR"/>
+    <result column="FTERMPERFORMANCE" property="ftermPerformance" jdbcType="VARCHAR"/>
+    <result column="FCOMPLAINID" property="fcomplainId" jdbcType="DECIMAL"/>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    FID,FRECEIVETYPE,FTYPE,FMODE,FAMOUNT,FRISKEVALUATE,FBACKCOUNT,FCOMPLAINANTPERFORMANCE,FTERMPERFORMANCE,FCOMPLAINID 
+  </sql>
+  
+  
+   <select id="selectChargeInfoByComplainId" resultMap="chargeInfo" parameterType="int">
+    	select <include refid="Base_Column_List"/> from t_com_chargeinfo t where t.fcomplainid =#{fcomplainid,jdbcType=DECIMAL}
+  </select>
+  
+  <delete id="deleteChargeInfoByComplainId" parameterType="int">
+  		delete from t_com_chargeinfo t where t.fcomplainid=#{complainId}
+  </delete>
+  
+  <insert id="insert" parameterType="com.creditease.eas.compliance.bean.ChargeInfo">
+  	  <selectKey keyProperty="fid" resultType="long" order="BEFORE">
+		select t_com_chargeinfo_seq.nextval from dual
+		</selectKey>
+		insert into t_com_chargeinfo
+		  (fid,
+		   freceivetype,
+		   ftype,
+		   fmode,
+		   famount,
+		   FCOMPLAINID)
+		values
+ 			(
+ 			 #{fid,jdbcType=DECIMAL},#{freceiveType,jdbcType=VARCHAR},#{ftype,jdbcType=VARCHAR},#{fmode,jdbcType=VARCHAR},#{famount,jdbcType=VARCHAR},
+ 			 #{fcomplainId,jdbcType=DECIMAL}	
+ 			 )
+  </insert>
+  
+  
+</mapper>

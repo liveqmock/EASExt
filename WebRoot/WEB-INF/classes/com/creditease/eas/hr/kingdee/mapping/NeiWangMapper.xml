@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.NeiWangMapper">
+ 	 <!--提供司龄满周年的员工名单 
+		主职：只提供主要职位的
+		把不满一年的人员都去掉：PP.FEnterDate <= sysdate -1
+		2013年12月23日，解决了一个小Bug:
+			floor(MONTHS_BETWEEN(#{beginTime},pp.fenterdate)/12) as years 
+			 to_char(PP.FEnterDate,'MM-dd')=to_char(#{beginTime},'MM-dd') and PP.FEnterDate &lt; #{beginTime}
+			 判断入司满周年：
+			 	月日等于传过来的时间参数，入职日期小于传过来的时间参数（即入职日期截取后的月日等于今天，且入职日期不等于今天）
+ 	 -->
+ 	<select id="getWorkPerson" resultType="map">
+	  	select vn.fname_l2 department,p.fname_l2 userName,p.fnumber userCode,
+		pcm.cfmail email,floor(MONTHS_BETWEEN(#{beginTime},pp.fenterdate)/12) as years 
+        from t_bd_person p   
+        left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID  and Pm.Fisprimary=1
+         left join T_ORG_Position Po  on Po.fid = Pm.FPositionID   
+        left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid  
+        left join T_HR_BDEmployeeType emty on p.femployeetypeid=emty.fid 
+        left join T_HR_PersonPosition PP on PP.Fpersonid = P.Fid 
+         left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+         left join v_org_split_new vn on vn.rootnum = a.fnumber and vn.fterritory = 'D' 
+      where P.FDeletedStatus = 1 and  emty.finservice=1 and a.fnumber not like '%.%' and 
+       to_char(PP.FEnterDate,'MM-dd')=to_char(#{beginTime},'MM-dd') and PP.FEnterDate &lt; #{beginTime}-1 
+       order by vn.fname_l2
+   </select>
+	<!-- 提供每天过生日的人员名单
+		Pcm.Fmobile is not null and
+	 -->
+   	<select id="birthDayList" resultType="map">
+		select   vn.fname_l2 department,p.fname_l2 userName,
+			pcm.cfmail email,p.fnumber userCode,to_char(P.Fbirthday,'yyyy-MM-dd') as birthday
+	      from t_bd_person P 
+	      left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+	      left join T_ORG_Position Po  on Po.fid = Pm.FPositionID
+	      left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	      left join v_org_split_new vn on vn.rootnum = a.fnumber and vn.fterritory = 'D'
+	      left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+	      left join T_HR_PersonPosition PP on PP.Fpersonid = P.Fid 
+	      left join T_HR_BDEmployeeType emty on p.femployeetypeid=emty.fid 
+	      where P.FDeletedStatus = 1  and  emty.finservice=1 and a.fnumber not like '%.%'
+	      and to_char(trunc(P.Fbirthday),'mmdd') =to_char(#{beginTime},'mmdd')
+          order by vn.fname_l2
+	  </select>
+</mapper>

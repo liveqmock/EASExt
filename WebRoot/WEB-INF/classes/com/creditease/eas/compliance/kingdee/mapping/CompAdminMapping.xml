@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.kingdee.dao.CompAdminMapping" >
+ 	<sql id="BaseWhereCondition">
+   		 <if test="fname != null and fname!=''"> AND AD.FNAME_L2 = #{fname}</if>
+		<if test="fdeptname !=null and fdeptname !='' "> AND vsp.三级组织    LIKE '%${fdeptname}%'</if>
+		<if test="fcityname !=null and fcityname !='' "> AND vsp.四级组织   LIKE '%${fcityname}%'</if>
+		<if test="fsaledepart !=null and fsaledepart !='' "> AND vsp.五级组织   LIKE '%${fsaledepart}%'</if>
+		<if test="teamdepart !=null and teamdepart !='' "> AND vsp.七级组织 LIKE '%${teamdepart}%'</if>
+   </sql>
+	<!--查询组织数量-->
+    <select id="getTotalCountsByParams" resultType="Integer" parameterType="map">
+	   select count(*) from (
+	      select distinct vsp.二级组织 fcompname,vsp.三级组织 fdeptname,vsp.四级组织 fcityname,vsp.五级组织  fsaledepart,vsp.七级组织   teamdepart
+	      from t_org_admin ad
+	    left join t_org_admin adp on adp.fid = ad.FParentID
+	    left join v_org_all vsp on vsp.fnumber = ad.fnumber
+	    where ad.fnumber not like '%.%' and ad.FIsSealUp  = 0 and ad.fid != 'rlgAAAAABbXM567U'
+	    and ad.flevel>2 <include refid="BaseWhereCondition"/>
+     ) t
+	</select>
+	<!--查询组织的信息
+		select * FROM (select ROWNUM as ROWNO,t.* from (
+	    select ad.fid fid,ad.fnumber fnumber,ad.fname_l2 fname,ad.fdisplayname_l2 fdisplayname
+	    from t_org_admin ad
+		left join t_org_admin adp on adp.fid = ad.FParentID
+		where ad.fnumber not like '%.%' and ad.FIsSealUp  = 0 and ad.fid != 'rlgAAAAABbXM567U'
+      order by AD.FLEVEL,AD.FNUMBER) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER}  
+	-->
+    <select id="selectOrgAdminInfo" resultType="map" parameterType="map">
+        select * FROM (select ROWNUM as ROWNO,t.* from (
+	       select distinct * from (select  trim(vsp.二级组织) fcompname,trim(vsp.三级组织) fdeptname,trim(vsp.四级组织) fcityname,trim(vsp.五级组织) fsaledepart,trim(vsp.七级组织) teamdepart
+        from t_org_admin ad
+      left join t_org_admin adp on adp.fid = ad.FParentID
+      left join v_org_all vsp on vsp.fnumber = ad.fnumber
+      where ad.fnumber not like '%.%' and ad.FIsSealUp  = 0 and ad.fid != 'rlgAAAAABbXM567U'
+      and ad.flevel>2 <include refid="BaseWhereCondition"/>
+       order by vsp.二级组织)) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER}  
+	</select>
+    <select id="getOrgData" resultType="map" parameterType="map">
+  		select distinct * from (
+  			select trim(vsp.三级组织) fdeptname,trim(vsp.四级组织) fcityname, trim(vsp.五级组织) fsaledepart
+	   		from t_org_admin ad
+			left join t_org_admin adp on adp.fid = ad.FParentID
+			left join v_org_all vsp on vsp.fnumber = ad.fnumber
+			where ad.fnumber not like '%.%' and ad.FIsSealUp  = 0 and ad.fid != 'rlgAAAAABbXM567U' and ad.flevel>2 
+			<if test="fsaledepart !=null and fsaledepart !='' "> AND vsp.五级组织   LIKE '%${fsaledepart}%'</if>
+			order by vsp.二级组织)
+	</select>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+     <package name="projectManage" extends="json-default" namespace="/project">
+		<action name="projectAction" class="com.creditease.eas.projectmanage.action.ProjectAction">
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			<result name="edit">/pages/projectmanage/editProject.jsp</result>
+			<result name="selectProject">/pages/projectmanage/agreementInfo.jsp</result>
+			<result name="editAgreement">/pages/projectmanage/editAgreement.jsp</result>
+			<result name="interestTime">/pages/projectmanage/interestTimeInfo.jsp</result>
+		</action>
+    </package>   
+    
+</struts>

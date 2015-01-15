@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.ApplysettlementMapper" >
+	<resultMap id="BaseResultMap" type="com.creditease.eas.compliance.bean.Applysettlement" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="APPLYPERSON" property="applyPerson" jdbcType="VARCHAR" />
+		<result column="APPLYTIME" property="applyTime" jdbcType="VARCHAR" />
+		<result column="AROCESSINGSCHEME" property="arocessingScheme" jdbcType="VARCHAR" />
+		<result column="OUTOFLINEID" property="outofLineId" jdbcType="INTEGER" />
+		<result column="REASON" property="reason" jdbcType="VARCHAR" />
+		<result column="OUTOFLINELEVELID" property="outofLineLevelId" jdbcType="INTEGER" />
+		<result column="COMPLAINANTS" property="complainants" jdbcType="VARCHAR" />
+		<result column="DIRECTCHARGEMAN" property="directChargeMan" jdbcType="VARCHAR" />
+		<result column="DCMPRESULT" property="dcmpResult" jdbcType="VARCHAR" />
+		<result column="INDIRECTCHARGEMAN" property="indirectChargeMan" jdbcType="VARCHAR" />
+		<result column="IDCMPRESULT" property="idcmpResult" jdbcType="VARCHAR" />
+		<result column="COMPLAINANTSOLUTION" property="complainantSolution" jdbcType="VARCHAR" />
+		<result column="CSPRESULT" property="cspResult" jdbcType="VARCHAR" />
+		<result column="FEEDBACKRESULTID" property="feedBackResultId" jdbcType="INTEGER" />
+		<result column="ZCXZLSID" property="zcxzlsId" jdbcType="INTEGER" />
+		<result column="INVESTIGATIONID" property="investigationId" jdbcType="INTEGER" />
+		<result column="FIELDSURVEYID" property="fieldSurveyId" jdbcType="INTEGER" />
+		<result column="CREATERID" property="createrId" jdbcType="INTEGER" />
+		<result column="CREATETIME" property="createTime" jdbcType="DATE" />
+		<result column="LASTUPDATERID" property="lastUpdaterId" jdbcType="INTEGER" />
+		<result column="LASTUPDATETIME" property="lastUpdateTime" jdbcType="DATE" />
+		<result column="SECLASSSIFYID" property="seClasssifyId" jdbcType="INTEGER" />
+		<result column="SECLASSSIFYOTHER" property="seClasssifyOther" jdbcType="VARCHAR" />
+		<result column="SEREASON" property="seReason" jdbcType="VARCHAR" />
+		<result column="SPECIALENDCASE" property="specialEndCase" jdbcType="INTEGER" />
+		
+		<result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+		<result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+		<result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+		<result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+		<result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+		<result column="EXT6" property="ext6" jdbcType="VARCHAR" />
+		<result column="EXT7" property="ext7" jdbcType="VARCHAR" />
+		<result column="EXT8" property="ext8" jdbcType="VARCHAR" />
+		<result column="EXT9" property="ext9" jdbcType="VARCHAR" />
+		<result column="EXT10" property="ext10" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<sql id="Base_Column_List" >
+		ID, APPLYPERSON, APPLYTIME, AROCESSINGSCHEME, OUTOFLINEID, REASON,OUTOFLINELEVELID,COMPLAINANTS, DIRECTCHARGEMAN,
+		DCMPRESULT, INDIRECTCHARGEMAN, IDCMPRESULT,COMPLAINANTSOLUTION, CSPRESULT, FEEDBACKRESULTID,ZCXZLSID,
+		INVESTIGATIONID,FIELDSURVEYID, CREATERID,CREATETIME, LASTUPDATERID, LASTUPDATETIME,
+		SECLASSSIFYID,SECLASSSIFYOTHER,SEREASON, SPECIALENDCASE,EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10
+	</sql>
+  
+  	<sql id="preview_condition" >
+		<if test="orgName != null and orgName != '' "> AND ORGNAME like '%${orgName}%'</if>
+		<if test="startDate != null and startDate != '' "> AND CREATORTIME &gt;= TO_DATE('${startDate}','yyyy-mm-dd')</if>
+		<if test="paymentCycle != null and paymentCycle != '' "> AND PAYMENTCYCLE = #{paymentCycle,jdbcType=VARCHAR}</if>
+		<if test="lastCostCenter != null and lastCostCenter != '' "> AND LASTCOSTCENTER like '%${lastCostCenter}%'</if>
+		<if test="endDate != null and endDate != '' "> AND CREATORTIME &lt;= TO_DATE('${endDate}','yyyy-mm-dd')</if>
+		<if test="signatorys != null and signatorys != '' "> AND SIGNATORY in (${signatorys})</if>		
+  	</sql>
+  
+ 	<select id="getTotalCounts" resultType="int"  parameterType="map">
+		SELECT COUNT(ID) FROM (SELECT ROWNUM AS ROWNO,
+ 		<include refid="Base_Column_List" /> FROM T_COM_APPLYSETTLEMENT 
+ 		<where> 1=1 <include refid="preview_condition" /> </where>)  
+	</select>
+	
+	<select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		SELECT * FROM ( SELECT ROWNUM AS ROWNO, 
+	 	<include refid="Base_Column_List" /> FROM T_COM_APPLYSETTLEMENT   
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+				<include refid="preview_condition" />
+			</where> ) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT <include refid="Base_Column_List" /> FROM T_COM_APPLYSETTLEMENT WHERE ID = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<select id="getByInvestigationId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT <include refid="Base_Column_List" /> FROM T_COM_APPLYSETTLEMENT WHERE INVESTIGATIONID = #{investigationId,jdbcType=INTEGER}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+		DELETE FROM T_COM_APPLYSETTLEMENT WHERE ID = #{id,jdbcType=INTEGER}
+	</delete>
+  
+	<insert id="insert" parameterType="com.creditease.eas.compliance.bean.Applysettlement" >
+	    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   			SELECT T_COM_APPLYSETTLEMENT_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+			INSERT INTO T_COM_APPLYSETTLEMENT (ID, APPLYPERSON, APPLYTIME, AROCESSINGSCHEME, OUTOFLINEID, REASON,
+				OUTOFLINELEVELID,COMPLAINANTS, DIRECTCHARGEMAN, DCMPRESULT, INDIRECTCHARGEMAN, IDCMPRESULT, 
+				COMPLAINANTSOLUTION, CSPRESULT, FEEDBACKRESULTID,ZCXZLSID,INVESTIGATIONID,FIELDSURVEYID, CREATERID,CREATETIME,
+				SECLASSSIFYID,SECLASSSIFYOTHER,SEREASON,SPECIALENDCASE, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10)
+			values (#{id,jdbcType=INTEGER}, #{applyPerson,jdbcType=VARCHAR}, #{applyTime,jdbcType=VARCHAR}, 
+				#{arocessingScheme,jdbcType=VARCHAR}, #{outofLineId,jdbcType=INTEGER}, 
+				#{reason,jdbcType=VARCHAR}, #{outofLineLevelId,jdbcType=INTEGER},#{complainants,jdbcType=VARCHAR}, 
+				#{directChargeMan,jdbcType=VARCHAR}, #{dcmpResult,jdbcType=VARCHAR}, #{indirectChargeMan,jdbcType=VARCHAR}, 
+				#{idcmpResult,jdbcType=VARCHAR},#{complainantSolution,jdbcType=VARCHAR}, #{cspResult,jdbcType=VARCHAR}, 
+				#{feedBackResultId,jdbcType=INTEGER},#{zcxzlsId,jdbcType=INTEGER},#{investigationId,jdbcType=INTEGER},
+				#{fieldSurveyId,jdbcType=INTEGER},#{createrId,jdbcType=INTEGER}, SYSDATE,#{seClasssifyId,jdbcType=INTEGER},
+				#{seClasssifyOther,jdbcType=VARCHAR},#{seReason,jdbcType=VARCHAR},
+				#{specialEndCase,jdbcType=INTEGER},#{ext1,jdbcType=VARCHAR},
+			 	#{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR}, #{ext4,jdbcType=VARCHAR}, 
+			 	#{ext5,jdbcType=VARCHAR}, #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, 
+			  	#{ext8,jdbcType=VARCHAR}, #{ext9,jdbcType=VARCHAR}, #{ext10,jdbcType=VARCHAR})
+  	</insert>
+	<!--案件最终归类下拉列表集合-->
+	<select id="getCfClassifyIds" resultType="map">
+		SELECT FID ID,FNAME VALUE FROM T_COM_INICASETYPE
+	</select>
+	<!--案件最终归类下拉列表集合-->
+	<select id="getRelInitypes" resultType="map" parameterType="java.lang.Integer">
+		select a.inicasetypeid  from t_com_rel_inicasetype a where a.applysettlementid =  #{applysettlementId,jdbcType=INTEGER}
+	</select>
+	<!--是否违规下拉列表集合-->
+	<select id="getOutofLineIds" resultType="map">
+		SELECT ID, VALUE FROM T_COM_OUTOFLINE
+	</select>
+	<!--违规级别下拉列表集合-->
+	<select id="getOutofLineLevelIds" resultType="map">
+		SELECT ID, VALUE FROM T_COM_OUTOFLINELEVEL
+	</select>
+	<!--特殊结案归类下拉列表集合-->
+	<select id="getSeClasssifys" resultType="map">
+		SELECT ID, VALUE FROM T_COM_SECLASSSIFY
+	</select>
+	
+	 <resultMap id="relcasetype" type="com.creditease.eas.compliance.bean.RelInicasetype">
+	    <id column="ID" jdbcType="DECIMAL" property="id" />
+	    <result column="COMPLAINID" jdbcType="DECIMAL" property="complainid" />
+	    <result column="APPLYSETTLEMENTID" jdbcType="DECIMAL" property="applysettlementid" />
+	    <result column="INICASETYPEID" jdbcType="DECIMAL" property="inicasetypeid" />
+	    <result column="DETAILCASETYPEID" jdbcType="VARCHAR" property="detailcasetypeid" />
+  	</resultMap>
+	
+	<select id="getRelInicasetypesByApplysettlementId" parameterType="int" resultMap="relcasetype">
+		<![CDATA[
+		   select  ID, COMPLAINID, APPLYSETTLEMENTID, INICASETYPEID, DETAILCASETYPEID from T_COM_REL_INICASETYPE 
+		    where applysettlementid=#{id,jdbcType=DECIMAL}
+        ]]>
+	</select>
+</mapper>

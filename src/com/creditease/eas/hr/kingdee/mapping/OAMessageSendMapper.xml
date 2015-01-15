@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.OAMessageSendMapper" >
+ 	<!-- 需要根据组织变更日志查询组织变动的信息
+ 		2014年5月13日：
+	 			1.将部门负责人对应的信息拆分出去
+	 			2.组织查询只查询行政组织和成本中心
+	 	-->
+	<select id="queryChangeOrgInfo" resultType="map" parameterType="map">
+	 Select * FROM( select a.*, ROWNUM as ROWNO from 
+	 (select ta.FID as FID,
+      ta.FNAME_l2 as FNAME,TA.FNUMBER as FNUMBER,
+      decode(ta.fid,'00000000-0000-0000-0000-000000000000CCE7AED4',ta.fid,tp.fid) as fparentID,
+      decode(ta.fnumber,'CE',ta.fnumber,tp.fnumber) as fparentNumber,
+      ta.FISFREEZE as FISFREEZE,
+      ta.FIsSealUp as FISOUSEALUP,
+      ta.FORGTYPESTR as FORGTYPESTR,
+      ta.FISLEAF as FISLEAF,ta.FLEVEL as FLEVEL,
+      ta.fdisplayname_l2 as FDISPLAYNAME,ta.FSIMPLENAME FSIMPLENAME,lp.fname_l2 flayertypeName,
+      to_char(ta.flastupdatetime,'yyyy-MM-dd hh24:mi:ss') flastupdatetime,
+      to_char(ta.FCREATETIME,'yyyy-MM-dd hh24:mi:ss') FCREATETIME
+      from t_org_admin ta
+      left join t_org_admin tp on tp.fid = ta.FParentID
+      left join T_Org_LayerType lp on lp.fid = ta.flayertypeid
+      where ta.fnumber not like '%.%'
+       <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+       and 
+       (
+	       (	
+	       		ta.fcreatetime>=#{beginTime}  and ta.fcreatetime &lt;=#{endTime}
+	       )
+			or (
+				ta.FLastUpdateTime>=#{beginTime} 
+				and ta.FLastUpdateTime&lt;=#{endTime}
+			)
+		)
+		</if>
+		<if test="fnumber != null and fnumber != ''">
+			and ta.FNUMBER = #{fnumber}
+		</if>
+		<if test="fname != null and fname != ''">
+			and ta.FNAME_l2 like #{fname}
+		</if>
+		<if test="fid != null and fid != ''">
+			and ta.fid = #{fid}
+		</if>
+		order by ta.flevel,ta.FCREATETIME) a	
+		) b
+		<if test="startRow != null and startRow != '' and endRow != null and endRow != ''">
+			 where ROWNO between #{startRow,jdbcType=INTEGER} and #{endRow,jdbcType=INTEGER}	    
+		 </if>
+	</select>
+	<!-- 查询组织变更总条数 
+		只查询行政组织和成本中心
+	-->
+	<select id="getTotalOrgCount" resultType="java.lang.Integer" parameterType="map">
+	  select count(*) from t_org_admin ta
+      where ta.fnumber not like '%.%'
+       <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+       and 
+       (
+	       (	
+	       		ta.fcreatetime>=#{beginTime}  and ta.fcreatetime &lt;=#{endTime}
+	       )
+			or (
+				ta.FLastUpdateTime>=#{beginTime} 
+				and ta.FLastUpdateTime&lt;=#{endTime}
+			)
+		)
+		</if>
+		<if test="fnumber != null and fnumber != ''">
+			and ta.FNUMBER = #{fnumber}
+		</if>
+		<if test="fname != null and fname != ''">
+			and ta.FNAME_l2 like #{fname}
+		</if>
+		<if test="fid != null and fid != ''">
+			and ta.fid = #{fid}
+		</if>
+	</select>
+	 <!-- 查询变化的成本中心 -->
+	<select id="queryChangeCostcenterInfo" resultType="map" parameterType="map">
+	 Select * FROM( select a.*, ROWNUM as ROWNO from 
+	 (select ta.FID as FID,
+      ta.FNAME_l2 as FNAME,TA.FNUMBER as FNUMBER,
+      decode(ta.fid,'00000000-0000-0000-0000-000000000000CCE7AED4',ta.fid,tp.fid) as fparentID,
+      decode(ta.fnumber,'CE',ta.fnumber,tp.fnumber) as fparentNumber,
+      ta.FISFREEZE as FISFREEZE,
+      ta.FIsSealUp as FISOUSEALUP,
+      ta.FORGTYPESTR as FORGTYPESTR,
+      ta.FISLEAF as FISLEAF,
+      ta.FLEVEL,
+      ta.fdisplayname_l2 as FDISPLAYNAME,
+      ta.FSIMPLENAME FSIMPLENAME,ta.FIsBizUnit,
+      to_char(ta.flastupdatetime,'yyyy-MM-dd hh24:mi:ss') flastupdatetime,
+      to_char(ta.FCREATETIME,'yyyy-MM-dd hh24:mi:ss') FCREATETIME
+      from t_org_costcenter ta
+      left join t_org_costcenter tp on tp.fid = ta.FParentID
+      where ta.fnumber not like '%.%'
+       <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+       and 
+       (
+	       (	
+	       		ta.fcreatetime>=#{beginTime}  and ta.fcreatetime &lt;=#{endTime}
+	       )
+			or (
+				ta.FLastUpdateTime>=#{beginTime} 
+				and ta.FLastUpdateTime&lt;=#{endTime}
+			)
+		)
+		</if>
+		<if test="fnumber != null and fnumber != ''">
+			and ta.FNUMBER = #{fnumber}
+		</if>
+		<if test="fname != null and fname != ''">
+			and ta.FNAME_l2 like #{fname}
+		</if>
+		<if test="fid != null and fid != ''">
+			and ta.fid = #{fid}
+		</if>
+		order by ta.flevel,ta.FCREATETIME) a	
+		) b
+		<if test="startRow != null and startRow != '' and endRow != null and endRow != ''">
+			 where ROWNO between #{startRow,jdbcType=INTEGER} and #{endRow,jdbcType=INTEGER}	    
+		 </if>
+	</select>
+	<!-- 查询组织变更总条数 
+		只查询行政组织和成本中心
+	-->
+	<select id="getTotalCostCenterCount" resultType="java.lang.Integer" parameterType="map">
+	  select count(*) from t_org_costcenter ta
+      where ta.fnumber not like '%.%'
+       <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+       and 
+       (
+	       (	
+	       		ta.fcreatetime>=#{beginTime}  and ta.fcreatetime &lt;=#{endTime}
+	       )
+			or (
+				ta.FLastUpdateTime>=#{beginTime} 
+				and ta.FLastUpdateTime&lt;=#{endTime}
+			)
+		)
+		</if>
+		<if test="fnumber != null and fnumber != ''">
+			and ta.FNUMBER = #{fnumber}
+		</if>
+		<if test="fname != null and fname != ''">
+			and ta.FNAME_l2 like #{fname}
+		</if>
+		<if test="fid != null and fid != ''">
+			and ta.fid = #{fid}
+		</if>
+	</select>
+	<!-- 查询部门负责人相关的信息 -->
+	<select id="queryResponPositionInfo" parameterType="map" resultType="map">
+		select ta.fid,ta.fnumber,p.fnumber fmanagernumber,
+		p.fid fmanagerID,to_char(ta.FCREATETIME,'yyyy-MM-dd hh24:mi:ss') FCREATETIME,
+		to_char(ta.flastupdatetime,'yyyy-MM-dd hh24:mi:ss') flastupdatetime 
+		from t_org_admin ta
+        inner join T_ORG_Position t2 on t2.fid = ta.FResponPositionID
+        inner join T_ORG_PositionMember Pm on Pm.Fpositionid =  t2.fid
+        inner join t_bd_person p on p.fid = pm.fpersonid
+		where 1=1 
+         <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+		    and 
+		       (
+			       (	
+			       		ta.fcreatetime>=#{beginTime}  and ta.fcreatetime &lt;=#{endTime}
+			       )
+					or (
+						ta.FLastUpdateTime>=#{beginTime} 
+						and ta.FLastUpdateTime&lt;=#{endTime}
+					)
+				)
+		</if>
+		<if test="forgId != null and forgId != ''">
+			and ta.fid = #{forgId}
+		</if>
+		<if test="fOrgnumber != null and fOrgnumber != ''">
+			and ta.FNUMBER = #{fOrgnumber}
+		</if>
+	</select>
+	<!-- 
+		2013年10月17日： 去掉：Pm.FIsPrimary FISMAINJOB,
+		2014年3月25日：去掉了distinct，经查加不加distinct数据一样多，去掉了pc.fnumber is not null，经查该过滤条件没用
+	-->
+	<select id="queryChangePositionInfo" resultType="map" parameterType="map">
+	   Select * FROM(select a.*,ROWNUM as ROWNO from(select 
+	     po.fid fid,Po.FNUMBER FNUMBER,Po.FNAME_L2 fname,
+	   	 pc.fnumber  fpositionLevelFnumber,pc.fname_l2  fpositionLevelName,
+	     t5.FNumber  fpositionLayerFnumber,t5.FName_l2  fpositionLayerName,
+	     Pt.FNumber fpositionTypeFnumber,Pt.FName_l2 fpositionTypeName,
+	     job.fname_l2 fjobFName, job.fnumber fjobFNumber,
+	     pp.fid FPARENTID,pp.fnumber fparentNumber,
+	     A.fid FDEPTID,A.fnumber fdeptNumber,
+	     Po.FSIMPLENAME FSIMPLENAME,Po.FDeletedStatus  FDeletedStatus,
+	     Po.FDESCRIPTION_L2  FDESCRIPTION_L2,to_char(Po.fcreatetime,'yyyy-MM-dd hh24:mi:ss') fcreatetime,
+	     to_char(po.flastupdatetime,'yyyy-MM-dd hh24:mi:ss') flastupdatetime,Ph.flevel
+	    from  T_ORG_Position Po
+		left join T_ORG_PositionHierarchy Ph on Ph.Fchildid = Po.Fid
+		left join　CT_HR_Positionclass　Pc on Pc.fid = Po.Cfzwdjid
+		left join T_BD_PositionType Pt on Pt.fid = Po.FPositionTypeID
+		left join CT_HR_Zc t5 on t5.fid = Po.cfzcid
+	    left join T_ORG_Job job　on Po.FJOBID = job.fid
+		left join t_org_position pp on pp.fid =  Ph.Fparentid
+		join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+		where  1=1
+		 <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+		and 
+		(( Po.fcreatetime>=#{beginTime}  and Po.fcreatetime &lt;=#{endTime})
+		or (Po.FLastUpdateTime>=#{beginTime} and Po.FLastUpdateTime&lt;=#{endTime}))
+		</if>
+		<if test="fid != null and fid != ''">
+			and po.fid = #{fid}
+		</if>
+		<if test="fnumber != null and fnumber != ''">
+			and Po.FNUMBER = #{fnumber}
+		</if>
+		<if test="fname != null and fname != ''">
+			and Po.FNAME_L2 like #{fname}
+		</if>
+		order by Po.fcreatetime,Ph.flevel asc) a
+		) b
+		 <if test="startRow != null and startRow != '' and endRow != null and endRow != ''">
+		 where ROWNO between #{startRow,jdbcType=INTEGER} and #{endRow,jdbcType=INTEGER}
+		 </if>
+	</select>
+	<!--查询职位变更的总条数 -->
+	<select id="getTotalPositionCount" resultType="java.lang.Integer" parameterType="map">
+	    select count(*) from  T_ORG_Position Po
+		left join T_ORG_PositionHierarchy Ph on Ph.Fchildid = Po.Fid
+		left join　CT_HR_Positionclass　Pc on Pc.fid = Po.Cfzwdjid
+		left join T_BD_PositionType Pt on Pt.fid = Po.FPositionTypeID
+		left join CT_HR_Zc t5 on t5.fid = Po.cfzcid
+	    left join T_ORG_Job job　on Po.FJOBID = job.fid
+		left join t_org_position pp on pp.fid =  Ph.Fparentid
+		join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+		where  1=1
+		 <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+		and 
+		(( Po.fcreatetime>=#{beginTime}  and Po.fcreatetime &lt;=#{endTime})
+		or (Po.FLastUpdateTime>=#{beginTime} and Po.FLastUpdateTime&lt;=#{endTime}))
+		</if>
+		<if test="fid != null and fid != ''">
+			and po.fid = #{fid}
+		</if>
+		<if test="fnumber != null and fnumber != ''">
+			and Po.FNUMBER = #{fnumber}
+		</if>
+		<if test="fname != null and fname != ''">
+			and Po.FNAME_L2 like #{fname}
+		</if>
+	</select>
+	<!-- 
+		2014年3月28日：经过和剑平商议，人员接口只提供主值的信息
+		2014年3月31日:经过确认pm.FIsPrimary = 1 只能放在T_ORG_PositionMember和t_bd_person表进行关联时，不能放在where后面，
+		否则会将t_org_position 为空的数据过滤掉,加了pm.FIsPrimary = 1后，Po.fid fpositionid,Po.fnumber fpositioncode,
+    pm.FIsPrimary fismainjob 这几个字段不再需要用逗号分隔
+	-->
+	<select id="queryChangePersonInfo" resultType="map"  parameterType="map">
+	  Select * FROM(select ROWNUM as ROWNO,p.FID fpersonid,p.fnumber FUSERCODE,p.fname_l2 FUSERNAME,
+	  substr(Pcm.Cfmail,0,instr(Pcm.Cfmail,'@',1)-1)  FLOGINNAME,
+      Pcm.cfmail FUSEREMAIL,ht.fnumber fuseractiveFnumber,ht.fname_l2 fuseractiveFname,ht.FinService FinService,
+    p.FNATIVEPLACE_L2 FUSERSTRYLE,p.FGender  FUSERSEX,to_char(p.FBirthday,'yyyy-MM-dd') FBIRTHDAY,pcm.FPostalcode FPOSTCODE,
+    Pcm.Faddress as FADDRESS,to_char(pp.FEnterDate,'yyyy-MM-dd') FREGISTERTIME,ct.fnumber  FCITYNUMBER,ct.fname_l2 fcityName,
+    pcm.fmobile FCell,p.FOfficePhone fofficephone,pcm.fbackupEMail,pcm.fbackupMobile,pcm.fqq,
+    p.FIDCardNO fidcardno,p.cfisbyj fisbyj,
+    CASE WHEN p.flastupdatetime > pp.flastupdatetime  AND p.flastupdatetime > pcm.flastupdatetime
+               			 THEN to_char(p.flastupdatetime,'yyyy-MM-dd hh24:mi:ss')
+    			WHEN pp.flastupdatetime > p.flastupdatetime  AND pp.flastupdatetime > pcm.flastupdatetime
+                		THEN to_char(pp.flastupdatetime,'yyyy-MM-dd hh24:mi:ss')
+              ELSE to_char(pcm.flastupdatetime,'yyyy-MM-dd hh24:mi:ss')
+     END flastupdatetime,ctr.fname_l2 frzzgname,es.fname_l2 fzpqd,nat.fname_l2 fnatname,decode(he.fnumber,'03',1,0) fishealth,
+     p.FPassportNO FPassportNO
+    from t_bd_person p
+    left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+    left join T_HR_PersonPosition PP on PP.Fpersonid = P.Fid
+    left join T_HR_BDEmployeeType ht on ht.fid = p.FEmployeeTypeID
+    left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	left join ct_hr_rzzg ctr on ctr.fid= p.CFRZZGID
+    left join T_HR_EnrollSource es on es.fid = pp.FEnrollSourceID
+    left join T_BD_Nationality nat on nat.fid = p.FNationalityID
+    left join T_BD_HRHealth he on he.fid = p.FHealthID
+     left join T_ORG_HRO hro on hro.fid = p.FHROrgUnitID
+	  where	  1=1
+	  <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+		<![CDATA[
+		and 
+		 (((p.fcreatetime>=#{beginTime}  and p.fcreatetime<=#{endTime})
+		or ( p.FLastUpdateTime=#{beginTime}  and p.FLastUpdateTime<=#{endTime}))
+		or (( pp.fcreatetime>=#{beginTime}  and pp.fcreatetime <=#{endTime})
+		or ( pp.FLastUpdateTime>=#{beginTime}  and  pp.FLastUpdateTime <=#{endTime}))
+		or ( ( pcm.fcreatetime >=#{beginTime}  and  pcm.fcreatetime <=#{endTime})
+		or ( pcm.FLastUpdateTime >=#{beginTime}  and  pcm.FLastUpdateTime <=#{endTime}))
+	    and hro.fnumber not like '%.%')]]> 
+	    </if>
+	       <if test="endRow != null and endRow != ''">
+	       and ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+	      </if>
+		<if test="fnumber != null and fnumber != ''">
+			and p.FNUMBER = #{fnumber}
+		</if>
+		<if test="fname != null and fname != ''">
+			and p.fname_l2 like #{fname}
+		</if>
+		<if test="fid != null and fid != ''">
+			and p.fid = #{fid}
+		</if>
+		 order by p.FLastUpdateTime desc,p.fcreatetime desc,pp.FLastUpdateTime desc,pp.fcreatetime desc,
+   		 	pcm.FLastUpdateTime desc,pcm.fcreatetime desc
+		)
+		 <if test="startRow != null and startRow != ''">
+		 where ROWNO &gt;= #{startRow,jdbcType=INTEGER}  
+		 </if>
+	</select>
+	<!-- 查询人员总条数-->
+	<select id="getTotalpersonCount" resultType="java.lang.Integer"  parameterType="map">
+		 select count(*) from t_bd_person p
+	    left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+	    left join T_ORG_PositionMember Pm on P.fid = Pm.FPersonID and pm.FIsPrimary = 1
+	    left join T_ORG_Position Po on Po.fid = Pm.FPositionID
+	    left join T_HR_PersonPosition PP on PP.Fpersonid = P.Fid
+	    left join T_HR_BDEmployeeType ht on ht.fid = p.FEmployeeTypeID
+	    left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	    left join T_ORG_HRO hro on hro.fid = p.FHROrgUnitID
+	  	where 1=1
+        <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+		<![CDATA[
+		and 
+		 (((p.fcreatetime>=#{beginTime}  and p.fcreatetime<=#{endTime})
+		or ( p.FLastUpdateTime=#{beginTime}  and p.FLastUpdateTime<=#{endTime}))
+		or (( pp.fcreatetime>=#{beginTime}  and pp.fcreatetime <=#{endTime})
+		or ( pp.FLastUpdateTime>=#{beginTime}  and  pp.FLastUpdateTime <=#{endTime}))
+		or ( ( pcm.fcreatetime >=#{beginTime}  and  pcm.fcreatetime <=#{endTime})
+		or ( pcm.FLastUpdateTime >=#{beginTime}  and  pcm.FLastUpdateTime <=#{endTime}))
+	    and hro.fnumber not like '%.%')]]> 
+	    </if>
+		<if test="fnumber != null and fnumber != ''">
+			and p.FNUMBER = #{fnumber}
+		</if>
+		<if test="fname != null and fname != ''">
+			and p.fname_l2 like #{fname}
+		</if>
+		<if test="fid != null and fid != ''">
+			and p.fid = #{fid}
+		</if>
+	</select>
+	<!-- 查询人员，职位中间表的信息 -->
+	<select id="queryPersonPositionTempInfo" parameterType="map" resultType="map">
+		SELECT  *  FROM (select A.*, ROWNUM RN   FROM
+		 (select  p.fid fpersonid,p.fnumber fpersoncode,pm.FIsPrimary fismainjob,po.fid fpositionid,
+		  po.fnumber fpositioncode,to_char(pm.FCreateTime,'yyyy-MM-dd hh24:mi:ss') FCREATETIME,
+		to_char(pm.FLastUpdateTime,'yyyy-MM-dd hh24:mi:ss') flastupdatetime 
+		  from  T_ORG_PositionMember Pm
+		   left join T_ORG_Position Po on Po.fid = Pm.FPositionID
+		   left join t_bd_person p on p.fid = pm.fpersonid
+		    where 1 = 1
+		  <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+		 	and (((pm.fcreatetime>=#{beginTime}  and pm.fcreatetime&lt;=#{endTime})
+			or ( pm.FLastUpdateTime=#{beginTime}  and pm.FLastUpdateTime&lt;=#{endTime})))
+		 </if>
+		  <if test="fpersoncode != null and fpersoncode != ''">
+			and p.fnumber = #{fpersoncode}
+		  </if>
+		  <if test="fpersonid != null and fpersonid != ''">
+			and p.fid = #{fpersonid}
+		  </if>
+		   <if test="fpositioncode != null and fpositioncode != ''">
+			and po.fnumber = #{fpositioncode}
+		  </if>
+		  <if test="fpositionid != null and fpositionid != ''">
+			and po.fid = #{fpositionid}
+		  </if>) A 
+      WHERE ROWNUM &lt;= #{max}) 
+      WHERE RN &gt;= #{min} 
+	</select>
+	<!-- 查询人员，职位中间表的信息的数量 -->
+	<select id="queryPersonPositionTempInfoCount" parameterType="map" resultType="Integer">
+		 select  count(*) from  T_ORG_PositionMember Pm
+		   left join T_ORG_Position Po on Po.fid = Pm.FPositionID
+		   left join t_bd_person p on p.fid = pm.fpersonid
+		   where 1 = 1
+		    <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+		 		and (((pm.fcreatetime>=#{beginTime}  and pm.fcreatetime&lt;=#{endTime})
+			or ( pm.FLastUpdateTime=#{beginTime}  and pm.FLastUpdateTime&lt;=#{endTime})))
+		 </if>
+		  <if test="fpersoncode != null and fpersoncode != ''">
+			and p.fnumber = #{fpersoncode}
+		  </if>
+		  <if test="fpersonid != null and fpersonid != ''">
+			and p.fid = #{fpersonid}
+		  </if>
+		   <if test="fpositioncode != null and fpositioncode != ''">
+			and po.fnumber = #{fpositioncode}
+		  </if>
+		  <if test="fpositionid != null and fpositionid != ''">
+			and po.fid = #{fpositionid}
+		  </if>
+	</select>
+	<!-- 查询合同信息
+		注意要加能根据员工编码进行查询
+		2014-5-13:
+			判断合同是否在用，只需要根据合同状态就行了
+	 -->
+	<select id="queryContractInfo" resultType="map" parameterType="map">
+		Select * FROM (select ROWNUM as RN,a.*
+		from (select hec.FEmployeeID fpersonid,p.fnumber fpersoncode,hec.FContractNo,decode(hec.FIsInAdmin,1,hec.FToUnit_l2,0,osu.fname_l2) fcontractComName,
+		case when hec.FState = 1 then 1
+		else 0 end fcontractStatus,
+		to_char(hec.FCREATETIME,'yyyy-MM-dd hh24:mi:ss') FCREATETIME,
+		to_char(hec.FLastUpdateTime,'yyyy-MM-dd hh24:mi:ss') flastupdatetime
+		from T_HR_EmployeeContract hec
+		left join t_bd_person p on p.fid = hec.FEmployeeID
+		left join T_BA_OutsideSystemUnit osu on osu.fid = hec.cfcultivatid
+		left join T_HR_BDEmployeeType ht on ht.fid = p.FEmployeeTypeID
+		where (hec.FState = 1 or hec.FState = 2 or hec.FState = 3) and ht.finservice = 1
+		 <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+		 	and ((hec.FCreateTime >=#{beginTime} and hec.flastupdatetime &lt;= #{endTime})
+		 	or (hec.FLastUpdateTime>=#{beginTime}  and hec.FLastUpdateTime &lt;=#{endTime}))
+		 </if>
+		  <if test="fpersoncode != null and fpersoncode != ''">
+			and p.fnumber = #{fpersoncode}
+		  </if>
+		  <if test="fpersonid != null and fpersonid != ''">
+			and p.fid = #{fpersonid}
+		  </if>
+			 ) a
+		where ROWNUM &lt;= #{max})
+		where RN &gt;= #{min}
+	</select>
+	<!--查询合同信息的数量 -->
+	<select id="queryContractInfoCount" resultType="Integer" parameterType="map">
+		select count(*) from T_HR_EmployeeContract hec
+		left join t_bd_person p on p.fid = hec.FEmployeeID
+		left join T_BA_OutsideSystemUnit osu on osu.fid = hec.cfcultivatid
+		left join T_HR_BDEmployeeType ht on ht.fid = p.FEmployeeTypeID
+		where hec.FState = 1 and ht.finservice = 1
+		 <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+		 	and ((hec.FCreateTime >=#{beginTime} and hec.flastupdatetime &lt;= #{endTime})
+		 	or (hec.FLastUpdateTime>=#{beginTime}  and hec.FLastUpdateTime &lt;=#{endTime}))
+		 </if>
+		  <if test="fpersoncode != null and fpersoncode != ''">
+			and p.fnumber = #{fpersoncode}
+		  </if>
+		  <if test="fpersonid != null and fpersonid != ''">
+			and p.fid = #{fpersonid}
+		  </if>
+	</select>
+	<!-- 查询人员任职历史信息 -->
+	<select id="queryWorkExpCur" parameterType="map" resultType="map">
+		SELECT  *  FROM (select A.*, ROWNUM RN   FROM
+		(select pwc.FPersonID fpersonid,pwc.FPositionID,p.fnumber fpersoncode,po.fnumber fpositioncode,fdeptid,
+		  to_char(pwc.fcreateTime,'yyyy-MM-dd hh24:mi:ss') FCREATETIME,
+		  to_char(pwc.flastupdatetime,'yyyy-MM-dd hh24:mi:ss') flastupdatetime
+		  from  T_HR_PersonWorkExpCur pwc
+		  left join T_ORG_Position Po on Po.fid = pwc.fpositionid
+      	  left join t_bd_person p on p.fid = pwc.fpersonid
+		  where 1 = 1
+		   <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+			  and ((pwc.fcreatetime >= #{beginTime} and pwc.fcreatetime &lt;=#{endTime})
+			  or (pwc.FLastUpdateTime>= #{beginTime}  and  pwc.FLastUpdateTime &lt;=#{endTime}))
+		   </if>
+		   <if test="fpersoncode != null and fpersoncode != ''">
+				and p.fnumber = #{fpersoncode}
+		  </if>
+		  )A
+	    WHERE ROWNUM &lt;= #{max}) 
+      WHERE RN &gt;= #{min} 
+	</select>
+	<!-- 查询人员任职历史信息的数量 -->
+	<select id="queryWorkExpCurCount" parameterType="map" resultType="Integer">
+		select count(*) from  T_HR_PersonWorkExpCur pwc
+		left join T_ORG_Position Po on Po.fid = pwc.fpositionid
+      	left join t_bd_person p on p.fid = pwc.fpersonid
+		  where 1 = 1
+		  <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+			  and ((pwc.fcreatetime >= #{beginTime} and pwc.fcreatetime &lt;=#{endTime})
+			  or (pwc.FLastUpdateTime>= #{beginTime}  and  pwc.FLastUpdateTime &lt;=#{endTime}))
+		  </if>
+		  <if test="fpersoncode != null and fpersoncode != ''">
+			  and p.fnumber = #{fpersoncode}
+		  </if>
+	</select>
+</mapper>

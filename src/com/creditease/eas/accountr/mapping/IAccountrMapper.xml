@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.accountr.dao.IAccountrMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.accountr.bean.Accountr" >
+    <id column="FID" property="fid" jdbcType="INTEGER" />
+    <result column="ACCOUNTRNUM" property="accountrNum" jdbcType="VARCHAR" />
+    <result column="EMPLOYEESNUM" property="employeesNum" jdbcType="VARCHAR" />
+    <result column="EMPLOYEESNAME" property="employeesName" jdbcType="INTEGER" />
+    <result column="ACCOUNTRDATE" property="accountrDate" jdbcType="DATE"/>
+    <result column="ACCOUNTRMONEY" property="accountrMoney" jdbcType="INTEGER"/>
+    <result column="COMPANY" property="company" jdbcType="VARCHAR" />
+    <result column="DEPARTMENT" property="department" jdbcType="VARCHAR" />
+    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
+    <result column="PERSONALREMARK" property="personalRemark" jdbcType="VARCHAR" />
+    <result column="FCREATEUSERID" property="fcreateuserId" jdbcType="INTEGER" />
+    <result column="FCREATEUSERNAME" property="fcreateuserName" jdbcType="VARCHAR" />
+    <result column="FCREATETIME" property="fcreateTime" jdbcType="DATE" />
+    <result column="LASTUPDATERID" property="lastupdaterId" jdbcType="INTEGER" />
+    <result column="LASTUPDATETIME" property="lastupdateTime" jdbcType="DATE" />
+    <result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+    <result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+    <result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+    <result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+    <result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+    <result column="FEXT6" property="fext6" jdbcType="VARCHAR" />
+    <result column="FEXT7" property="fext7" jdbcType="VARCHAR" />
+    <result column="FEXT8" property="fext8" jdbcType="VARCHAR" />
+    <result column="FEXT9" property="fext9" jdbcType="VARCHAR" />
+    <result column="FEXT10" property="fext10" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List">
+        FID,ACCOUNTRNUM,EMPLOYEESNUM,EMPLOYEESNAME,ACCOUNTRDATE,ACCOUNTRMONEY,COMPANY,DEPARTMENT,
+        EMAIL,STATUS,PERSONALREMARK,FCREATEUSERID,FCREATEUSERNAME,FCREATETIME,LASTUPDATERID,LASTUPDATETIME,
+        FEXT1,FEXT2,FEXT3,FEXT4,FEXT5,FEXT6,FEXT7,FEXT8,FEXT9,FEXT10
+  </sql>
+  <sql id="preview_condition">
+   <if test="accountrNum != null and accountrNum != ''"> and ACCOUNTRNUM like '%${accountrNum}%'</if>
+   <if test="startDate != null and startDate != '' "> AND ACCOUNTRDATE &gt;= TO_DATE('${startDate}','yyyy-mm-dd')</if>
+   <if test="endDate != null and endDate != '' "> AND ACCOUNTRDATE &lt;= TO_DATE('${endDate}','yyyy-mm-dd')</if>
+   <if test="employeesNum != null and employeesNum != ''"> and EMPLOYEESNUM like '%${employeesNum}%'</if>
+   <if test="startMoney != null and startMoney != ''"> and ACCOUNTRMONEY &gt;= '${startMoney}'</if>
+   <if test="endMoney != null and endMoney != ''"> and ACCOUNTRMONEY &lt;= '${endMoney}'</if>
+   <if test="company != null and company != ''"> and COMPANY like '%${company}%'</if>
+   <if test="department != null and department != ''"> and DEPARTMENT like '%${department}%'</if>
+   <if test="email != null and email != ''"> and EMAIL like '%${email}%'</if>
+   <if test="personalRemark != null and personalRemark != ''"> and PERSONALREMARK like '%${personalRemark}%'</if>
+   <if test="fcreateuserName != null and fcreateuserName != ''"> and FCREATEUSERNAME like '%${fcreateuserName}%'</if>
+   <if test="employeesName != null and employeesName != '' "> and EMPLOYEESNAME like '%${employeesName}%'</if>
+   <if test="status != null and status != ''"> and STATUS ='${status}'</if>
+  </sql>
+
+  <!-- 查询符合条件的数量 -->
+  <select id="getTotalCountsByParams" resultType="int"  parameterType="map">
+		SELECT COUNT(FID) FROM T_COM_ACCOUNTR 
+ 		<where> 1=1 <include refid="preview_condition" /></where>
+	</select>
+	<!-- 查询符合条件的集合 -->
+	<select id="queryPageByParams" resultMap="BaseResultMap"
+	parameterType="map">
+	SELECT * FROM ( SELECT ROWNUM AS ROWNO,W.* FROM (SELECT
+	<include refid="Base_Column_List" />
+	FROM T_COM_ACCOUNTR
+	<where>
+		1=1 <include refid="preview_condition" />
+	</where>
+	ORDER BY FID DESC) W
+	<where>
+		ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+      </where>
+	)
+	<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]>
+	</where>
+</select>
+	<!-- 根据id查询报销信息 -->
+	<select id="findAccountr" parameterType="int" resultType="com.creditease.eas.accountr.bean.Accountr">
+	 SELECT * FROM T_COM_ACCOUNTR WHERE 1=1 AND FID=#{fid}
+	</select>
+	<!-- 查询报销编号的最大值 -->
+	<select id="getAccountrNumByDate" parameterType="String" resultType="String">
+	    SELECT M.ACCOUNTRNUM FROM  T_COM_ACCOUNTR M WHERE M.FID=(SELECT MAX(T.FID) FROM T_COM_ACCOUNTR T WHERE T.ACCOUNTRDATE = TO_DATE(#{accountrdate},'yyyy-mm-dd'))
+	</select>
+	<!-- 新增报销信息 -->
+	<insert id="insert" parameterType="com.creditease.eas.accountr.bean.Accountr">
+	<selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   		select T_COM_ACCOUNTR_SEQ.NEXTVAL from dual
+	</selectKey>
+	INSERT INTO T_COM_ACCOUNTR(FID,ACCOUNTRNUM,EMPLOYEESNUM,EMPLOYEESNAME,ACCOUNTRDATE,ACCOUNTRMONEY,COMPANY,DEPARTMENT,
+        EMAIL,STATUS,PERSONALREMARK,FCREATEUSERID,FCREATEUSERNAME,FCREATETIME,FEXT1,FEXT2,FEXT3,FEXT4,FEXT5,FEXT6,FEXT7,FEXT8,FEXT9,FEXT10) values(#{fid,jdbcType=INTEGER},#{accountrNum,jdbcType=VARCHAR},
+	#{employeesNum,jdbcType=VARCHAR},#{employeesName,jdbcType=VARCHAR},#{accountrDate,jdbcType=DATE},#{accountrMoney,jdbcType=VARCHAR},#{company,jdbcType=VARCHAR},
+	#{department,jdbcType=VARCHAR},#{email,jdbcType=VARCHAR},#{status,jdbcType=INTEGER},#{personalRemark,jdbcType=VARCHAR},#{fcreateuserId,jdbcType=INTEGER},
+	#{fcreateuserName,jdbcType=VARCHAR},SYSDATE,#{fext1,jdbcType=VARCHAR},#{fext2,jdbcType=VARCHAR},#{fext3,jdbcType=VARCHAR},#{fext4,jdbcType=VARCHAR},
+	#{fext5,jdbcType=VARCHAR},#{fext6,jdbcType=VARCHAR},#{fext7,jdbcType=VARCHAR},#{fext8,jdbcType=VARCHAR},#{fext9,jdbcType=VARCHAR},
+	#{fext10,jdbcType=VARCHAR})
+	</insert>
+	<!-- 修改报销信息 -->
+	<update id="update" parameterType="com.creditease.eas.accountr.bean.Accountr">
+	 update T_COM_ACCOUNTR set EMPLOYEESNUM=#{employeesNum},EMPLOYEESNAME=#{employeesName},
+	 ACCOUNTRDATE=#{accountrDate},ACCOUNTRMONEY=#{accountrMoney},COMPANY=#{company},DEPARTMENT=#{department},
+	 EMAIL=#{email},PERSONALREMARK=#{personalRemark},LASTUPDATERID=#{lastupdaterId},LASTUPDATETIME=SYSDATE where FID=#{fid}
+	</update>
+	<!--修改发送状态 -->
+	<update id="updateById"  parameterType="com.creditease.eas.accountr.bean.Accountr">
+	  UPDATE T_COM_ACCOUNTR SET STATUS=#{status} where FID=#{fid}
+	</update>
+	<!-- 删除报销信息 -->
+	<delete id="deleteAccountr" parameterType="int">
+	 DELETE FROM T_COM_ACCOUNTR WHERE FID=#{fid}
+	</delete>
+	<!-- 批量新增数据 -->
+     <insert id="InsertAll" parameterType="ArrayList" useGeneratedKeys="true"> 
+         <selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   			SELECT T_COM_ACCOUNTR_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>  
+        INSERT INTO T_COM_ACCOUNTR (FID,ACCOUNTRNUM,EMPLOYEESNUM,EMPLOYEESNAME,ACCOUNTRDATE,ACCOUNTRMONEY,COMPANY,DEPARTMENT,
+        EMAIL,STATUS,PERSONALREMARK,FCREATEUSERID,FCREATEUSERNAME,FCREATETIME,FEXT1,FEXT2,FEXT3,FEXT4,FEXT5,FEXT6,FEXT7,FEXT8,FEXT9,FEXT10) 
+			SELECT T_COM_ACCOUNTR_SEQ.NEXTVAL,A.* from(
+           <foreach collection="list" item="item" index="index" separator="union">   
+           SELECT #{item.accountrNum,jdbcType=VARCHAR},#{item.employeesNum,jdbcType=VARCHAR},#{item.employeesName,jdbcType=VARCHAR}, 
+				#{item.accountrDate,jdbcType=DATE}, #{item.accountrMoney,jdbcType=VARCHAR}, #{item.company,jdbcType=VARCHAR}, 
+				#{item.department,jdbcType=VARCHAR}, #{item.email,jdbcType=VARCHAR},#{item.status,jdbcType=INTEGER}, 
+				#{item.personalRemark,jdbcType=VARCHAR}, #{item.fcreateuserId,jdbcType=INTEGER}, #{item.fcreateuserName,jdbcType=VARCHAR}, 
+			   SYSDATE, #{item.fext1,jdbcType=VARCHAR}, #{item.fext2,jdbcType=VARCHAR}, #{item.fext3,jdbcType=VARCHAR}, 
+			  	#{item.fext4,jdbcType=VARCHAR}, #{item.fext5,jdbcType=VARCHAR}, #{item.fext6,jdbcType=VARCHAR}, #{item.fext7,jdbcType=VARCHAR}, 
+			  	#{item.fext8,jdbcType=VARCHAR}, #{item.fext9,jdbcType=VARCHAR}, #{item.fext10,jdbcType=VARCHAR} FROM DUAL
+          </foreach> ) A
+    </insert>   
+    <select id="getAccountrById" resultMap="BaseResultMap">
+     SELECT * FROM T_COM_ACCOUNTR WHERE FID IN
+        <foreach item="item" index="index" collection="array" open="(" separator="," close=")"> 
+                 #{item} 
+        </foreach> 
+    </select>
+    <sql id="prev_batch">
+   <if test="accountrNum != null and accountrNum != ''"> and ACCOUNTRNUM like '%${accountrNum}%'</if>
+   <if test="startDate != null and startDate != '' "> AND ACCOUNTRDATE &gt;= TO_DATE('${startDate}','yyyy-mm-dd')</if>
+   <if test="endDate != null and endDate != '' "> AND ACCOUNTRDATE &lt;= TO_DATE('${endDate}','yyyy-mm-dd')</if>
+   <if test="employeesNum != null and employeesNum != ''"> and EMPLOYEESNUM like '%${employeesNum}%'</if>
+   <if test="startMoney != null and startMoney != ''"> and ACCOUNTRMONEY &gt;= '${startMoney}'</if>
+   <if test="endMoney != null and endMoney != ''"> and ACCOUNTRMONEY &lt;= '${endMoney}'</if>
+   <if test="company != null and company != ''"> and COMPANY like '%${company}%'</if>
+   <if test="department != null and department != ''"> and DEPARTMENT like '%${department}%'</if>
+   <if test="email != null and email != ''"> and EMAIL like '%${email}%'</if>
+   <if test="personalRemark != null and personalRemark != ''"> and PERSONALREMARK like '%${personalRemark}%'</if>
+   <if test="fcreateuserName != null and fcreateuserName != ''"> and FCREATEUSERNAME like '%${fcreateuserName}%'</if>
+   <if test="employeesName != null and employeesName != '' "> and EMPLOYEESNAME like '%${employeesName}%'</if>
+   <if test="status != null and status != ''"> and STATUS ='${status}'</if>
+   <if test="fid != null and fid != '' "> AND FID NOT IN 
+       <foreach item="item" index="index" collection="fid" 
+                         open="(" separator="," close=")"> 
+                        #{item} 
+                </foreach> 
+   
+   </if>
+    </sql>
+   <select id="getAccountrByIdBatch" parameterType="map" resultType="com.creditease.eas.accountr.bean.Accountr">
+     SELECT * FROM T_COM_ACCOUNTR WHERE 1=1 <include refid="prev_batch"/>
+   </select>
+   <!--保存删除日志 -->
+   <insert id="insertAccountrLog" parameterType="com.creditease.eas.accountr.bean.Accountr">
+   <selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   		select T_COM_ACCOUNTRLOG_SEQ.NEXTVAL from dual
+	</selectKey>
+	INSERT INTO T_COM_ACCOUNTRLOG(FID,ACCOUNTRNUM,EMPLOYEESNUM,EMPLOYEESNAME,ACCOUNTRDATE,ACCOUNTRMONEY,COMPANY,DEPARTMENT,
+        EMAIL,PERSONALREMARK,FCREATEUSERID,FCREATETIME,FEXT1,FEXT2) values(#{fid,jdbcType=INTEGER},#{accountrNum,jdbcType=VARCHAR},
+	#{employeesNum,jdbcType=VARCHAR},#{employeesName,jdbcType=VARCHAR},#{accountrDate,jdbcType=DATE},#{accountrMoney,jdbcType=VARCHAR},#{company,jdbcType=VARCHAR},
+	#{department,jdbcType=VARCHAR},#{email,jdbcType=VARCHAR},#{personalRemark,jdbcType=VARCHAR},#{fcreateuserId,jdbcType=INTEGER},
+	SYSDATE,#{fext1,jdbcType=VARCHAR},#{fext2,jdbcType=VARCHAR})
+   </insert>
+</mapper>

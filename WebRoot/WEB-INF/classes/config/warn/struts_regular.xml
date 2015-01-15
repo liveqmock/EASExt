@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="regular" extends="json-default" namespace="/regular">
+    	<!-- 转正预警 -->
+		<action name="regular" class="regularAction">
+		    <result name="sendMail_success">/warn/regular/success.jsp</result>
+		</action>
+		<!--合同到期预警 -->
+		<action name="contract" class="contractAction">
+			    <result name="sendMail_success">/warn/regular/success.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+		<!-- 生日预警测试 -->
+		<action name="birthday" class="birthdayAction">
+			    <result name="sendMail_success">/warn/regular/success.jsp</result>
+		</action>
+    </package>    
+</struts>

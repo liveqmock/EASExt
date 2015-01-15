@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>select筛选_water</title>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+</head>
+<body>
+<span>板块</span>
+<select name="water1" id = "water1">    
+    <option value="" selected>请选择</option>
+    <option value="water1">water1</option>
+    <option value="water2">water2</option>
+    <option value="water3">water3</option>
+    <option value="water4">water4</option>
+    <option value="water5">water5</option>
+</select>
+<span>二级板块</span>
+<select name="water2" id = "water2">
+    <option value="" selected>请选择</option>
+    <option value="water1-1" rel="water1">water1-1</option>
+    <option value="water2-1" rel="water2">water2-1</option>
+    <option value="water1-2" rel="water1">water1-2</option>
+    <option value="water3-1" rel="water3">water3-1</option>
+    <option value="water3-2" rel="water3">water3-2</option>
+    <option value="water1-3" rel="water1">water1-3</option>
+    <option value="water3-3" rel="water3">water3-3</option>
+    <option value="water1-4" rel="water1">water1-4</option>
+    <option value="water3-4" rel="water3">water3-4</option>
+    <option value="water3-5" rel="water3">water3-5</option>
+    <option value="water1-5" rel="water1">water1-5</option>
+    <option value="water3-6" rel="water3">water3-6</option>
+    <option value="water4-1" rel="water4">water4-1</option>
+    <option value="water5-1" rel="water5">water5-1</option>
+    <option value="water4-2" rel="water4">water4-2</option>
+    <option value="water2-2" rel="water2">water2-2</option>
+    <option value="water4-3" rel="water4">water4-3</option>
+    <option value="water4-4" rel="water4">water4-4</option>
+    <option value="water5-2" rel="water5">water5-2</option>
+    <option value="water4-5" rel="water4">water4-5</option>
+    <option value="water5-3" rel="water5">water5-3</option>
+    <option value="water5-4" rel="water5">water5-4</option>
+    <option value="water5-5" rel="water5">water5-5</option>
+    <option value="water5-6" rel="water5">water5-6</option>
+    <option value="water5-7" rel="water5">water5-7</option>
+</select>    
+<script type="text/javascript">
+var $ = function(id){return document.getElementById(id);};
+(function(){
+    var dateop = {};
+    var manage = $('water2');
+    var options = manage.options;
+    for(var i=0;i<options.length;i++){
+        var rel = options[i].getAttribute('rel');
+        if(!rel) continue;
+        if(typeof dateop[rel] == 'undefined')  dateop[rel] = [];
+        dateop[rel].push({'value':options[i].value,'text':options[i].text});
+    };
+    $('water1').onchange = function(){change();};
+    function change(){
+        var type = $('water1').value;
+        var ttname = manage.value;
+        manage.options.length = 1;
+        if(type && typeof dateop[type]){
+            for(var i=0;i<dateop[type].length;i++){
+                manage.options.add(new  Option(dateop[type][i]['text'], 
+                                   dateop[type][i]['value']));
+               if(manage.options[i].value == ttname){ 
+                   manage.options[i].selected = true
+               }
+            }
+        }else{
+            for(var j in dateop){
+                if(typeof dateop[j] != 'object') continue;
+                for(var i=0;i<dateop[j].length;i++){
+                    manage.options.add(new  Option(dateop[j][i]['text'], 
+                                       dateop[j][i]['value']));
+                    if(manage.options[i].value == ttname){ 
+                        manage.options[i].selected = true
+                    }
+                }
+            }
+        }
+    }
+    change();
+})();
+</script>
+</body>
+</html>

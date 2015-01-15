@@ -1,0 +1,18 @@
+1.合同是什么合同：（只是包括员工的试用期合同吗？）
+	T_HR_EmployeeContract(是员工合同吗？)
+		T_HR_ContractSignBizBill
+
+	合同类别：
+		t_hr_contractType	
+		T_HR_ContractSignBizBillEntry
+
+2.合同到期时间 
+	月份-1
+		是当前的时间
+3.
+	隔月转正人员名单就是劳动合同续签人员名单吗？
+	
+	
+	1.查询员工合同
+		根据终止日期，查询出来：
+			转正人员的和劳动合同续签人员的合同信息

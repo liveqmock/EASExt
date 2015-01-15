@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.doc.dao.DcontractMapper">
+<resultMap id="BaseResultMap" type="com.creditease.eas.doc.bean.Dcontract" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="fcontractnum" property="fcontractnum" jdbcType="VARCHAR" />
+    <result column="fcontractname" property="fcontractname" jdbcType="VARCHAR" />
+    <result column="ffirstparty" property="ffirstparty" jdbcType="VARCHAR" />
+    <result column="fclient" property="fclient" jdbcType="VARCHAR" />
+    <result column="ftransact" property="ftransact" jdbcType="VARCHAR" />
+    <result column="fcontractdate" property="fcontractdate" jdbcType="DATE" />
+     <result column="fmailbox" property="fmailbox" jdbcType="VARCHAR" />
+     <result column="creator" property="creator" jdbcType="VARCHAR" />
+     <result column="creatortime" property="creatortime" jdbcType="DATE" />
+     <result column="lastupdater" property="lastupdater" jdbcType="VARCHAR" />
+     <result column="lastupdatetime" property="lastupdatetime" jdbcType="DATE" />
+     <result column="status" property="status" jdbcType="VARCHAR" />
+  </resultMap> 
+
+<sql id="Base_Column_List" >
+      id,fcontractnum,fcontractname,ffirstparty,fclient,ftransact,fcontractdate,fmailbox,
+      creator,creatortime,lastupdater,lastupdatetime,status
+ </sql>
+ <sql id="BaseWhereCondition">
+   		 	<if test="begin != null and begin!=''">
+				and fcontractdate &gt;= #{begin}
+			</if>
+			 <if test="end != null and end!=''">
+				and  fcontractdate &lt;= #{end}
+			</if>
+			<if test="fcontractname != null and fcontractname!=''">
+				and  fcontractname like '${fcontractname}'
+			</if>
+   </sql>
+ <!-- 查询正常数据总数目 -->
+<select id="getTotalCountsByParams" resultType="int">
+select count(id) from t_document where 1=1 and status=1
+<include refid="BaseWhereCondition"/>
+</select>
+<!-- 查询历史数据总数目 -->
+<select id="getTotalCountByParams" resultType="int">
+select count(id) from t_document where 1=1 and status=0
+<include refid="BaseWhereCondition"/>
+</select>
+<!-- 返回数据集合 -->
+  <select id="queryPageByParams" resultMap="BaseResultMap" parameterType="map">
+     Select * FROM(Select ROWNUM as ROWNO,<include refid="Base_Column_List"/> from t_document 
+  <where>
+     ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+    <include refid="BaseWhereCondition"/>
+       and status=1
+  </where> )
+      where ROWNO &gt;= #{startRow,jdbcType=INTEGER}  
+  </select>
+	<!-- 返回历史数据集合 -->
+<select id="queryPageHByParams" resultMap="BaseResultMap" parameterType="map">
+	 Select * FROM(Select ROWNUM as ROWNO,<include refid="Base_Column_List"/> from t_document 
+      <where>
+      	ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+       <include refid="BaseWhereCondition"/>
+       and status=0
+      </where> )
+      where ROWNO &gt;= #{startRow,jdbcType=INTEGER}  
+</select>
+	<!-- 条件查询 -->
+	<select id="getContract" resultMap="BaseResultMap" parameterType="java.lang.String">
+	Select <include refid="Base_Column_List"/> from t_document where fcontractnum=#{fcontractnum,jdbcType=VARCHAR}
+	</select>
+	<select id="getContractById" resultMap="BaseResultMap" parameterType="Integer">
+	Select * from t_document where id=#{id,jdbcType=INTEGER}
+	</select>
+	<!-- 新增合同信息 -->
+	<insert id="insertDcontract" parameterType="com.creditease.eas.doc.bean.Dcontract">
+	<selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   		select T_DOCUMENT_SEQ.NEXTVAL from dual
+	</selectKey>
+	insert into t_document( id,fcontractnum,fcontractname,ffirstparty,fclient,ftransact,fcontractdate,fmailbox,
+      creator,creatortime,status) values(#{id,jdbcType=INTEGER},#{fcontractnum,jdbcType=VARCHAR},
+	#{fcontractname,jdbcType=VARCHAR},#{ffirstparty,jdbcType=VARCHAR},#{fclient,jdbcType=VARCHAR},#{ftransact,jdbcType=VARCHAR},
+	#{fcontractdate,jdbcType=DATE},#{fmailbox,jdbcType=VARCHAR},#{creator,jdbcType=VARCHAR},
+	SYSDATE,#{status,jdbcType=VARCHAR})
+	</insert>
+	<!-- 修改合同信息 -->
+	<update id="updateContract" parameterType="com.creditease.eas.doc.bean.Dcontract">
+	update t_document set fcontractname=#{fcontractname,jdbcType=VARCHAR},
+	ffirstparty=#{ffirstparty,jdbcType=VARCHAR},fclient=#{fclient,jdbcType=VARCHAR},ftransact=#{ftransact,jdbcType=VARCHAR}
+	,fcontractdate=#{fcontractdate,jdbcType=DATE},fmailbox=#{fmailbox,jdbcType=VARCHAR},lastupdater=#{lastupdater,jdbcType=VARCHAR},lastupdatetime=SYSDATE
+	 where id=#{id,jdbcType=INTEGER}
+	</update>
+	
+	<!-- 查询所有的合同信息记录 -->
+  <select id="dtime" resultType="map">
+	select doc.fcontractnum,doc.fcontractname,doc.ffirstparty,doc.fclient,
+	doc.ftransact,doc.fcontractdate,doc.fmailbox from t_document doc where doc.status=1
+  </select>
+  
+   <select id="getDcontractList" resultType="map">
+	select doc.fcontractnum,doc.fcontractname,doc.ffirstparty,doc.fclient,
+	doc.ftransact,doc.fcontractdate,doc.fmailbox from t_document doc 
+  </select>
+  <!-- 删除合同信息 -->
+  <update id="deleteDcontract"  parameterType="java.lang.String">
+    update t_document set status=0 where id=#{id}
+  </update>
+</mapper>

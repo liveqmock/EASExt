@@ -1,0 +1,52 @@
+问题
+	主要的问题在于组织:
+		组织怎么去划分？
+		组织和人员是什么关系？
+		
+	1.部门负责人怎么查询出来
+		根据当前人员，和组织，如何查询出来负责人呢？
+		T_ORG_Position(职位表）的自段：FIsRespPosition 可以用来判断是否是负责人的职位
+		通过模糊查询，查询出来  负责人职位：
+	--上级负责人
+    select t.FResponPositionID,Po.Fname_L2,p.fname_l2 from t_org_admin t 
+     left join T_ORG_Position Po  on Po.fid = t.FResponPositionID
+     left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid
+    left join t_bd_person p on p.fid = Pm.Fpersonid
+    where t.flevel = 3 and t.fisleaf =0 and t.fisousealup = 0
+2：
+	1
+	
+转正人员的信息:
+	1.缺失的字段：
+		1.部门信息？
+		2.城市信息
+			select * from t_bd_person;
+			select * from CT_HR_Ygszd;
+	2.转正日期不需要了吧
+3.部门负责人和当前人员有什么相互关联的地方呢？
+     我如何查询出来部门负责人的相关的信息呢？
+	
+	转正的人员里面可能还需要取他们的身份证号码
+2013年1月8日:
+	有可能需要从员工的联系方式（T_HR_PersonContactMethod）
+	取企业的邮箱
+	2
+2012年1月10日
+1.查询人员信息的时候，只查询试用和实习的
+2.
+ 1.查询直接上级的编码
+    根据直接上级的编码,查询直接上级对应的人员
+    根据直接上级的编码,查询人员信息
+2. 查询间接上级的编码
+    根据间接上级的编码,查询直接上级对应的人员
+    根据间接上级的编码,查询人员信息
+3.查询部门负责人的编码
+    根据部门负责人的编码，查询出部门负责人的信息
+    根据部门负责人的编码，查询出对应的人员的信息
+4.bm 什么的，另外再考虑
+2013年3月26日：
+1.合并人员信息：
+	Map<String,Map<String,List<Map<String>>
+2013年4月6日：
+	1.如果邮件的执行速率过慢，就将信息放在新建的库里面，再执行调用
+	2.一定要考虑只执行某个部门的情况。

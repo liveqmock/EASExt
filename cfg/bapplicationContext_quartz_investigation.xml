@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<!--
+		Quartz中时间表达式的设置 时间格式: s m h d m w(?) y(?) , 分别对应: 秒>分>小时>日>月>周>年
+	-->
+	
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="jobtaskInvestigation"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 调用的类 -->
+		<property name="targetObject">
+			<ref bean="investigationServiceImpl" />
+		</property>
+		<!-- 调用类中的方法 -->
+		<property name="targetMethod">
+			<value>sendWarnNextCommunicate</value>
+		</property>
+		<property name="concurrent" value="false" />
+	</bean>
+	
+	<!-- 定义触发时间 -->
+	<bean id="doTimeInvestigation" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="jobtaskInvestigation" />
+		</property>
+		<!-- 0 0 10 * * ? 表示每天10点运行 -->
+		<property name="cronExpression">
+			<value>0 00 17 * * ?</value>
+		</property>
+	</bean>
+	
+
+	<!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+	<bean id="startQuertz1" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="doTimeInvestigation" />
+			</list>
+		</property>
+	</bean>
+	
+</beans>

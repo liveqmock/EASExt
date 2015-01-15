@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.warn.dao.FinanceUserMapper" >
+	<resultMap id="BaseResultMap" type="com.creditease.eas.warn.bean.FinanceUser" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="USERID" property="userId" jdbcType="INTEGER" />
+		<result column="FINANCEGROUPID" property="financeGroupId" jdbcType="INTEGER" />
+		<result column="USERNAME" property="userName" jdbcType="VARCHAR" />
+		<result column="USEREMAIL" property="userEmail" jdbcType="VARCHAR" />
+		<result column="ISGROUPLEADER" property="isGroupLeader" jdbcType="INTEGER" />
+		<result column="CHARGECOMPANIES" property="chargeCompanies" jdbcType="VARCHAR" />
+		
+		<result column="CREATOR" property="creator" jdbcType="VARCHAR" />
+		<result column="CREATORTIME" property="creatorTime" jdbcType="DATE" />
+		<result column="LASTUPDATER" property="lastUpdater" jdbcType="VARCHAR" />
+		<result column="LASTUPDATETIME" property="lastUpdateTime" jdbcType="DATE" />
+		
+		<result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+		<result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+		<result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+		<result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+		<result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+		<result column="EXT6" property="ext6" jdbcType="VARCHAR" />
+		<result column="EXT7" property="ext7" jdbcType="VARCHAR" />
+		<result column="EXT8" property="ext8" jdbcType="VARCHAR" />
+		<result column="EXT9" property="ext9" jdbcType="VARCHAR" />
+		<result column="EXT10" property="ext10" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<sql id="Base_Column_List" >
+		ID, USERID, FINANCEGROUPID, USERNAME, USEREMAIL, ISGROUPLEADER, CHARGECOMPANIES, 
+		CREATOR, CREATORTIME, LASTUPDATER, LASTUPDATETIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10
+	</sql>
+  
+<!--  	<sql id="preview_condition" >-->
+<!--		<if test="orgName != null and orgName != '' "> AND ORGNAME like '%${orgName}%'</if>-->
+<!--		<if test="startDate != null and startDate != '' "> AND RENTSTARTTIME &gt; TO_DATE('${startDate}','yyyy-mm-dd')</if>-->
+<!--		<if test="paymentCycle != null and paymentCycle != '' "> AND PAYMENTCYCLE = #{paymentCycle,jdbcType=VARCHAR}</if>-->
+<!--		<if test="lastCostCenter != null and lastCostCenter != '' "> AND LASTCOSTCENTER like '%${lastCostCenter}%'</if>-->
+<!--		<if test="endDate != null and endDate != '' "> AND RENTENDTIME &lt; TO_DATE('${endDate}','yyyy-mm-dd')</if>-->
+<!--  	</sql>-->
+  
+ 	<select id="getTotalCounts" resultType="int"  parameterType="map">
+		SELECT COUNT(ID) FROM (SELECT ROWNUM AS ROWNO,
+ 		<include refid="Base_Column_List" /> FROM T_FINANCE_USER 
+<!-- 		<where> 1=1 <include refid="preview_condition" /> </where>-->
+ 		)  
+	</select>
+	
+	<select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		SELECT * FROM ( SELECT ROWNUM AS ROWNO, 
+	 	<include refid="Base_Column_List" /> FROM T_FINANCE_USER   
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+<!--				<include refid="preview_condition" />-->
+			</where> ) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT <include refid="Base_Column_List" /> FROM T_FINANCE_USER WHERE ID = #{id,jdbcType=INTEGER}
+	</select>
+  
+  
+  	<select id="selectAllUser" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> FROM T_FINANCE_USER
+	</select>
+  
+  
+  <select id="selectByUserid" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT <include refid="Base_Column_List" /> FROM T_FINANCE_USER WHERE USERID = #{userId,jdbcType=INTEGER}
+	</select>
+  
+    <select id="selectByGroupid" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT <include refid="Base_Column_List" /> FROM T_FINANCE_USER WHERE FINANCEGROUPID = #{financeGroupId,jdbcType=INTEGER}
+	</select>
+  
+  
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+		DELETE FROM T_FINANCE_USER WHERE ID = #{id,jdbcType=INTEGER}
+	</delete>
+  
+	<insert id="insert" parameterType="com.creditease.eas.warn.bean.FinanceUser" >
+	    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   			SELECT T_FINANCE_USER_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+			INSERT INTO T_FINANCE_USER ( ID, USERID, FINANCEGROUPID, USERNAME, USEREMAIL, ISGROUPLEADER, CHARGECOMPANIES, 
+				CREATOR, CREATORTIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10 )
+			values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{financeGroupId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, 
+				#{userEmail,jdbcType=VARCHAR}, #{isGroupLeader,jdbcType=INTEGER}, #{chargeCompanies,jdbcType=VARCHAR}, 
+			  	#{creator,jdbcType=VARCHAR}, SYSDATE, #{ext1,jdbcType=VARCHAR}, #{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR}, 
+			  	#{ext4,jdbcType=VARCHAR}, #{ext5,jdbcType=VARCHAR}, #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, 
+			  	#{ext8,jdbcType=VARCHAR}, #{ext9,jdbcType=VARCHAR}, #{ext10,jdbcType=VARCHAR} )
+  	</insert>
+
+	<update id="updateByPrimaryKey" parameterType="com.creditease.eas.warn.bean.FinanceUser" >
+  		UPDATE T_FINANCE_USER SET 
+		    
+		    FINANCEGROUPID = #{financeGroupId,jdbcType=INTEGER},
+		    USERNAME = #{userName,jdbcType=VARCHAR},
+		    USEREMAIL = #{userEmail,jdbcType=VARCHAR},
+		    ISGROUPLEADER = #{isGroupLeader,jdbcType=INTEGER},
+		    CHARGECOMPANIES = #{chargeCompanies,jdbcType=VARCHAR},
+		    
+		    LASTUPDATER = #{lastUpdater,jdbcType=VARCHAR},
+		    LASTUPDATETIME = SYSDATE,
+		    EXT1 = #{ext1,jdbcType=VARCHAR},
+		    EXT2 = #{ext2,jdbcType=VARCHAR},
+		    EXT3 = #{ext3,jdbcType=VARCHAR},
+		    EXT4 = #{ext4,jdbcType=VARCHAR},
+		    EXT5 = #{ext5,jdbcType=VARCHAR},
+		    EXT6 = #{ext6,jdbcType=VARCHAR},
+		    EXT7 = #{ext7,jdbcType=VARCHAR},
+		    EXT8 = #{ext8,jdbcType=VARCHAR},
+		    EXT9 = #{ext9,jdbcType=VARCHAR},
+		    EXT10 = #{ext10,jdbcType=VARCHAR}
+	  	WHERE ID = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<!-- 查询所有财务房屋合同组表id和组名的name的键值对 -->
+	<select id="selectFinanceGroups" resultType="map">
+		SELECT DISTINCT ID, NAME FROM T_FINANCE_GROUP
+	</select>
+	<!-- 查询所有的签署合同公司signatory和签署合同公司signatory的键值对 -->
+	<select id="selectAllSignatorys" resultType="map">
+		SELECT DISTINCT SIGNATORY as NAME, SIGNATORY as ID FROM T_FINANCE_RENTCONTRACT
+	</select>
+   	<!-- 查询所有的未添加到财务用户表中的系统用户id和用户名userName的键值对 -->
+	<select id="selectAllusers" resultType="map">
+		select u.id,u.username from t_user u where stutas=0 and u.id not in(select f.userid from t_finance_user f)
+	</select>
+	<!-- 根据id查询组用户 -->
+	<select id="getFinanceUser" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+	 SELECT * FROM T_FINANCE_USER WHERE ID = #{id,jdbcType=INTEGER}
+	</select>
+	<!-- 根据组id的查询组长的email -->
+	<select id="getFinanGroupLeader" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+	SELECT USEREMAIL FROM(SELECT * FROM T_FINANCE_USER WHERE FINANCEGROUPID=#{financeGroupId,jdbcType=INTEGER}) WHERE ISGROUPLEADER=1
+	</select>
+	<!-- 根据签署公司进行查询 -->
+	<select id="findFinUser" resultMap="BaseResultMap">
+	  select * from t_finance_user where 1=1
+	</select>
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.accountr.dao.IAccountrUserMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.accountr.bean.AccountrUser" >
+    <id column="FID" property="fid" jdbcType="INTEGER" />
+    <result column="FUSERNAME" property="fusername" jdbcType="VARCHAR" />
+    <result column="FUSEREMAIL" property="fuseremail" jdbcType="VARCHAR" />
+    <result column="FSTATUS" property="fstatus" jdbcType="INTEGER" />
+    <result column="FCREATEUSERID" property="fcreateuserid" jdbcType="INTEGER"/>
+    <result column="FCREATETIME" property="fcreatetime" jdbcType="DATE"/>
+    <result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+    <result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+    <result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+    <result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+    <result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+    <result column="FEXT6" property="fext6" jdbcType="VARCHAR" />
+    <result column="FEXT7" property="fext7" jdbcType="VARCHAR" />
+    <result column="FEXT8" property="fext8" jdbcType="VARCHAR" />
+    <result column="FEXT9" property="fext9" jdbcType="VARCHAR" />
+    <result column="FEXT10" property="fext10" jdbcType="VARCHAR" />
+  </resultMap>
+  <!-- 查询所有汇总邮件收件人 -->
+  <select id="findAccountrUser" resultMap="BaseResultMap">
+  SELECT FID,FUSERNAME,FUSEREMAIL,FSTATUS FROM T_COM_ACCOUNTRUSER where 1=1
+  </select>
+  <!-- 新增汇总邮件收件人 -->
+  <insert id="addAccountrUser" parameterType="com.creditease.eas.accountr.bean.AccountrUser">
+    <selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   		select T_COM_ACCOUNTRUSER_SEQ.NEXTVAL from dual
+	</selectKey>
+	INSERT INTO T_COM_ACCOUNTRUSER(FID,FUSERNAME,FUSEREMAIL,FSTATUS,FCREATEUSERID,FCREATETIME,FEXT1,FEXT2,
+      FEXT3,FEXT4,FEXT5,FEXT6,FEXT7,FEXT8,FEXT9,FEXT10) values(#{fid,jdbcType=INTEGER},#{fusername,jdbcType=VARCHAR},
+	#{fuseremail,jdbcType=VARCHAR},#{fstatus,jdbcType=INTEGER},#{fcreateuserid,jdbcType=INTEGER},
+	SYSDATE,#{fext1,jdbcType=VARCHAR},#{fext2,jdbcType=VARCHAR},#{fext3,jdbcType=VARCHAR},#{fext4,jdbcType=VARCHAR},
+	#{fext5,jdbcType=VARCHAR},#{fext6,jdbcType=VARCHAR},#{fext7,jdbcType=VARCHAR},#{fext8,jdbcType=VARCHAR},#{fext9,jdbcType=VARCHAR},
+	#{fext10,jdbcType=VARCHAR})
+  </insert>
+  <!-- 删除汇总邮件收件人 -->
+  <delete id="deleteAccountrUser">
+  delete from T_COM_ACCOUNTRUSER where fid in
+   <foreach item="idItem" collection="array" open="(" separator="," close=")"> 
+    #{idItem}
+  </foreach> 
+  </delete>
+  <update id="updateAccountrUserNot">
+    update T_COM_ACCOUNTRUSER set fstatus=0 where fid not in
+     <foreach item="fid" collection="array" open="(" separator="," close=")"> 
+     #{fid}
+    </foreach> 
+  </update>
+  <update id="updateAccountrUser">
+    update T_COM_ACCOUNTRUSER set fstatus=1 where fid in
+     <foreach item="fid" collection="array" open="(" separator="," close=")"> 
+     #{fid}
+    </foreach> 
+  </update>
+  <!-- 查询公共备注 -->
+  <select id="findAccountrRemarks" resultType="com.creditease.eas.accountr.bean.AccountrRemarks">
+  SELECT FID,FREMARKS FROM T_COM_ACCOUNTRREMARK WHERE 1=1
+  </select>
+  <!--修改公共备注 -->
+  <update id="updateAccountrRemarks" parameterType="com.creditease.eas.accountr.bean.AccountrRemarks">
+     update T_COM_ACCOUNTRREMARK set fremarks=#{fremarks} where fid=1
+  </update>
+  <!-- 查询设置好的收件人 -->
+  <select id="getSelectUser" resultType="com.creditease.eas.accountr.bean.AccountrUser"> 
+   SELECT * FROM T_COM_ACCOUNTRUSER WHERE FSTATUS=1
+  </select>
+  <select id="getRole" resultType="string" parameterType="int">
+   SELECT id FROM T_ROLE WHERE ID=(SELECT ROLE_ID FROM T_USER_ROLE WHERE USER_ID=#{userid})
+  </select>
+</mapper>

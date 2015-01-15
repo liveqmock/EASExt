@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.PayMentMapper" >
+	<resultMap  id="baseResult" type="com.creditease.eas.hr.bean.CapticalAssetsBean">
+			<result column="fnumber" property="code" jdbcType="VARCHAR" />
+		    <result column="fname_l2" property="name" jdbcType="VARCHAR" />
+	</resultMap>
+ 	<!-- 
+ 		通过一级大类【G固定资产、D低值耐用品】获取固定资产类别名称与固定资产类别编码	
+ 	 	查询所有的固定资产的类别
+ 	 	说明：companyId  对应的是组织编码
+ 	 -->
+ 	 <select id= "selectAssetsClassNameAndCodeByFistClassAll"  parameterType="string" resultMap="baseResult">
+ 	 	select distinct fnumber,fname_l2 from  T_FA_Cat
+ 	 	<if test="firstClass !=null and firstClass != ''">
+ 			and t.fnumber like #{firstClass,jdbcType=VARCHAR}
+ 		</if>
+ 	 </select>
+ 	 
+ 	  <!-- 
+ 		更改业务逻辑,先传FNumberRule,再传fnumber
+ 	 	说明：companyId  对应的是编码规则前缀
+ 	  -->
+ 	<select id="selectAssetsClassNameAndCodeByFistClass" parameterType="map" resultMap="baseResult">
+ 		select distinct fname_l2,fnumber from  T_FA_Cat  t where 1=1 
+ 		<if test="companyIdS !=null and companyIdS != ''"> 
+ 		 <foreach  collection="companyIdS" index="index" item="item" open=" and ( t.FNumberRule like " separator=" OR  t.FNumberRule  like "  close=")and flevel = 2 ">
+ 		   #{item}
+ 		</foreach>
+ 		</if>
+ 		<if test="firstClassS !=null and firstClassS != ''"> 
+ 			${firstClassS}
+ 		</if>
+ 		<if test="companyId !=null and companyId != ''">
+ 			and  t.FNumberRule like  #{companyId,jdbcType=VARCHAR}  and flevel = 2  
+ 		</if>
+ 		<if test="firstClass !=null and firstClass != ''"> 
+ 			and t.fnumber like #{firstClass,jdbcType=VARCHAR}
+ 		</if>
+		
+ 	</select>
+	<!-- 查询计量单位的信息 
+			2014-4-23日：EAS固定资产卡片获取计量单位接口变更
+				可以根据固定资产类别的编码，查询对应的计量单位
+	-->
+	<select id="selectMeasureUnitInfo" resultMap="baseResult" parameterType="map">
+ 		select distinct m.fnumber,m.fname_l2 from  T_BD_MeasureUnit m
+		left join T_FA_Cat c on c.FMeasureUnitID = m.fid
+		where c.fnumber = #{fnumber}
+ 	</select>
+</mapper>

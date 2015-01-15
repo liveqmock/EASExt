@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.LogMapper">
+	<resultMap type="com.creditease.eas.compliance.bean.Log" id="logMap">
+		 <id column="id" property="id" jdbcType="DECIMAL" />
+		 <result column="OPIP" property="opIp" jdbcType="VARCHAR"/>
+		 <result column="OPCONTEN" property="opcontent" jdbcType="VARCHAR"/>
+		 <result column="OPID" property="opId" jdbcType="DECIMAL"/>
+		 <result column="OPNAME" property="opName" jdbcType="VARCHAR"/>
+		 <result column="CREATEID" property="createId" jdbcType="DECIMAL"/>
+		 <result column="createDate" property="createDate" jdbcType="TIMESTAMP"/>
+		 <result column="UPDATEID" property="updateId" jdbcType="DECIMAL"/>
+		 <result column="UPDATEDATE" property="updateDate" jdbcType="TIMESTAMP"/>
+		 <result column="EXT1" property="ext1" jdbcType="VARCHAR"/>
+		 <result column="EXT2" property="ext2" jdbcType="VARCHAR"/>
+		 <result column="EXT3" property="ext3" jdbcType="VARCHAR"/>
+		 <result column="EXT4" property="ext4" jdbcType="VARCHAR"/>
+		 <result column="EXT5" property="ext5" jdbcType="VARCHAR"/>
+		 <result column="EXT6" property="ext6" jdbcType="VARCHAR"/>
+		 <result column="EXT7" property="ext7" jdbcType="VARCHAR"/>
+		 <result column="EXT8" property="ext8" jdbcType="VARCHAR"/>
+		 <result column="EXT9" property="ext9" jdbcType="VARCHAR"/>
+		 <result column="EXT10" property="ext10" jdbcType="VARCHAR"/>
+		 <result column="UPDATEFIELD" property="updateField" jdbcType="VARCHAR"/>
+		 <result column="UPDATEFIELDDESCRIPTION" property="updateFielddescription" jdbcType="VARCHAR"/>
+		 <result column="OLDVALUE" property="tt1" jdbcType="VARCHAR"/>
+		 <result column="NEWVALUE" property="tt2" jdbcType="VARCHAR"/>
+		 <result column="COMPLAINID" property="complainId" jdbcType="DECIMAL"/>
+		 <result column="credateStr" property="credateStr" jdbcType="VARCHAR"/>
+		 
+	</resultMap>
+
+	<insert id="insertLog" parameterType="com.creditease.eas.compliance.bean.Log">
+		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+			select t_com_log_seq.nextval from dual
+		</selectKey>
+		insert into t_com_log
+		  (ID,
+		   OPCONTEN,
+		   opid,
+		   opname,
+		   createid,
+		   createdate,
+		   ext1,
+		   ext2,
+		   ext3,
+		   ext4,
+		   ext5,
+		   ext6,
+		   ext7,
+		   ext8,
+		   ext9,
+		   ext10,
+		   opip,
+		   UPDATEFIELD,
+		   UPDATEFIELDDESCRIPTION,
+		   OLDVALUE,
+		   NEWVALUE)
+		values
+		  (
+			#{id,jdbcType=DECIMAL},
+			#{opcontent,jdbcType=VARCHAR},
+			#{opId,jdbcType=DECIMAL},
+			#{opName,jdbcType=VARCHAR},
+			#{createId,jdbcType=DECIMAL},
+			#{createDate,jdbcType=TIMESTAMP},
+			#{ext1,jdbcType=VARCHAR},
+			#{ext2,jdbcType=VARCHAR},
+			#{ext3,jdbcType=VARCHAR},
+			#{ext4,jdbcType=VARCHAR},
+			#{ext5,jdbcType=VARCHAR},
+			#{ext6,jdbcType=VARCHAR},
+			#{ext7,jdbcType=VARCHAR},
+			#{ext8,jdbcType=VARCHAR},
+			#{ext9,jdbcType=VARCHAR},
+			#{ext10,jdbcType=VARCHAR},
+			#{opIp,jdbcType=VARCHAR},
+			#{updateField,jdbcType=VARCHAR},
+			#{updateFielddescription,jdbcType=VARCHAR},
+			#{tt1,jdbcType=VARCHAR},
+			#{tt2,jdbcType=VARCHAR}
+		  )
+	</insert>
+	
+	<sql id="pre_condiction">
+		select rowid rid, id from t_com_log
+		<where>
+			1=1 
+			<if test="startDate !=null and startDate!=''">
+				and createdate &gt;=to_date('${startDate}','yyyy-mm-dd hh24:mi:ss')
+			</if>
+			<if test="endDate !=null and endDate!=''">
+				and createdate &lt;=to_date('${endDate}','yyyy-mm-dd hh24:mi:ss')
+			</if>
+			<if test="fnumber !=null and fnumber!=''">
+				and complainid=${fnumber}
+			</if>
+			<if test="opname !=null and opname!=''">
+				and opname like '%${opname}%'
+			</if>
+			<if test="fieldname !=null and fieldname!=''">
+				and updatefielddescription like '%${fieldname}%'
+			</if>
+			
+		</where>
+	</sql>
+	
+	<select id="getTotalCountsByParams" parameterType="map" resultType="int">
+		select count(1) from (
+			<include refid="pre_condiction"/>
+		)
+	</select>
+	
+	 <select id="queryPageByParamss" parameterType="map" resultMap="logMap">
+		 	select l.*,to_char(l.createdate, 'yyyy-mm-dd hh24:mi:ss') as credateStr
+			  from t_com_log l
+			 where rowid in (select rid
+				   from (select rownum rn, rid
+			            	from (
+			            	<include refid="pre_condiction"/>
+			    	order by createDate desc)
+				where rownum &lt;= #{endRow,jdbcType=INTEGER})
+			where rn &gt;= #{startRow,jdbcType=INTEGER})  order by l.createDate desc
+	 </select>
+</mapper>

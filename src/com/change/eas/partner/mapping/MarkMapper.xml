@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.change.eas.partner.dao.MarkMapper" >
+	<select id="findMarkByBookmarkname" parameterType="string" resultMap="map2">
+		select * from t_change_bookmarks where bookmarkname=#{bookmarkname}
+	</select>
+	<select id="getNewMarkID" resultType="long">
+		select max(bookmarkid)+1 from t_change_bookmarks
+	</select>
+	<select id="getTitMark" parameterType="map" resultType="int">
+		select count(*) from (<include refid="queryMark"/>)
+	</select>
+	<select id="getTotalsMark" parameterType="map" resultType="int">
+	 select count(*) from t_change_bookmarks where 1=1 <include refid="markCondition"/>
+	</select>
+	<select id="queryMarkPageJson" parameterType="map" resultMap="map2">
+	 select * FROM (select ROWNUM as ROWNO,t.* from (
+   select * from t_change_bookmarks where 1=1  
+   <include refid="markCondition"/>
+   order by bookmarkid desc) t 
+     where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER}
+	</select>
+	<delete id="delMark" parameterType="long">
+		delete T_CHANGE_BOOKMARKS where bookmarkid=#{bookmarkid}
+	</delete>
+	<insert id="addMark" parameterType="com.change.eas.partner.bean.Mark">
+		insert into T_CHANGE_BOOKMARKS (bookmarkid,bookmarkname,bookmarkdesc,bookmarktext,tablename,tablefield,isloop) values (#{bookmarkid},#{bookmarkname},#{bookmarkdesc},#{bookmarktext},#{tablename},#{tablefield},#{isloop})
+	</insert>
+	<update id="updateMark" parameterType="com.change.eas.partner.bean.Mark">
+		update T_CHANGE_BOOKMARKS set bookmarkname=#{bookmarkname},bookmarkdesc=#{bookmarkdesc},bookmarktext=#{bookmarktext},tablename=#{tablename},tablefield=#{tablefield},isloop=#{isloop} where bookmarkid=#{bookmarkid} 
+	</update>
+ 	<select id="listMark" parameterType="map" resultMap="map2">
+ 		SELECT * FROM ( SELECT A.*, ROWNUM RN FROM (<include refid="queryMark"/>) A WHERE #{end}>ROWNUM ) WHERE RN >=#{start}
+ 	</select>
+ 	<sql id="queryMark">
+ 		select * from t_change_bookmarks where 1=1 
+ 		<if test="bookmarkname != 'null' and bookmarkname != null and bookmarkname != ''">
+			and  bookmarkname like concat(concat('%',#{bookmarkname}),'%')
+		</if>
+		<if test="isloop == 2">
+			and isloop >0 and 100>isloop
+		</if>
+ 		<if test="isloop != -1 and isloop != 2">
+			and  isloop = #{isloop}
+		</if>
+		order by bookmarkid
+ 	</sql>
+ 	
+ 	<sql id="markCondition">
+	<if test="bookmarkname != null and bookmarkname !=''">
+		and bookmarkname like #{bookmarkname}
+	</if>
+	<if test="isloop == 2">
+		and isloop >0 and 100>isloop
+	</if>
+	<if test="isloop != -1 and isloop != 2">
+		and isloop = #{isloop}
+	</if>
+</sql>
+ 	<resultMap type="com.change.eas.partner.bean.Mark" id="map2">
+ 		<id column="BOOKMARKID" property="bookmarkid"/>
+ 		<result column="BOOKMARKNAME" property="bookmarkname" />
+ 		<result column="BOOKMARKDESC" property="bookmarkdesc" />
+ 		<result column="BOOKMARKTEXT" property="bookmarktext" />
+ 		<result column="TABLENAME" property="tablename" />
+ 		<result column="TABLEFIELD" property="tablefield" />
+ 		<result column="ISLOOP" property="isloop" />
+ 	</resultMap>
+</mapper>

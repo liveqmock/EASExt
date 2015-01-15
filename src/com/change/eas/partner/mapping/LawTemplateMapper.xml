@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.change.eas.partner.dao.LawTemplateMapper" >
+
+ 	<select id="listTemplate" resultMap="map">
+ 		select TEMPLATEID,RECORDID,FILENAME,CITYID from T_CHANGE_LAWTEMPLATE
+ 	</select>
+ 	
+ 	<select id="getTemplateByCity" resultMap="map"  >
+ 		select TEMPLATEID,RECORDID,FILENAME,CITYID,FILEBODY,FILETYPE from T_CHANGE_LAWTEMPLATE where CITYID=#{city}
+ 	</select>
+ 	
+ 	<select id="getTemplateByRecordID" resultMap="map"  >
+ 		select TEMPLATEID,RECORDID,FILENAME,CITYID,FILEBODY,FILETYPE from T_CHANGE_LAWTEMPLATE where RECORDID=#{recordID}
+ 	</select>
+ 	
+ 	
+ 	<select id="getFilePathByID" parameterType="int" resultType="string">
+ 		select filepath||'/'||filename path from t_change_documentfile where fileid=#{id}
+ 	</select>
+ 	
+ 	
+ 	<select id="getRecordIDByCityAndFilename" parameterType="map" resultType="string">
+ 		select RECORDID from T_CHANGE_LAWTEMPLATE where FILENAME=#{fileName} and CITYID = #{cityID} 
+ 	</select>
+ 	
+ 	
+ 	
+ 	<resultMap type="com.change.eas.partner.bean.LawTemplate" id="map">
+ 		<id column="TEMPLATEID" property="templateID"/>
+ 		<result column="RECORDID" property="recordID" />
+ 		<result column="FILENAME" property="fileName" />
+ 		<result column="FILETYPE" property="fileType" />
+ 		<result column="FILESIZE" property="fileSize" />
+ 		<result column="FILEDATE" property="fileDate" />
+ 		<result column="FILEBODY" property="fileBody"  jdbcType="BLOB"  typeHandler="org.apache.ibatis.type.BlobTypeHandler"/>
+ 		<result column="FILEPATH" property="filePath" />
+ 		<result column="USERNAME" property="userName" />
+ 		<result column="DESCRIPT" property="descript" />
+ 		<result column="CITYID" property="cityID" />
+ 	</resultMap>
+ 	
+ 	
+ 	<resultMap type="com.change.eas.partner.bean.City" id="cityList">
+ 		<id column="id" property="id" />
+ 		<result column="cityName" property="cityName" />
+ 		<result column="partherCode" property="partherCode" />
+ 		<result column="partherName" property="partherName" />
+ 	</resultMap>
+ 	
+ 	<select id="getCityList"  resultMap="cityList" >
+ 		select c.id id,c.name cityName,d.id partherCode,d.name partherName from T_CHANGE_CITY c left join T_CHANGE_DEPARTMENT_CITY dc on c.id=dc.cityid left join t_Change_Department d on dc.departmentid=d.id order by d.id
+ 	</select>
+ 	
+ 	<select id="getTemplateByCityId" parameterType="long" resultMap="map">
+ 	    SELECT TEMPLATEID,RECORDID,FILENAME FROM T_CHANGE_LAWTEMPLATE WHERE CITYID=#{cityID}
+ 	</select>
+ 	
+ 	<select id="getCity"  parameterType="Integer" resultMap="cityList" >
+ 		select c.id id,c.name cityName,d.id partherCode,d.name partherName from T_CHANGE_CITY c left join T_CHANGE_DEPARTMENT_CITY dc on c.id=dc.cityid left join t_Change_Department d on dc.departmentid=d.id where d.id=#{dept} order by d.id
+ 	</select>
+ 	<select id="getDept"  resultMap="cityList" >
+ 		select '1' id,'1' cityName,d.id partherCode,d.name partherName from  t_Change_Department d  order by id
+ 	</select>
+ 	
+ 	<insert id="saveTemplate" parameterType="com.change.eas.partner.bean.LawTemplate">
+ 	<selectKey resultType="java.lang.Integer" keyProperty="templateID" order="BEFORE"> 
+   		select T_CHANGE_LAWTEMPLATE_SEQ.NEXTVAL from dual
+	</selectKey>
+ 		INSERT INTO t_change_lawtemplate (TEMPLATEID,RECORDID,FILENAME,FILETYPE,FILESIZE,FILEDATE,FILEPATH,USERNAME,CITYID) values (#{templateID},#{recordID},#{fileName},#{fileType},#{fileSize},#{fileDate},#{filePath},#{userName},#{cityID})
+ 	</insert>
+ 	
+ 	<select id="getDeptById"  parameterType="Integer" resultType="String">
+ 		select name from t_Change_Department where id = #{dept}
+ 	</select>
+ 	<select id="getCityById"  parameterType="Integer" resultType="String">
+ 		select name from T_CHANGE_CITY where id = #{city}
+ 	</select>
+ 	
+ 	<select id="getTemplateFilePathByID" parameterType="long" resultType="String">
+ 		select filepath from t_change_lawtemplate where RecordID=#{id}
+ 	</select>
+ 	
+ 	<select id="getTemplateFilePathByRecordID" parameterType="long" resultType="String">
+ 		select filepath from t_change_lawtemplate where recordID=#{recordID}
+ 	</select>
+ 	<select id="getTotalPerson"  parameterType="long" resultType="int">
+		select count(*) from t_change_partner t where  t.pid=#{pid}
+   </select>
+   
+   <select id="getLPTotalAmount"  parameterType="long" resultType="double">
+		 select sum(partner_amount) from t_change_partner t where  t.pid=#{pid}
+   </select>
+</mapper>

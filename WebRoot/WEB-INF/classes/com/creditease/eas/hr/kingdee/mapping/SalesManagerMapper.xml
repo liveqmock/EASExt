@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.SalesManagerMapper">
+ 	<!-- 人员转正查询(人员编号、转正时间、合同类型) -->
+ 	<select id="personTransformQuery" resultType="map" parameterType="map">
+	select
+		p.fnumber person_no,to_char(pp.FFormalDate,'yyyy-MM-dd') as conversion_date,ct.FContractTypeID contract_type
+	from t_bd_person p 
+		join T_HR_PersonPosition pp on p.fid = pp.fpersonid
+		join t_hr_employeecontract ec on ec.FEmployeeID = pp.fpersonid
+		join T_HR_ContractTemplet ct on ct.fid = ec.FContractTempletID
+	where p.fid in (
+		select positionentrys.fpersonid from T_HR_OnPositionBizBillEntry  positionentrys
+			left join T_HR_OnPositionBizBill  positionbill on positionentrys.fbillid= positionbill.fid
+      	where positionbill.fbillstate=3
+      	<if test="beginTime != null and beginTime != '' ">
+      	and positionentrys.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+      	</if>
+      	<if test="endTime != null and endTime != ''">
+      	and positionentrys.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+      	</if>
+      	
+      	union
+  
+      	select emphireentrys.fpersonid from T_HR_EmpHireBizBillEntry  emphireentrys 
+      		left join T_HR_EmpHireBizBill  emphirebill 
+      	on emphireentrys.fbillid= emphirebill.fid
+      	where emphirebill.fbillstate=3
+      	<if test="beginTime != null and beginTime != '' ">
+      	and emphireentrys.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+      	</if>
+      	<if test="endTime != null and endTime != ''">
+      	and emphireentrys.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+      	</if>)
+      	<if test="fnumber !=null and fnumber !=''">
+			and p.fnumber = #{fnumber}
+		</if>
+   </select>
+   
+   <!-- 人员离职 查询（人员编号、离职原因id、薪资截止日期、离职生效日期、离职原因描述）-->
+   <select id="personLeaveQuery" resultType="map" parameterType="map">
+		select distinct p.fnumber person_no,ent.FReasonID reason,
+    		to_char(ent.cfpaydeadline,'yyyy-MM-dd') salary_date,
+    		to_char(ent.FBizDate,'yyyy-MM-dd') dim_date,
+    		ent.fdescription mark
+    	from T_HR_ResignBizBillEntry ent
+    	join T_HR_ResignBizBill b on ent.fbillid = b.fid
+    	join T_BD_Person p on  ent.fpersonid = p.fid
+    	where FBillState = 3 
+		<if test="beginTime!=null and beginTime !=''">
+		   and ent.FBizDate >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			and ent.FBizDate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="fnumber !=null and fnumber !=''">
+			and p.fnumber = #{fnumber}
+		</if>
+   </select>
+   
+ 	 <!--1.8人员异动查询（员工编号、员工姓名、异动后部门id、异动后职位id、异动后任职资格、异动后员工工作所在城市、异动生效时间、异动后成本中心id、异动后成本中心名称、异动后成本中心编号） -->
+ 	<select id="personUnusualActionQuery" resultType="map" parameterType="map">
+	select
+		p.fnumber person_no,p.fname_l2 person_name,fbe.fadminorgid team_no,fbe.fpositionid rank,p.femployeeclassifyid rank_level,P.CFYGSZDID work_city,
+		to_char(fbe.fbizdate,'yyyy-MM-dd') as change_date,
+		co.pfid cost_center_id,co.pfname_l2 cost_center_name,co.pfnumber cost_center_number
+	from t_bd_person p 
+		join T_HR_FluctuationBizBillEntry fbe on p.fid = fbe.fpersonid
+  		left join T_HR_FluctuationBizBill fb  on fbe.fbillid=fb.fid
+		left join (select ta.* from (SELECT t.fid as fid,t.fname_l2,t.fdisplayname_l2 as fdisplayname_l2,t.fnumber as fnumber,connect_by_root(t.fnumber) as pfnumber,connect_by_root(t.fid) as pfid,connect_by_root(t.fname_l2) as pfname_l2
+  									FROM T_ORG_Admin t
+  									WHERE 1=1
+  									CONNECT BY PRIOR t.fid = t.fparentid
+  									START WITH t.FIsCostOrgUnit=1) ta
+  					inner join t_org_costcenter t1 on (ta.pfid = t1.fid and t1.fisbizunit=1)) co on co.fid = fbe.fadminorgid  	
+  	where fb.fbillstate=3
+    <if test="beginTime != null and beginTime != '' ">
+  	and fbe.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="endTime != null and endTime != ''">
+  	and fbe.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+	<if test="fnumber !=null and fnumber !=''">
+	and p.fnumber = #{fnumber}
+	</if> 	
+  
+	union
+  
+  	select 
+		p.fnumber person_no,p.fname_l2 person_name,ebe.fadminorgid team_no,ebe.fpositionid rank,p.femployeeclassifyid rank_level,P.CFYGSZDID work_city,
+		to_char(ebe.fbizdate,'yyyy-MM-dd') as change_date,
+		co.pfid cost_center_id,co.pfname_l2 cost_center_name,co.pfnumber cost_center_number
+	from t_bd_person p 
+	join T_HR_EmpInfoBizBillEntry ebe on p.fid = ebe.fpersonid
+  	left join T_HR_EmpInfoBizBill eb  on ebe.fbillid=eb.fid
+	left join (select ta.* from (SELECT t.fid as fid,t.fname_l2,t.fdisplayname_l2 as fdisplayname_l2,t.fnumber as fnumber,connect_by_root(t.fnumber) as pfnumber,connect_by_root(t.fid) as pfid,connect_by_root(t.fname_l2) as pfname_l2
+  								FROM T_ORG_Admin t
+  								WHERE 1=1
+  								CONNECT BY PRIOR t.fid = t.fparentid
+  								START WITH t.FIsCostOrgUnit=1) ta
+  					inner join t_org_costcenter t1 on (ta.pfid = t1.fid and t1.fisbizunit=1)) co on co.fid = ebe.fadminorgid
+   where eb.fbillstate=3
+  	<if test="beginTime != null and beginTime != '' ">
+  	and ebe.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="endTime != null and endTime != ''">
+  	and ebe.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="fnumber !=null and fnumber !=''">
+	and p.fnumber = #{fnumber}
+	</if>
+   </select>
+   
+   <!-- 1.9:组织新增查询 （部门id、部门名称、部门层级、是否封存、部门长编码、部门全称、上级部门id、生效时间、创建时间）-->
+   	<select id="orgAddQuery" resultType="map" parameterType="map">
+	select
+ 		a.fid dept_no,a.fname_l2 dept_name,a.flevel dept_level,a.fisSealUp is_keepsafe,
+		a.flongnumber long_no,a.fdisplayname_l2 long_name,a.fparentid up_dept,
+		to_char(a.feffectdate,'yyyy-MM-dd') as start_date,
+		to_char(a.fcreatetime,'yyyy-MM-dd') as create_date
+	from t_org_admin a
+	where a.fnumber not like '%.%' and a.FIsVirtual != 1
+	<if test="beginTime!=null and beginTime !=''">
+	   and a.fcreatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and a.fcreatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="fid !=null and fid !=''">
+		and a.fid = #{fid}
+	</if>
+   </select>
+   
+   <!-- 组织更新查询（部门id、部门名称、部门层级、是否封存、部门长编码、部门全称、上级部门id、生效时间、失效时间、创建时间） -->
+   	<select id="orgUpdateQuery" resultType="map" parameterType="map">
+	select
+		a.fid dept_no,a.fname_l2 dept_name,a.flevel dept_level,a.fisSealUp is_keepsafe,a.flongnumber long_no,a.fdisplayname_l2 long_name,a.fparentid up_dept,
+		to_char(a.feffectdate,'yyyy-MM-dd') as start_date,
+		to_char(a.FInvalidDate,'yyyy-MM-dd') as end_date,
+		to_char(a.fcreatetime,'yyyy-MM-dd') as create_date
+	from t_org_admin a
+	where a.fnumber not like '%.%' and a.FIsVirtual != 1
+	<if test="beginTime!=null and beginTime !=''">
+	   and  a.flastupdatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	   and  a.fcreatetime != to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and  a.flastupdatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		and a.fcreatetime != to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="orgId !=null and orgId !=''">
+		and a.fid = #{orgId}
+	</if>
+   </select>
+   
+    <!-- 1.16:职位查询(部门id、部门下职位id、部门下职位名称) -->
+   	<select id="rankQuery" resultType="map" parameterType="map">
+	select distinct
+		a.fid dept_no,pt.fid rank_no,pt.fname_l2 rank_name
+	from T_ORG_Admin a 
+		join T_ORG_Position pt on a.fid = pt.FAdminOrgUnitID and pt.Fdeletedstatus = 1
+	where a.fnumber not like '%.%'
+	<if test="beginTime!=null and beginTime !=''">
+	   and  a.fcreatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and  a.fcreatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+   </select>
+   
+   <!-- 新增人员查询，查询所有企业员工 （员工编号、员工姓名、员工身份证号、性别、生日、工资卡名称、工资卡开户行、工资卡卡号、员工记录创建时间、手机号、个人邮箱、公司邮箱、QQ号、员工状态、部门id、入职时间、员工工作所在地、成本中心id、成本中心名称、成本中心编号）-->
+   <select id="personAddQuery" resultType="map" parameterType="map">
+	select distinct
+		p.fnumber person_no,p.fname_l2 person_name,p.FIDCardNO idno,p.fgender gender,to_char(p.fbirthday,'yyyy-MM-dd') as birthday,
+		p.cfgzname person_bank_name,p.cfgzbankname bank_name,p.cfgzcard bank_card,to_char(p.Fcreatetime,'yyyy-MM-dd hh24:mi:ss') as crt_date,
+		p.fcell phone,pc.cfprimail person_mailbox,pc.cfmail company_mailbox,pc.fqq qq_no,
+		pt.Fnumber person_state,Ps.Fadminorgunitid dept_no,to_char(po.fenterDate,'yyyy-MM-dd') as work_date,P.CFYGSZDID work_city,
+		co.pfid cost_center_id,co.pfname_l2 cost_center_name,co.pfnumber cost_center_number
+	from t_bd_person P
+		left join T_HR_PersonContactMethod pc on pc.Fpersonid = p.Fid
+		left join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+		left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+		left join T_HR_PersonPosition Po on Po.Fpersonid = P.Fid
+		join T_ORG_PositionMember Pm on p.fid = Pm.FPersonID and Pm.fisprimary = 1
+		left join T_ORG_Position Ps on Ps.fid = Pm.FPositionID and Ps.Fdeletedstatus = 1
+		left join t_Org_Admin org on org.Fid = Ps.Fadminorgunitid
+		left join (select ta.* from (SELECT t.fid as fid,t.fname_l2,t.fdisplayname_l2 as fdisplayname_l2,t.fnumber as fnumber,connect_by_root(t.fnumber) as pfnumber,connect_by_root(t.fid) as pfid,connect_by_root(t.fname_l2) as pfname_l2
+ 				FROM T_ORG_Admin t
+ 				WHERE 1=1
+ 				CONNECT BY PRIOR t.fid = t.fparentid
+ 				START WITH t.FIsCostOrgUnit=1) ta
+ 		inner join t_org_costcenter t1 on (ta.pfid = t1.fid and t1.fisbizunit=1)) co on co.fid = Ps.Fadminorgunitid
+	where ef.fid in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+	<if test="beginTime!=null and beginTime !=''">
+	   and p.Fcreatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and p.Fcreatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	
+	union
+	
+	select distinct
+		p.fnumber person_no,p.fname_l2 person_name,p.FIDCardNO idno,p.fgender gender,to_char(p.fbirthday,'yyyy-MM-dd') as birthday,
+		p.cfgzname person_bank_name,p.cfgzbankname bank_name,p.cfgzcard bank_card,to_char(p.Fcreatetime,'yyyy-MM-dd hh24:mi:ss') as crt_date,
+		p.fcell phone,pc.cfprimail person_mailbox,pc.cfmail company_mailbox,pc.fqq qq_no,
+		pt.Fnumber person_state,Ps.Fadminorgunitid dept_no,to_char(po.fenterDate,'yyyy-MM-dd') as work_date,P.CFYGSZDID work_city,
+		co.pfid cost_center_id,co.pfname_l2 cost_center_name,co.pfnumber cost_center_number
+	from t_bd_person P
+		left join T_HR_PersonContactMethod pc on pc.Fpersonid = p.Fid
+		join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+		left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+		left join T_HR_PersonPosition Po on Po.Fpersonid = P.Fid
+		left join (select *	from (select
+										fpersonid ,FPositionID,fcreatetime,fid, ROW_NUMBER() OVER(PARTITION BY fpersonid ORDER BY fcreatetime DESC) as RN  from t_hr_personworkexpcur  
+    								) where rn = 1) Pm on p.fid = Pm.FPersonID
+		join T_ORG_Position Ps on Ps.fid = Pm.FPositionID and Ps.Fdeletedstatus = 1
+		join t_Org_Admin org on org.Fid = Ps.Fadminorgunitid
+		left join (select ta.* from (SELECT t.fid as fid,t.fname_l2,t.fdisplayname_l2 as fdisplayname_l2,t.fnumber as fnumber,connect_by_root(t.fnumber) as pfnumber,connect_by_root(t.fid) as pfid,connect_by_root(t.fname_l2) as pfname_l2
+					  				FROM T_ORG_Admin t
+					  				WHERE 1=1
+					  				CONNECT BY PRIOR t.fid = t.fparentid
+					  				START WITH t.FIsCostOrgUnit=1) ta
+	  				inner join t_org_costcenter t1 on (ta.pfid = t1.fid and t1.fisbizunit=1)) co on co.fid = Ps.Fadminorgunitid
+	where ef.fid not in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+	<if test="beginTime!=null and beginTime !=''">
+	   and p.Fcreatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and p.Fcreatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+   </select>
+   
+   <!-- 新增人员职位查询 (人员工号、职位id、职位名称、是否为主职、员工任职资格、任职开始时间、任职结束时间)-->
+   <select id="personAddPositionQuery" resultType="map" parameterType="map">
+	select distinct
+		p.fnumber person_no,pm.FPositionID rank_no,ps.FName_l2 rank_name,pm.FIsPrimary rank_type,p.femployeeclassifyid rank_level,
+      	to_char(pm.FBeginDate,'yyyy-MM-dd') start_date,
+      	to_char(pm.FEndDate,'yyyy-MM-dd') end_date
+    from t_bd_person P
+    	left join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+		left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+    	join T_ORG_PositionMember pm on p.fid = pm.FPersonID and Pm.fisprimary = 1
+    	join T_ORG_Position Ps on Ps.fid = pm.FPositionID and ps.Fdeletedstatus = 1
+    where ef.fid in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+  	<if test="beginTime!=null and beginTime !=''">
+	   	and p.Fcreatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and p.Fcreatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+   
+	union
+    
+	select distinct
+    	p.fnumber person_no,pm.FPositionID rank_no,ps.FName_l2 rank_name,pm.FIsPrimary rank_type,p.femployeeclassifyid rank_level,
+    	to_char(pm.FBeginDate,'yyyy-MM-dd') start_date,
+    	to_char(pm.FEndDate,'yyyy-MM-dd') end_date
+	from t_bd_person p
+		left join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+		left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+		left join (select *	from (select
+										fpersonid ,FPositionID,fisprimary,fcreatetime,fid,FBeginDate,FEndDate, ROW_NUMBER() OVER(PARTITION BY fpersonid ORDER BY fcreatetime DESC) as RN  from t_hr_personworkexpcur  
+    								) where rn = 1) pm on pm.FPersonID = p.fid and pm.fisprimary = 1
+		left join T_ORG_Position ps on ps.fid = pm.FPositionID
+		left join t_org_admin a on a.fid = ps.fadminorgunitid
+	where ef.fid not in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+	<if test="beginTime!=null and beginTime !=''">
+	   and p.Fcreatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and p.Fcreatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+   </select>
+   
+   <!-- 新增人员合同查询 （人员编号、合同编号、合同类型id）-->
+   <select id="personAddContractQuery" resultType="map" parameterType="map">
+	select distinct
+		p.fnumber person_no,con.FContractNo contract_no,con.FContractTypeID contract_type,
+ 		to_char(con.FBizDate,'yyyy-MM-dd') as start_date,
+ 		to_char(con.FEndDate,'yyyy-MM-dd') as end_date
+	from t_bd_person P
+		join T_HR_ContractSignBizBillEntry con on con.FPersonID = p.fid
+		join T_HR_ContractSignBizBill c on c.fid = con.FBillID and c.FBillState = 3
+	where 1 = 1
+	<if test="beginTime!=null and beginTime !=''">
+	   and p.Fcreatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and p.Fcreatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+   </select>
+   <!-- 新增人员学历查询（人员编号、学位、毕业院校、是否为最高学历） -->
+   <select id="personAddDegreeQuery" resultType="map" parameterType="map">
+	select distinct
+		p.fnumber person_no,pd.FDiploma degree,pd.FGraduateSchool school,pd.FIsHighest is_highest,
+ 		to_char(pd.FEnrollDate,'yyyy-MM-dd') as start_date,
+ 		to_char(pd.FGraduateDate,'yyyy-MM-dd') as end_date
+	from t_bd_person p
+		join T_HR_PersonDegree pd on p.fid = pd.FPersonId
+	where 1 = 1
+	<if test="beginTime!=null and beginTime !=''">
+	   and p.Fcreatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and p.Fcreatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+   </select>
+   
+   
+   <!-- 更新人员查询（员工编号、员工姓名、员工身份证号、性别、生日、工资卡名称、工资卡开户行、工资卡卡号、员工记录创建时间、手机号、个人邮箱、公司邮箱、QQ号、员工状态、部门id、入职时间、员工工作所在地） -->
+   <select id="personUpdateQuery" resultType="map" parameterType="map">
+	   select distinct
+			p.fnumber person_no,p.fname_l2 person_name,p.FIDCardNO idno,p.fgender gender,to_char(p.fbirthday,'yyyy-MM-dd') as birthday,
+			p.cfgzname person_bank_name,p.cfgzbankname bank_name,p.cfgzcard bank_card,to_char(p.Fcreatetime,'yyyy-MM-dd hh24:mi:ss') as crt_date,
+			p.fcell phone,pc.cfprimail person_mailbox,pc.cfmail company_mailbox,pc.fqq qq_no,
+			pt.Fnumber person_state,Ps.Fadminorgunitid dept_no,to_char(po.fenterDate,'yyyy-MM-dd') as work_date,P.CFYGSZDID work_city
+		from t_bd_person P
+			left join T_HR_PersonContactMethod pc on pc.Fpersonid = p.Fid
+			left join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+			left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+			left join T_HR_PersonPosition Po on Po.Fpersonid = P.Fid
+			left join T_ORG_PositionMember Pm on p.fid = Pm.FPersonID and Pm.fisprimary = 1
+			left join T_ORG_Position Ps on Ps.fid = Pm.FPositionID and Ps.Fdeletedstatus = 1
+			left join t_Org_Admin org on org.Fid = Ps.Fadminorgunitid
+		where ef.fid in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+		<if test="beginTime!=null and beginTime !=''">
+		   and pc.FLastUpdateTime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			and pc.FLastUpdateTime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+   		
+   		union
+   		
+ 		select distinct
+			p.fnumber person_no,p.fname_l2 person_name,p.FIDCardNO idno,p.fgender gender,to_char(p.fbirthday,'yyyy-MM-dd') as birthday,
+			p.cfgzname person_bank_name,p.cfgzbankname bank_name,p.cfgzcard bank_card,to_char(p.Fcreatetime,'yyyy-MM-dd hh24:mi:ss') as crt_date,
+			p.fcell phone,pc.cfprimail person_mailbox,pc.cfmail company_mailbox,pc.fqq qq_no,
+			pt.Fnumber person_state,Ps.Fadminorgunitid dept_no,to_char(po.fenterDate,'yyyy-MM-dd') as work_date,P.CFYGSZDID work_city
+		from t_bd_person P
+			left join T_HR_PersonContactMethod pc on pc.Fpersonid = p.Fid
+			left join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+			left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+			left join T_HR_PersonPosition Po on Po.Fpersonid = P.Fid
+			left join T_ORG_PositionMember Pm on p.fid = Pm.FPersonID and Pm.fisprimary = 1
+			left join T_ORG_Position Ps on Ps.fid = Pm.FPositionID and Ps.Fdeletedstatus = 1
+			left join t_Org_Admin org on org.Fid = Ps.Fadminorgunitid
+		where ef.fid in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+		<if test="beginTime!=null and beginTime !=''">
+			and p.FLastUpdateTime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			and p.FLastUpdateTime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		
+		union
+		
+		select distinct
+			p.fnumber person_no,p.fname_l2 person_name,p.FIDCardNO idno,p.fgender gender,to_char(p.fbirthday,'yyyy-MM-dd') as birthday,
+			p.cfgzname person_bank_name,p.cfgzbankname bank_name,p.cfgzcard bank_card,to_char(p.Fcreatetime,'yyyy-MM-dd hh24:mi:ss') as crt_date,
+			p.fcell phone,pc.cfprimail person_mailbox,pc.cfmail company_mailbox,pc.fqq qq_no,
+			pt.Fnumber person_state,Ps.Fadminorgunitid dept_no,to_char(po.fenterDate,'yyyy-MM-dd') as work_date,P.CFYGSZDID work_city
+		from t_bd_person P
+			left join T_HR_PersonContactMethod pc on pc.Fpersonid = p.Fid
+			left join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+			left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+			left join T_HR_PersonPosition Po on Po.Fpersonid = P.Fid
+			left join (select
+         					h.fpersonid fpersonid,h.fisprimary fisprimary,h.FPositionID fpositionid,h.fbegindate fbegindate,h.fenddate fenddate
+      					from T_HR_PersonWorkExpCur h
+      						inner join(select
+            								pwe.fpersonid as fpersonid, max(pwe.fcreatetime) as fcreatetime
+       									from T_HR_PersonWorkExpCur pwe
+       										group by fpersonid)t on h.fpersonid = t.fpersonid and h.fcreatetime = t.fcreatetime) Pm on p.fid = Pm.FPersonID
+			join T_ORG_Position Ps on Ps.fid = Pm.FPositionID and Ps.Fdeletedstatus = 1
+			join t_Org_Admin org on org.Fid = Ps.Fadminorgunitid
+		where ef.fid not in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+		<if test="beginTime!=null and beginTime !=''">
+		   and p.FLastUpdateTime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			and p.FLastUpdateTime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		
+		union
+		
+		select distinct
+			p.fnumber person_no,p.fname_l2 person_name,p.FIDCardNO idno,p.fgender gender,to_char(p.fbirthday,'yyyy-MM-dd') as birthday,
+			p.cfgzname person_bank_name,p.cfgzbankname bank_name,p.cfgzcard bank_card,to_char(p.Fcreatetime,'yyyy-MM-dd hh24:mi:ss') as crt_date,
+			p.fcell phone,pc.cfprimail person_mailbox,pc.cfmail company_mailbox,pc.fqq qq_no,
+			pt.Fnumber person_state,Ps.Fadminorgunitid dept_no,to_char(po.fenterDate,'yyyy-MM-dd') as work_date,P.CFYGSZDID work_city
+		from t_bd_person P
+			left join T_HR_PersonContactMethod pc on pc.Fpersonid = p.Fid
+			left join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+			left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+			left join T_HR_PersonPosition Po on Po.Fpersonid = P.Fid
+			left join (select
+         					h.fpersonid fpersonid,h.fisprimary fisprimary,h.FPositionID fpositionid,h.fbegindate fbegindate,h.fenddate fenddate
+      					from T_HR_PersonWorkExpCur h
+      						inner join(select
+            								pwe.fpersonid as fpersonid, max(pwe.fcreatetime) as fcreatetime
+       									from T_HR_PersonWorkExpCur pwe
+       										group by fpersonid)t on h.fpersonid = t.fpersonid and h.fcreatetime = t.fcreatetime) Pm on p.fid = Pm.FPersonID
+			join T_ORG_Position Ps on Ps.fid = Pm.FPositionID and Ps.Fdeletedstatus = 1
+			join t_Org_Admin org on org.Fid = Ps.Fadminorgunitid
+		where ef.fid not in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+		<if test="beginTime!=null and beginTime !=''">
+		   and pc.FLastUpdateTime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			and pc.FLastUpdateTime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+   </select>
+   <!-- 更新人员职位查询 -->
+   <select id="personUpdatePositionQuery" resultType="map" parameterType="map">
+ 	select distinct
+        p.fnumber person_no,Pm.FPositionID rank_no,ps.FName_l2 rank_name,pm.FIsPrimary rank_type,p.femployeeclassifyid rank_level,
+	 		to_char(pm.FBeginDate,'yyyy-MM-dd') start_date,
+			to_char(pm.FEndDate,'yyyy-MM-dd') end_date
+		from T_ORG_PositionMember pm
+		join t_bd_person P on p.fid = Pm.FPersonID and Pm.fisprimary = 1
+    left join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+		left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+		join T_ORG_Position Ps on Ps.fid = Pm.FPositionID and Ps.Fdeletedstatus = 1
+	where ef.fid in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+    <if test="beginTime!=null and beginTime !=''">
+	   and  pm.flastupdatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	   and  pm.fcreatetime != to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and  pm.flastupdatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		and pm.fcreatetime != to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+		
+    union
+    
+   select distinct
+      	p.fnumber person_no,Pm.FPositionID rank_no,ps.FName_l2 rank_name,pm.FIsPrimary rank_type,p.femployeeclassifyid rank_level,
+	 	to_char(pm.FBeginDate,'yyyy-MM-dd') start_date,
+		to_char(pm.FEndDate,'yyyy-MM-dd') end_date
+	from (select *	from (select fpersonid ,FPositionID,fcreatetime,flastupdatetime,fid,fisprimary, FBeginDate,FEndDate,ROW_NUMBER() OVER(PARTITION BY fpersonid ORDER BY fcreatetime DESC) as RN  from t_hr_personworkexpcur  
+    							) where rn = 1) pm
+		join t_bd_person P on p.fid = Pm.FPersonID
+   		left join T_HR_BDEmployeeType pt on pt.fid = p.femployeetypeid
+		left join T_HR_EmployeeFenLei ef on pt.FEmployeeFenLeiID = ef.fid
+		join T_ORG_Position Ps on Ps.fid = Pm.FPositionID
+	where ef.fid not in ('00000000-0000-0000-0000-0000000000015C14FC3A','00000000-0000-0000-0000-0000000000055C14FC3A')
+	<if test="beginTime!=null and beginTime !=''">
+	   and  pm.flastupdatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	   and  pm.fcreatetime != to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and  pm.flastupdatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		and pm.fcreatetime != to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+   </select>
+   <!-- 更新人员合同查询 -->
+   <select id="personUpdateContractQuery" resultType="map" parameterType="map">
+    	select p.fnumber person_no,ec.FContractNo contract_no,ct.FContractTypeID contract_type,
+ 		to_char(ec.FEffectDate,'yyyy-MM-dd') as start_date,
+ 		to_char(ec.FEndDate,'yyyy-MM-dd') as end_date
+		from t_hr_employeecontract ec
+		join T_HR_ContractTemplet ct on ct.fid = ec.FContractTempletID
+		join t_bd_person P on ec.FEmployeeID = p.fid
+		where 1 = 1
+		<if test="beginTime!=null and beginTime !=''">
+		   and ec.FLastUpdateTime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			and ec.FLastUpdateTime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+   </select>
+   <!-- 更新人员学历查询 -->
+   <select id="personUpdateDegreeQuery" resultType="map" parameterType="map">
+ 		select p.fnumber person_no,pd.FDiploma degree,pd.FGraduateSchool school,pd.FIsHighest is_highest,
+ 		to_char(pd.FEnrollDate,'yyyy-MM-dd') as start_date,
+ 		to_char(pd.FGraduateDate,'yyyy-MM-dd') as end_date
+		from T_HR_PersonDegree pd
+		join t_bd_person P on p.fid = pd.FPersonId
+		where 1 = 1
+		<if test="beginTime!=null and beginTime !=''">
+		   and pd.FLastUpdateTime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			and pd.FLastUpdateTime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+   </select>
+    <!-- 计薪人员薪酬信息查询 -->
+<!--   <select id="salaryPersonQuery" resultType="map" parameterType="map" statementType="STATEMENT">-->
+<!--   <![CDATA[-->
+<!--		select-->
+<!--			p.fnumber-->
+<!--			,temp.fsal001 basesalary_probation-->
+<!--			,temp.fsal035 basesalary_transform-->
+<!--			,temp.fsal036 performancesalary_probation-->
+<!--			,temp.fsal037 performancesalary__transform-->
+<!--			,temp.fotherenabledate FEffectDate-->
+<!--		from T_HR_PersonCmp pc-->
+<!--			join ${tempTable} temp on temp.fpersonid = pc.fpersonid and pc.fispayperson = 1-->
+<!--			join t_bd_person p on p.fid = pc.fpersonid-->
+<!--		where 1 = 1-->
+<!--   ]]>-->
+<!--   		<if test="(beginTime!=null and beginTime !='') or (endTime !=null and endTime !='')">-->
+<!--	   		and (1 = 1-->
+<!--				<if test="beginTime!=null and beginTime !=''">-->
+<!--			  	and pc.fcreatetime >= to_date('${beginTime}','yyyy-MM-dd hh24:mi:ss')-->
+<!--				</if>-->
+<!--				<if test="endTime !=null and endTime !=''">-->
+<!--				and pc.fcreatetime &lt;= to_date('${endTime}','yyyy-MM-dd hh24:mi:ss')-->
+<!--				</if>-->
+<!--			)-->
+<!--			or (1 = 1-->
+<!--				<if test="beginTime!=null and beginTime !=''">-->
+<!--			  	and pc.flastupdatetime >= to_date('${beginTime}','yyyy-MM-dd hh24:mi:ss')-->
+<!--				</if>-->
+<!--				<if test="endTime !=null and endTime !=''">-->
+<!--				and  pc.flastupdatetime &lt;= to_date('${endTime}','yyyy-MM-dd hh24:mi:ss')-->
+<!--				</if>-->
+<!--			)-->
+<!--		</if>		-->
+<!--   </select>-->
+   <!-- 计薪人员定级定薪表 -->
+   <select id="salaryTableQuery" resultType="String">
+		select
+			fhortablename
+		from T_HR_FixedCmpScheme
+		where
+			fenable = 1
+   </select>
+   <!-- 计薪人员薪酬更新信息查询 -->
+<!--   <select id="salaryUpdateQuery" resultType="map" parameterType="map">-->
+<!-- 		select-->
+<!--			p.fnumber person_no-->
+<!--			,ci.fnumber salaryItem_no-->
+<!--			,ac.foldvalue oldSalaryValue-->
+<!--			,ac.fnewvalue newSalaryValue-->
+<!--			,ac.foldadjdate oldEffectDateDate-->
+<!--			,ac.FEffectDate newEffectDateDate-->
+<!--		from T_HR_ADJSCHITEM ac -->
+<!--			join t_bd_person p on p.fid = ac.fadjempid-->
+<!--			join T_HR_CMPITEM ci on ci.fid = ac.fadjcmpitemid-->
+<!--		where ci.fnumber in ('FSAL001','FSAL035','FSAL036','FSAL037')-->
+<!--		<if test="beginTime!=null and beginTime !=''">-->
+<!--		   and ac.FEffectDate >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')-->
+<!--		</if>-->
+<!--		<if test="endTime !=null and endTime !=''">-->
+<!--			and ac.FEffectDate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')-->
+<!--		</if>-->
+<!--   </select>-->
+   <!-- 员工薪酬查询 -->
+   <select id="paymentQuery" resultType="map" parameterType="String"  statementType="STATEMENT">
+   <![CDATA[
+   		select
+			p.fnumber person_no
+			,temp.fsal001 basesalary_probation
+			,temp.fsal035 basesalary_transform
+			,temp.fsal036 performancesalary_probation
+			,temp.fsal037 performancesalary__transform
+			,to_char(temp.fotherenabledate,'yyyy-MM-dd') as FEffectDate
+		from ${tempTable} temp
+			join t_bd_person p on p.fid = temp.fpersonid
+			join T_HR_PersonPosition pp on pp.fpersonid = p.fid
+			join t_org_admin a on a.fid = pp.FPersonDep
+		where
+			 a.flongnumber like 'CE!06!06QHXSF%' //企合
+			or 	
+			 a.flongnumber like 'CE!06!06XCXSF%' //销创
+			or 	
+			 a.flongnumber like 'CE!06!06GDXSF%' //个贷
+			or
+			 a.flongnumber like 'CE!11!11TYXSF%' //投一
+			or 	
+			 a.flongnumber like 'CE!11!11TEXSF%' //投二
+			or 	
+			 a.flongnumber like 'CE!11!11TSXSF%' //投三
+   ]]>
+   </select>
+   <!-- 计薪人员查询 -->
+   <select id="paidStaffQuery" resultType="map" parameterType="map">
+   	select
+		p.fnumber person_no
+	from T_HR_CMPSCHEMEPERSON sp
+		join t_bd_person p on p.fid  = sp.fpersonid and sp.fenabled = 1 and sp.fisdelete = 0
+		join T_HR_CMPSCHEME c on c.fid = sp.fcmpschemeid and c.fenable = 1 and c.fisdelete = 0
+		join T_HR_CMPPERIOD cp on cp.fid = c.fcmpperiod
+	where 1 = 1
+	<if test="beginTime!=null and beginTime !=''">
+	   and to_date(cp.fname_l2,'yyyyMM') >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime !=null and endTime !=''">
+		and to_date(cp.fname_l2,'yyyyMM') &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+   </select>
+</mapper>

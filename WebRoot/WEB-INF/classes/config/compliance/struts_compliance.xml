@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="compliance" extends="json-default" namespace="/compliance">
+		<!-- 案件信息模块 -->
+		<!-- 合规初步调查模块 -->
+		<action name="investigation" class="com.creditease.eas.compliance.action.InvestigationAction">
+			<result name="edit">/pages/compliance/investigation/investigationEdit.jsp</result>
+			<result name="view">/pages/compliance/investigation/investigationView.jsp</result>
+			<result name="viewPerson">/pages/compliance/investigation/personView.jsp</result>
+			<result name="delete">/pages/compliance/investigation/investigationInfo.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			<result name="queryInvestFile" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			<result name="addInvestInturning">/pages/compliance/investigation/investigationEditInturning.jsp</result>
+			<result name="findFeedbackRequire">/pages/compliance/investigation/updateEmail.jsp</result>
+			
+		</action>
+		<!-- 合规初步调查——申请结案 -->
+		<action name="applysettlement" class="com.creditease.eas.compliance.action.ApplysettlementAction">
+			<result name="edit">/pages/compliance/investigation/applysettlementEdit.jsp</result>
+		</action>
+		<!-- 合规（初步调查——被投诉部门调查处理反馈要求） -->
+		<action name="feedbackRequired" class="com.creditease.eas.compliance.action.IFeedbackRequiredAction">
+			<result name="edit">/pages/compliance/investigation/iFeedbackRequiredEdit.jsp</result>
+		</action>
+		<!-- 合规（初步调查——被投诉部门调查处理反馈） -->
+		<action name="feedback" class="com.creditease.eas.compliance.action.IFeedbackAction">
+			<result name="edit">/pages/compliance/preparedo/iFeedbackEdit.jsp</result>
+		</action>
+		<!-- 合规（初步调查——被投诉部门调查处理反馈结果） -->
+		<action name="feedbackResult" class="com.creditease.eas.compliance.action.IFeedbackResultAction">
+			<result name="edit">/pages/compliance/investigation/iFeedbackResultEdit.jsp</result>
+		</action>
+		<!-- 合规（初步调查——被投诉部门调查处理反馈结果） -->
+		<action name="auditResult" class="com.creditease.eas.compliance.action.AuditResultAction">
+			<result name="edit">/pages/compliance/preparedo/auditResultEdit.jsp</result>
+		</action>
+		<!-- 合规（初步调查——实地调查情况） -->
+		<action name="fieldsurvey" class="com.creditease.eas.compliance.action.FieldsurveyAction">
+			<result name="edit">/pages/compliance/investigation/fieldsurveyEdit.jsp</result>
+		</action>
+		<!-- 合规（初步调查——实地调查情况） -->
+		<action name="zcxzlsfbResult" class="com.creditease.eas.compliance.action.ZcxzlsResultAction">
+			<result name="edit">/pages/compliance/investigation/zcxzlsfbResultEdit.jsp</result>
+		</action>
+    </package>    
+</struts>

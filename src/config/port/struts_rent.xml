@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="rent" extends="json-default" namespace="/rent">
+		<!-- 房屋合同信息模块 -->
+		<action name="rentContract" class="com.creditease.eas.warn.action.RentContractAction">
+			<result name="edit">/rentcontract/rentContractEdit.jsp</result>
+			<result name="view">/rentcontract/rentContractView.jsp</result>
+			<result name="delete">/rentcontract/rentContractInfo.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+		<!-- 财务房屋合同信息模块 -->
+		<action name="financeRentContract" class="com.creditease.eas.warn.action.FinanceRentContractAction">
+			<result name="edit">/pages/financerentcontract/rentcontract/rentContractEdit.jsp</result>
+			<result name="view">/pages/financerentcontract/rentcontract/rentContractView.jsp</result>
+			<result name="delete">/pages/financerentcontract/rentcontract/rentContractInfo.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+		<!-- 财务房屋合同信息用户模块 -->
+		<action name="financeUser" class="com.creditease.eas.warn.action.FinanceUserAction">
+			<result name="edit">/pages/financerentcontract/financeuser/financeUserEdit.jsp</result>
+			<result name="view">/pages/financerentcontract/financeuser/financeUserView.jsp</result>
+			<result name="delete">/pages/financerentcontract/financeuser/financeUserInfo.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+    </package>    
+</struts>

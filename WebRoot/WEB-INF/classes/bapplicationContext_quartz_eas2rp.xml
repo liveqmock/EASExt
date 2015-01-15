@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>   
+		<!--
+			Quartz中时间表达式的设置  时间格式:  s m h d m w(?) y(?) ,   分别对应: 秒>分>小时>日>月>周>年, 
+			推送可能需要提供三个定时任务的接口
+			需要设置一个推送的时间点吗？			
+		 -->
+	<!-- 制度平台数据推送任务 -->
+      <bean id="rpquartzJob" class="com.creditease.eas.quartz.ws.RPWebServiceQuartzJob"/>
+      
+      
+	<!--声明新增组织数据推送调度任务目标方法 -->
+      <bean id="pushAddOrgJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="rpquartzJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>pushAddOrg</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+	<!--声明新增组织数据推送任务定时器 -->
+	<bean id="doEas2rpForPushAddOrgJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="pushAddOrgJob"/>
+      	</property>
+      	<property name="cronExpression">
+      		<value>00 30 02 * * ?</value>
+      	</property>
+      </bean>
+	
+	<!--声明更新组织数据推送调度任务目标方法 -->
+      <bean id="pushUpdateOrgJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="rpquartzJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>pushUpdateOrg</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+	<!--声明更新组织数据推送任务定时器 -->
+	<bean id="doEas2rpForPushUpdateOrgJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="pushUpdateOrgJob"/>
+      	</property>
+      	<property name="cronExpression">
+      		<value>00 15 03 * * ?</value>
+      	</property>
+      </bean>
+	
+	<!--声明删除无效组织数据调度任务目标方法 -->
+      <bean id="deleteInvalidOrgJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="rpquartzJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>deleteInvalidOrg</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+	<!--声明删除无效组织数据任务定时器 -->
+	<bean id="doEas2rpForDeleteInvalidOrgJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="deleteInvalidOrgJob"/>
+      	</property>
+      	<property name="cronExpression">
+      		<value>00 45 03 * * ?</value>
+      	</property>
+      </bean>
+      
+      
+
+     
+      
+      
+	<!--声明新增人员数据推送调度任务目标方法 -->
+      <bean id="pushAddPersonJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="rpquartzJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>pushAddPerson</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+	<!--声明新增人员数据推送任务定时器 -->
+	  <bean id="doEas2rpForPushAddPersonJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="pushAddPersonJob"/>
+      	</property>
+      	<property name="cronExpression">
+      		<value>00 15 04 * * ?</value>
+      	</property>
+      </bean>
+	
+		<!--声明更新人员数据推送调度任务目标方法 -->
+      <bean id="pushUpdatePersonJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="rpquartzJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>pushUpdatePerson</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+	<!--声明更新人员数据推送任务定时器 -->
+	  <bean id="doEas2rpForPushUpdatePersonJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="pushUpdatePersonJob"/>
+      	</property>
+      	<property name="cronExpression">
+      		<value>00 00 05 * * ?</value>
+      	</property>
+      </bean>
+	  
+	  <!--声明删除无效人员数据调度任务目标方法 -->
+      <bean id="deleteInvalidPersonJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="rpquartzJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>deleteInvalidPerson</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+	<!--声明删除无效人员数据推送任务定时器 -->
+	  <bean id="doEas2rpForDeleteInvalidPersonJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="deleteInvalidPersonJob"/>
+      	</property>
+      	<property name="cronExpression">
+      		<value>00 30 05 * * ?</value>
+      	</property>
+      </bean>
+
+
+      
+     <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+        <bean id="startQuertz_eas2rp" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+            <property name="triggers">
+                <list>
+                    <ref bean="doEas2rpForPushAddOrgJob"/>
+                    <ref bean="doEas2rpForPushUpdateOrgJob"/>
+                    <ref bean="doEas2rpForDeleteInvalidOrgJob"/>
+                    <ref bean="doEas2rpForPushAddPersonJob"/>
+                    <ref bean="doEas2rpForPushUpdatePersonJob"/>
+                    <ref bean="doEas2rpForDeleteInvalidPersonJob"/>
+                </list>
+            </property>
+        </bean>
+
+</beans>

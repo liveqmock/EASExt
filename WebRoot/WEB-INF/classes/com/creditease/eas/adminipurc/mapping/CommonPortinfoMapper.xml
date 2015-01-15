@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.adminipurc.dao.CommonPortinfoMapper" >
+	  <sql id="Base_Column_List" >
+	    FID, FORGNAME, FCITY, FLASTCOSTCENTER, FOFFICEADDR, FPORTEMAIL, FPORTNAME, FISALLPORT, 
+	    FAUTHORITYTYPE, FPORTTYPE, FDELETESTATUS, FCONTRACTNUMBER, FCREATOR, FCREATETIME, 
+	    FLASTUPDATER, FLASTUPDATETIME, FEXT1, FEXT2, FEXT3, FEXT4,FEXT5,FEXT6,FEXT7, FEXT8,
+	    FEXT9, FEXT10
+ 	 </sql>
+	  <!-- 添加接口人信息 -->
+	  <insert id="insert" parameterType="com.creditease.eas.util.commbean.CommonPortinfo" >
+	    <selectKey resultType="java.lang.Long" keyProperty="fid" order="BEFORE"> 
+	   		select common_seq.NEXTVAL from dual 
+		</selectKey>
+	      insert into T_COMMON_PORTINFO (FID, FORGNAME, FCITY, 
+      FLASTCOSTCENTER, FOFFICEADDR, FPORTEMAIL, 
+      FPORTNAME, FISALLPORT, FAUTHORITYTYPE, 
+      FPORTTYPE, FDELETESTATUS, FCONTRACTNUMBER, 
+      FCREATOR, FCREATETIME, FLASTUPDATER, 
+      FLASTUPDATETIME, FEXT1, FEXT2, 
+      FEXT3, FEXT4,FEXT5,FEXT6,FEXT7, 
+      FEXT8,FEXT9, FEXT10)
+     values (#{fid,jdbcType=DECIMAL}, #{forgName,jdbcType=VARCHAR}, #{fcity,jdbcType=VARCHAR}, 
+      #{flastCostcenter,jdbcType=VARCHAR}, #{fofficeAddr,jdbcType=VARCHAR}, #{fportEmail,jdbcType=VARCHAR}, 
+      #{fportName,jdbcType=VARCHAR}, #{fisAllPort,jdbcType=VARCHAR}, #{fauthorityType,jdbcType=VARCHAR}, 
+      #{fportType,jdbcType=INTEGER}, #{fdeleteStatus,jdbcType=VARCHAR}, #{fcontractNumber,jdbcType=VARCHAR}, 
+      #{fcreator,jdbcType=DECIMAL}, #{fcreatetime,jdbcType=DATE}, #{flastupdater,jdbcType=DECIMAL}, 
+      #{flastupdatetime,jdbcType=TIMESTAMP}, #{fext1,jdbcType=VARCHAR}, #{fext2,jdbcType=VARCHAR}, 
+      #{fext3,jdbcType=VARCHAR}, #{fext4,jdbcType=VARCHAR}, #{fext5,jdbcType=VARCHAR}, 
+      #{fext6,jdbcType=VARCHAR}, #{fext7,jdbcType=VARCHAR}, #{fext8,jdbcType=VARCHAR}, 
+      #{fext9,jdbcType=VARCHAR}, #{fext10,jdbcType=VARCHAR})
+	  </insert>
+	  <!-- 批量增加接口人信息数据 -->
+     <insert id="insertAllPort" parameterType="ArrayList" useGeneratedKeys="true"> 
+         <selectKey resultType="java.lang.Long" keyProperty="id" order="BEFORE"> 
+   			select common_seq.NEXTVAL from dual 
+		</selectKey>  
+	      insert into T_COMMON_PORTINFO (FID, FORGNAME, FCITY, 
+      	  FLASTCOSTCENTER, FOFFICEADDR, FPORTEMAIL,FPORTNAME, FISALLPORT, FAUTHORITYTYPE, 
+          FPORTTYPE, FDELETESTATUS, FCONTRACTNUMBER,FCREATOR, FCREATETIME, FLASTUPDATER, 
+          FLASTUPDATETIME, FEXT1, FEXT2,FEXT3, FEXT4, FEXT5,FEXT6, FEXT7, FEXT8,FEXT9, FEXT10)
+	      SELECT common_seq.NEXTVAL,A.* from(
+           <foreach collection="list" item="item" index="index" separator="union">   
+           SELECT #{item.forgName,jdbcType=VARCHAR}, #{item.fcity,jdbcType=VARCHAR}, 
+				#{item.flastCostcenter,jdbcType=VARCHAR}, #{item.officeAdd,jdbcType=VARCHAR},
+				#{item.fportEmail,jdbcType=VARCHAR}, #{item.fportName,jdbcType=VARCHAR},#{item.fisAllPort,jdbcType=VARCHAR}, 
+				#{item.fauthorityType,jdbcType=VARCHAR}, #{item.fportType,jdbcType=INTEGER}, #{item.fdeleteStatus,jdbcType=VARCHAR},
+				#{item.fcontractNumber,jdbcType=VARCHAR}, #{item.fcreator,jdbcType=DECIMAL}, #{item.fcreatetime,jdbcType=TIMESTAMP}, 
+				#{item.flastupdater,jdbcType=DECIMAL},#{item.flastupdatetime,jdbcType=TIMESTAMP}, #{item.fext1,jdbcType=VARCHAR}, 
+				#{item.fext2,jdbcType=VARCHAR},#{item.fext3,jdbcType=VARCHAR}, #{item.fext4,jdbcType=VARCHAR}, #{item.fext5,jdbcType=VARCHAR}, 
+			    #{item.fext6,jdbcType=VARCHAR}, #{fext7,jdbcType=VARCHAR}, #{fext8,jdbcType=VARCHAR}, 
+			    #{fext9,jdbcType=VARCHAR}, #{fext10,jdbcType=VARCHAR} FROM DUAL
+          </foreach> ) A 
+    </insert>
+    <!-- 查询条件 -->
+      <sql id="preview_condition" >
+      	<if test="condition!= null and condition!=''">
+      			${condition}
+      	</if>
+		<if test="orgname != null and orgname != '' "> AND FORGNAME like '%${orgname}%'</if>
+		<if test="city != null and city != '' "> AND FCITY like '%${city}%'</if>
+		<if test="officeadd != null and officeadd != '' "> AND FOFFICEADDR like '%${officeadd}%'</if>
+		<if test="lastcostcenter != null and lastcostcenter != '' "> AND FLASTCOSTCENTER like '%${lastcostcenter}%'</if>
+		<if test="isport != null and isport != '' "> AND FISALLPORT = '${isport}'</if>
+  	</sql>
+	<!-- 查询接口人信息 -->
+	<select id="queryPageByParams" resultType="com.creditease.eas.util.commbean.CommonPortinfo" parameterType="map">
+	   Select * FROM(Select ROWNUM as ROWNO,t.* from
+		(select * from  t_common_portinfo 	
+			<where> 
+				fdeleteStatus=1
+				<include refid="preview_condition"/>
+			</where>
+      order by FID desc) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER}
+	</select>
+	<!-- 查询接口人信息的数量 -->
+	<select id="getTotalCountsByParams" resultType="int" parameterType="map">
+	 		select count(*) from t_common_portinfo
+			<where> 
+				fdeleteStatus=1
+				<include refid="preview_condition"/>
+			</where>
+	</select>
+	<!-- 查询是否已经添加了重复的接口人信息 -->
+	<select id="findIfPortExists" parameterType="map" resultType="com.creditease.eas.util.commbean.CommonPortinfo">
+		 select * from T_COMMON_PORTINFO where FDELETESTATUS=1
+		 <if test="forgName != null" >
+	        and  FORGNAME = #{forgName,jdbcType=VARCHAR}
+	      </if>
+	      <if test="fcity != null" >
+	       	and FCITY = #{fcity,jdbcType=VARCHAR}
+	      </if>
+	      <if test="flastCostcenter != null" >
+	        and  FLASTCOSTCENTER = #{flastCostcenter,jdbcType=VARCHAR}
+	      </if>
+	      <if test="fofficeAdd != null" >
+	        and FOFFICEADDR = #{fofficeAdd,jdbcType=VARCHAR}
+	      </if>
+	      <if test="fportEmail != null" >
+	        and FPORTEMAIL = #{fportEmail,jdbcType=VARCHAR}
+	      </if>
+	</select>
+	<!-- 根据主键查询接口人的信息 -->
+	 <select id="selectByPrimaryKey" resultType="com.creditease.eas.util.commbean.CommonPortinfo" parameterType="java.lang.Long" >
+    	select 
+	    <include refid="Base_Column_List" />
+	    from t_common_portinfo
+	    where FID = #{fid,jdbcType=DECIMAL}
+  </select>
+   <!-- 物理主键删除接口人的信息 -->
+   <delete id="physicalDeletion" parameterType="java.lang.Long" >
+   	update t_common_portinfo set fdeleteStatus=2
+    where FID = #{fid,jdbcType=DECIMAL}
+  </delete>
+	<!-- 根据id更新接口人信息 -->
+	 <update id="update" parameterType="com.creditease.eas.util.commbean.CommonPortinfo" >
+	    update T_COMMON_PORTINFO
+	    <set >
+	     <if test="forgName != null" >
+	        FORGNAME = #{forgName,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fcity != null" >
+	        FCITY = #{fcity,jdbcType=VARCHAR},
+	      </if>
+	      <if test="flastCostcenter != null" >
+	        FLASTCOSTCENTER = #{flastCostcenter,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fofficeAddr != null" >
+	        FOFFICEADDR = #{fofficeAddr,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fportEmail != null" >
+	        FPORTEMAIL = #{fportEmail,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fportName != null" >
+	        FPORTNAME = #{fportName,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fisAllPort != null" >
+	        FISALLPORT = #{fisAllPort,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fauthorityType != null" >
+	        FAUTHORITYTYPE = #{fauthorityType,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fportType != null" >
+	        FPORTTYPE = #{fportType,jdbcType=INTEGER},
+	      </if>
+	      <if test="fdeleteStatus != null" >
+	        FDELETESTATUS = #{fdeleteStatus,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fcontractNumber != null" >
+	        FCONTRACTNUMBER = #{fcontractNumber,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fcreator != null" >
+	        FCREATOR = #{fcreator,jdbcType=DECIMAL},
+	      </if>
+	      <if test="fcreatetime != null" >
+	        FCREATETIME = #{fcreatetime,jdbcType=TIMESTAMP},
+	      </if>
+	      <if test="flastupdater != null" >
+	        FLASTUPDATER = #{flastupdater,jdbcType=DECIMAL},
+	      </if>
+	      <if test="flastupdatetime != null" >
+	        FLASTUPDATETIME = #{flastupdatetime,jdbcType=TIMESTAMP},
+	      </if>
+	      <if test="fext1 != null" >
+	        FEXT1 = #{fext1,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fext2 != null" >
+	        FEXT2 = #{fext2,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fext3 != null" >
+	        FEXT3 = #{fext3,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fext4 != null" >
+	        FEXT4 = #{fext4,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fext7 != null" >
+	        FEXT7 = #{fext7,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fext8 != null" >
+	        FEXT8 = #{fext8,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fext6 != null" >
+	        FEXT6 = #{fext6,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fext5 != null" >
+	        FEXT5 = #{fext5,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fext9 != null" >
+	        FEXT9 = #{fext9,jdbcType=VARCHAR},
+	      </if>
+	      <if test="fext10 != null" >
+	        FEXT10 = #{fext10,jdbcType=VARCHAR},
+	      </if>
+	    </set>
+	    where FID = #{fid,jdbcType=DECIMAL}
+  </update>
+  <!-- 查询部门总接口人和部门接口人的权限 -->
+  <select id="queryAuthorityByUsername" parameterType="string" resultType="map">
+  		select cp.forgname,cp.fcity,cp.flastcostcenter,cp.fofficeaddr,cp.fcontractnumber,cp.fisallport,cp.FAUTHORITYTYPE,cp.fportEmail
+  		from t_common_portinfo cp
+		left join T_ADMIN_REL_USERPORT up on up.portid = cp.fid
+		left join t_user tu on tu.id = up.fuserid
+		where tu.username = #{username,jdbcType=VARCHAR} and cp.FDELETESTATUS=1
+  </select>
+   <!-- 查询采购组负责人的权限 -->
+  <select id="queryCaiGouAuthorityByUserid" parameterType="long" resultType="map">
+  		select cp.forgname,cp.fcity,cp.flastcostcenter,cp.fofficeaddr,cp.fcontractnumber,cp.fisallport,cp.FAUTHORITYTYPE,cp.fportEmail 
+  		from t_common_portinfo cp
+		inner join T_ADMIN_REL_USERPORT up on up.portid = cp.fid
+		inner join (select * from t_user start with id = #{userid,jdbcType=DECIMAL} 
+	  	connect by prior id = parentid) tu on tu.id = up.fuserid
+		where  cp.FDELETESTATUS=1
+  </select>
+  <!-- 描述：根据使用部门、末级成本中心、办公室坐落地址查询接口人邮箱 -->
+  <select id="portemailToSend" parameterType="map" resultType="map">
+	select FPORTEMAIL from T_COMMON_PORTINFO  where FPORTTYPE ='734' and FDELETESTATUS = '1' and FISALLPORT = '否'
+
+	<if test="lastCostcenter != null and lastCostcenter != '' "> and FLASTCOSTCENTER = #{lastCostcenter,jdbcType=VARCHAR} </if>
+	<if test="orgName != null and orgName != '' "> and FORGNAME = #{orgName,jdbcType=VARCHAR} </if>
+	<if test="officeAddr != null and officeAddr != '' "> and FOFFICEADDR = #{officeAddr,jdbcType=VARCHAR} </if>
+ 
+  </select>
+
+   
+   <!-- 描述：查询行政采购房屋合同模块总接口人信息 -->
+  <select id="allPortEmailToSend"  resultType="map">
+	select * from T_COMMON_PORTINFO  where FPORTTYPE ='734' and FDELETESTATUS = '1' and FISALLPORT = '是'
+  </select>
+  
+
+  <!-- 根据邮箱名查询接口人的id -->
+  <select id="queryPortInfoByEmail" parameterType="map" resultType="map">
+  		select * from T_COMMON_PORTINFO where 1=1 
+	    <if test="fportemail != null and fportemail != ''" >
+			and fportemail = #{fportemail,jdbcType=VARCHAR}
+		</if>
+		<if test="forgname != null and forgname != ''">
+			and forgname = #{forgname,jdbcType=VARCHAR}
+		</if>
+		<if test="fisAllPort != null and fisAllPort != ''">
+			and fisAllPort = #{fisAllPort,jdbcType=VARCHAR}
+		</if>
+  </select>
+   <!-- 根据创建人id，查找对应的总接口人的信息 -->
+  <select id="queryCreateidinfoByCreatorAndEmail" parameterType="map" resultType="string">
+  		select wm_concat(fext1) as fcreateidinfo from T_COMMON_PORTINFO where 1=1 
+			and fext1 like #{fext1,jdbcType=VARCHAR}
+			and fportemail = #{fportemail,jdbcType=VARCHAR}
+  </select>
+   <!--批量更新接口人的扩展字段 -->
+   <update id="updateFext1ByEmail" parameterType="map">
+   		update T_COMMON_PORTINFO set fext1 = #{fportNewEmail,jdbcType=VARCHAR}
+   		where 1=1
+   		<if test="forgname != null and forgname != ''">
+			and forgname = #{forgname,jdbcType=VARCHAR}
+		</if>
+   		and fext1 = #{fportOldEmail,jdbcType=VARCHAR}
+   </update>
+
+</mapper>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.AuditResultMapper" >
+	<resultMap id="BaseResultMap" type="com.creditease.eas.compliance.bean.AuditResult" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="ISAGREE" property="isAgree" jdbcType="INTEGER" />
+		<result column="OPINION" property="opinion" jdbcType="VARCHAR" />
+		<result column="AUDITTYPEID" property="auditTypeId" jdbcType="INTEGER" />
+		<result column="APPLYSETTLEMENTID" property="applysettlementId" jdbcType="INTEGER" />
+		<result column="INVESTIGATIONID" property="investigationId" jdbcType="INTEGER" />
+		<result column="CREATERID" property="createrId" jdbcType="INTEGER" />
+		<result column="CREATETIME" property="createTime" jdbcType="DATE" />
+		<result column="LASTUPDATERID" property="lastUpdaterId" jdbcType="INTEGER" />
+		<result column="LASTUPDATETIME" property="lastUpdateTime" jdbcType="DATE" />
+		
+		<result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+		<result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+		<result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+		<result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+		<result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+		<result column="EXT6" property="ext6" jdbcType="VARCHAR" />
+		<result column="EXT7" property="ext7" jdbcType="VARCHAR" />
+		<result column="EXT8" property="ext8" jdbcType="VARCHAR" />
+		<result column="EXT9" property="ext9" jdbcType="VARCHAR" />
+		<result column="EXT10" property="ext10" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List" >
+		ID, ISAGREE, OPINION, AUDITTYPEID, APPLYSETTLEMENTID, INVESTIGATIONID, CREATERID, CREATETIME, 
+		LASTUPDATERID, LASTUPDATETIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10
+	</sql>
+  
+  	<sql id="preview_condition" >
+		<if test="orgName != null and orgName != '' "> AND ORGNAME like '%${orgName}%'</if>
+		<if test="startDate != null and startDate != '' "> AND CREATORTIME &gt;= TO_DATE('${startDate}','yyyy-mm-dd')</if>
+		<if test="paymentCycle != null and paymentCycle != '' "> AND PAYMENTCYCLE = #{paymentCycle,jdbcType=VARCHAR}</if>
+		<if test="lastCostCenter != null and lastCostCenter != '' "> AND LASTCOSTCENTER like '%${lastCostCenter}%'</if>
+		<if test="endDate != null and endDate != '' "> AND CREATORTIME &lt;= TO_DATE('${endDate}','yyyy-mm-dd')</if>
+		<if test="signatorys != null and signatorys != '' "> AND SIGNATORY in (${signatorys})</if>		
+  	</sql>
+  
+ 	<select id="getTotalCounts" resultType="int"  parameterType="map">
+		SELECT COUNT(ID) FROM (SELECT ROWNUM AS ROWNO,
+ 		<include refid="Base_Column_List" /> FROM T_COM_AUDITRESULT 
+ 		<where> 1=1 <include refid="preview_condition" /> </where>)  
+	</select>
+	
+	<select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		SELECT * FROM ( SELECT ROWNUM AS ROWNO, 
+	 	<include refid="Base_Column_List" /> FROM T_COM_AUDITRESULT   
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+				<include refid="preview_condition" />
+			</where> ) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT <include refid="Base_Column_List" /> FROM T_COM_AUDITRESULT WHERE ID = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+		DELETE FROM T_COM_AUDITRESULT WHERE ID = #{id,jdbcType=INTEGER}
+	</delete>
+  
+	<insert id="insert" parameterType="com.creditease.eas.compliance.bean.AuditResult" >
+	    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   			SELECT T_COM_AUDITRESULT_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+			INSERT INTO T_COM_AUDITRESULT (ID, ISAGREE, OPINION, AUDITTYPEID, APPLYSETTLEMENTID, INVESTIGATIONID, 
+				CREATERID, CREATETIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10)
+			values (#{id,jdbcType=INTEGER}, #{isAgree,jdbcType=INTEGER}, #{opinion,jdbcType=VARCHAR}, 
+				#{auditTypeId,jdbcType=INTEGER},#{applysettlementId,jdbcType=INTEGER},#{investigationId,jdbcType=INTEGER},
+				#{createrId,jdbcType=INTEGER}, SYSDATE, #{ext1,jdbcType=VARCHAR}, 
+				#{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR}, #{ext4,jdbcType=VARCHAR}, 
+				#{ext5,jdbcType=VARCHAR}, #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, 
+			  	#{ext8,jdbcType=VARCHAR}, #{ext9,jdbcType=VARCHAR}, #{ext10,jdbcType=VARCHAR})
+  	</insert>
+
+	<update id="updateByPrimaryKey" parameterType="com.creditease.eas.compliance.bean.AuditResult" >
+  		UPDATE T_COM_AUDITRESULT SET 
+		    ISAGREE = #{isAgree,jdbcType=INTEGER},
+		    OPINION = #{opinion,jdbcType=VARCHAR},
+		    AUDITTYPEID = #{auditTypeId,jdbcType=INTEGER},
+		    APPLYSETTLEMENTID = #{applysettlementId,jdbcType=INTEGER},
+		    INVESTIGATIONID = #{investigationId,jdbcType=INTEGER},
+		    LASTUPDATERID = #{lastUpdaterId,jdbcType=INTEGER},
+		    LASTUPDATETIME = SYSDATE,
+		    EXT1 = #{ext1,jdbcType=VARCHAR},
+		    EXT2 = #{ext2,jdbcType=VARCHAR},
+		    EXT3 = #{ext3,jdbcType=VARCHAR},
+		    EXT4 = #{ext4,jdbcType=VARCHAR},
+		    EXT5 = #{ext5,jdbcType=VARCHAR},
+		    EXT6 = #{ext6,jdbcType=VARCHAR},
+		    EXT7 = #{ext7,jdbcType=VARCHAR},
+		    EXT8 = #{ext8,jdbcType=VARCHAR},
+		    EXT9 = #{ext9,jdbcType=VARCHAR},
+		    EXT10 = #{ext10,jdbcType=VARCHAR}
+	  	WHERE ID = #{id,jdbcType=INTEGER}
+	</update>
+	
+	<!--	根据调查记录id查询相关的申请记录id	-->
+	<select id="getApplysettlementId" resultType="java.lang.Integer" parameterType="java.lang.Integer" >
+		SELECT MAX(T.ID) FROM T_COM_APPLYSETTLEMENT T WHERE T.INVESTIGATIONID = #{investigationId,jdbcType=INTEGER}
+	</select>
+	
+</mapper>

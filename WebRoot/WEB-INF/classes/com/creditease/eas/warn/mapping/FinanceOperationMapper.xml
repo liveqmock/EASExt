@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.warn.dao.FinanceOperationMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.warn.bean.FinanceOperation" >
+   
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="CREATOR" property="creator" jdbcType="VARCHAR" />
+    <result column="CREATORTIME" property="creatortime" jdbcType="DATE" />
+    <result column="LASTUPDATER" property="lastupdater" jdbcType="VARCHAR" />
+    <result column="LASTUPDATETIME" property="lastupdatetime" jdbcType="DATE" />
+    <result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+    <result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+    <result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+    <result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+    <result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+    <result column="EXT6" property="ext6" jdbcType="VARCHAR" />
+    <result column="EXT7" property="ext7" jdbcType="VARCHAR" />
+    <result column="EXT8" property="ext8" jdbcType="VARCHAR" />
+    <result column="EXT9" property="ext9" jdbcType="VARCHAR" />
+    <result column="EXT10" property="ext10" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+   
+    ID, REMARK, CREATOR, CREATORTIME, LASTUPDATER, LASTUPDATETIME, EXT1, EXT2, EXT3, 
+    EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10, TYPE
+  </sql>
+
+	
+	<insert id="insert" parameterType="com.creditease.eas.warn.bean.FinanceOperation" >
+	    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   			SELECT T_FINANCE_OPERATION_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+			 insert into t_finance_operation (ID, REMARK, CREATOR, 
+      CREATORTIME, LASTUPDATER, LASTUPDATETIME, TYPE)
+    values (#{id,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      #{creatortime,jdbcType=DATE}, #{lastupdater,jdbcType=VARCHAR}, #{lastupdatetime,jdbcType=DATE}, #{type,jdbcType=INTEGER})
+  	</insert>
+	
+</mapper>

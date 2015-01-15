@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration >
+<!-- 设置mysql驱动路径   -->
+<classPathEntry location="./ojdbc14.jar" />
+<!-- 此处指定生成针对MyBatis3的DAO -->
+  <context id="context1"  targetRuntime="MyBatis3">
+	<!-- jdbc连接信息 -->
+     <jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver"  
+    connectionURL="jdbc:oracle:thin:@119.161.156.210:3334/cedb" 
+    userId="easext" password="h9ZSO22nrtH+" />
+	<javaModelGenerator targetPackage="com.creditease.eas.bean" targetProject="../src"> 
+		<property name="enableSubPackages" value="true" /> 
+		<property name="trimStrings" value="true" /> 
+	</javaModelGenerator> 
+	<!--配置实体map接口(dao)-->   
+	<sqlMapGenerator targetPackage="com.creditease.eas.orm.mapping" targetProject="../src"> 
+		<property name="enableSubPackages" value="true" /> 
+	</sqlMapGenerator> 
+	<!--配置实体bean的sql.xml-->   
+	<javaClientGenerator type="XMLMAPPER" targetPackage="com.creditease.eas.dao" targetProject="../src">
+	 	<property name="enableSubPackages" value="true" /> 
+	</javaClientGenerator> 
+    <!--想要生成的数据库表,自动化工具会根据该表的结构生成相应的vo对象-->
+    <table schema="" tableName="T_WaringType" domainObjectName="WaringType" enableCountByExample="false" 
+	enableUpdateByExample="false" 
+	enableDeleteByExample="false" 
+	enableSelectByExample="false" 
+	selectByExampleQueryId="false" 
+	/>
+
+	<table schema="" tableName="T_SendWay" domainObjectName="SendWay" enableCountByExample="false" 
+	enableUpdateByExample="false" 
+	enableDeleteByExample="false" 
+	enableSelectByExample="false" 
+	selectByExampleQueryId="false" 
+	/>
+
+	<table schema="" tableName="T_WaringDetail" domainObjectName="WaringDetail" enableCountByExample="false" 
+	enableUpdateByExample="false" 
+	enableDeleteByExample="false" 
+	enableSelectByExample="false" 
+	selectByExampleQueryId="false" 
+	/>
+
+	<table schema="" tableName="T_Variables" domainObjectName="Variables" enableCountByExample="false" 
+	enableUpdateByExample="false" 
+	enableDeleteByExample="false" 
+	enableSelectByExample="false" 
+	selectByExampleQueryId="false" 
+	/>	
+
+	<table schema="" tableName="T_Jumbosmsv" domainObjectName="Jumbosmsv" enableCountByExample="false" 
+	enableUpdateByExample="false" 
+	enableDeleteByExample="false" 
+	enableSelectByExample="false" 
+	selectByExampleQueryId="false" 
+	/>
+	
+  </context>
+</generatorConfiguration>

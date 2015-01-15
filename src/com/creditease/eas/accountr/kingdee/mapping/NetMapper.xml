@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.accountr.kingdee.dao.NetMapper" >
+	<!--查询员工工资卡信息-->
+    <select id="selectCardInfo" resultType="Map">
+		select t.fname_l2 personName,t.fnumber,t.CFGzcard,t.CFGzbankname,c.fname_l2 cityName,t.rowid from t_bd_person t
+		left join t_ba_cardcity c on t.cfpayrollcardcityi=c.fid where 1=1 and t.fnumber in 	
+		<foreach collection="list" index="index" item="tag" open="(" separator="," close=")">
+			 #{tag}
+		</foreach>
+	</select>
+	<!--查询部门信息-->
+    <select id="selectDeptInfo" resultType="Map">
+		select fname_l2 deptName,fnumber from t_org_admin where 1=1 and fnumber in 	
+		<foreach collection="list" index="index" item="tag" open="(" separator="," close=")">
+			 #{tag}
+		</foreach>
+	</select>
+		<!--查询部门信息-->
+    <select id="selectPersonInfo" resultType="Map">
+		select fname_l2 PersonName,fnumber from t_bd_person where 1=1 and fnumber in 	
+		<foreach collection="list" index="index" item="tag" open="(" separator="," close=")">
+			 #{tag}
+		</foreach>
+	</select>
+	<!-- 查询的是公司编号为07的科目 -->
+	<select id="selectAccountInfo" resultType="Map">
+	select a.fname_l2,a.fnumber from T_BD_AccountView a left join t_org_admin m
+    on m.fid=a.fcompanyid where m.fnumber = '07'and a.fnumber in 	
+		<foreach collection="list" index="index" item="tag" open="(" separator="," close=")">
+			 #{tag}
+		</foreach>
+	</select>
+</mapper>

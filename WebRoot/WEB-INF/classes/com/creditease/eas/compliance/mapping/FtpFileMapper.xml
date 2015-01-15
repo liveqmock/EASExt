@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.FtpFileMapper" >
+   <resultMap id="BaseResultFile" type="com.creditease.eas.compliance.bean.FtpFile" >
+    <id column="FID" property="fid" jdbcType="INTEGER" />
+    <result column="FILENAME" property="filename" jdbcType="VARCHAR" />
+    <result column="FILEPATH" property="filepath" jdbcType="VARCHAR" />
+    <result column="CREATERID" property="createrid" jdbcType="INTEGER" />
+    <result column="CREATERNAME" property="creatername" jdbcType="VARCHAR"/>
+    <result column="CREATERTIME" property="creatertime" jdbcType="DATE"/>
+    <result column="LASTUPDATERID" property="lastupdaterid" jdbcType="INTEGER"/>
+    <result column="FASTUPDATETIME" property="fastupdatetime" jdbcType="DATE"/>
+    <result column="FILETYPE" property="filetype" jdbcType="VARCHAR"/>
+    <result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+    <result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+    <result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+    <result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+    <result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+    <result column="EXT6" property="ext6" jdbcType="VARCHAR" />
+    <result column="EXT7" property="ext7" jdbcType="VARCHAR" />
+    <result column="EXT8" property="ext8" jdbcType="VARCHAR" />
+    <result column="EXT9" property="ext9" jdbcType="VARCHAR" />
+    <result column="EXT10" property="ext10" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="ftpfile_prv">
+      <if test="startDate!=null and startDate!=''"> AND CREATERTIME &gt;= TO_DATE('${startDate}','yyyy-mm-dd hh24:mi:ss')</if>
+      <if test="endDate!=null and endDate!=''"> AND CREATERTIME &lt;= TO_DATE('${endDate}','yyyy-mm-dd hh24:mi:ss')</if>
+      <if test="filename!=null and filename!=''"> AND FILENAME LIKE '%${filename}%'</if>
+      <if test="creatername!=null and creatername!=''"> AND CREATERNAME LIKE '%${creatername}%'</if>
+      <if test="filetype!=null and filetype!=''"> AND FILETYPE like '%${filetype}%'</if>
+  </sql>
+	<!-- 保存文件信息 -->
+	<insert id="addFtpFile" parameterType="com.creditease.eas.compliance.bean.FtpFile">
+	     <selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   			SELECT T_COM_REL_FTPFILE_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+	   INSERT INTO T_COM_REL_FTPFILE(FID,FILENAME,FILEPATH,CREATERID,CREATERNAME,CREATERTIME,FILETYPE,EXT1,EXT2,EXT3,EXT4,EXT5,EXT6,EXT7,EXT8,EXT9,EXT10) 
+	   VALUES(#{fid,JDBCTYPE=INTEGER},#{filename,JDBCTYPE=VARCHAR},#{filepath,JDBCTYPE=VARCHAR},#{createrid,jdbcType=INTEGER},
+	   #{creatername,jdbcType=VARCHAR},SYSDATE,#{filetype,jdbcType=VARCHAR},#{ext1,jdbcType=VARCHAR},#{ext2,jdbcType=VARCHAR},#{ext3,jdbcType=VARCHAR},#{ext4,jdbcType=VARCHAR},#{ext5,jdbcType=VARCHAR},
+	   #{ext6,jdbcType=VARCHAR},#{ext7,jdbcType=VARCHAR},#{ext8,jdbcType=VARCHAR},#{ext9,jdbcType=VARCHAR},#{ext10,jdbcType=VARCHAR})
+	</insert>
+	<!-- 查询文件信息条数 -->
+	<select id="getTotalCounts" resultType="int">
+	select count(*) from T_COM_REL_FTPFILE where 1=1
+	<include refid="ftpfile_prv"/>
+	</select>
+	
+	<select id="queryPage" resultType="com.creditease.eas.compliance.bean.FtpFile" parameterType="map">
+	  SELECT * FROM (SELECT ROWNUM AS ROWNO,FID,FILENAME,FILEPATH,CREATERID,CREATERNAME,CREATERTIME,FILETYPE FROM T_COM_REL_FTPFILE
+	  <where>
+	   ROWNUM &lt;= #{endRow,jdbcType=INTEGER}  
+	   <include refid="ftpfile_prv"/>
+	  </where>)
+	<where>
+	<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+	</where>
+	</select>
+	
+	<!-- 根据id查询文件信息 -->
+	<select id="getFtpFileById" resultType="com.creditease.eas.compliance.bean.FtpFile" parameterType="int">
+	SELECT * FROM T_COM_REL_FTPFILE WHERE 1=1 AND FID=#{fid}
+	</select>
+	
+</mapper>

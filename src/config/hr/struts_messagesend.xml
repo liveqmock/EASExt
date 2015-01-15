@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="messageSend" extends="struts-default" namespace="/hr">
+		<!-- 配置自定义拦截器LoginedCheckInterceptor -->
+		<action name="hr" class="messageChangeSendAction">
+		    <result name="organizationChange">/oa/sendsuccess.jsp</result>
+		</action>
+    </package>    
+</struts>

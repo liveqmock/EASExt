@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="download" extends="json-default" namespace="/download">
+		<action name="download" class="com.creditease.eas.compliance.action.DownloadFileAction">
+		    <param name="contentType">application/octet-stream;charset=utf-8</param> 
+		    <!-- 结果类型，表示把流发送到请求端 -->
+		    <result name="success" type="stream">
+		    <!-- inputName指明通过哪个方法得到目标文件的流 -->
+		    <param name="inputName">inputStream</param>
+		    <!-- 发送到客户端的存储方法 -->
+		    <param name="contentDisposition">attachment;filename="${applicationTemplateName}"</param>
+		    <!-- 下载使用的缓存 -->
+		    <param name="bufferSize">300000</param>
+		  </result>
+		</action>
+    </package>    
+</struts>

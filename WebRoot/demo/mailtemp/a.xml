@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml-body>
+	<html>
+		<head>
+		</head>
+		<body>
+			<div id="main" style="width:966px; height:330px; text-align:left;
+				margin:3px 26px; background-color:#F5F5F5; border:1px
+				#E1E1E1 solid;">
+				<b>
+					userName:{0}
+					<br />
+					userPass:{1}
+					<br />
+					<a href="http://www.google.com">去Google看看</a>
+				</b>
+				<span style="color: #ff0000;"><img src="cid:{2}" /></span>
+			</div>
+		</body>
+	</html>
+</xml-body>

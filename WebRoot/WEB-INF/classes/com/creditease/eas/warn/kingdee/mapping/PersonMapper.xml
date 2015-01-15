@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.warn.kingdee.dao.PersonMapper">
+		<!-- 
+       		    因为查询的思路是根据职位查询信息，
+			所以没有使用left join
+			即没有职位的人员是查询不到的
+			and Po.Fdeletedstatus = 1
+			直接上级的职位(职位也要增加实效状态) 
+			转正的现在查询的是所有人
+			是不是需要过滤掉组织级别大于3的人呢？
+			 and  to_char(hr.fenterdate,'yyyy-MM-dd') > '2012-11-11'
+			  and (A.flongnumber like '%07RXGLF%' or A.flongnumber like '%07JSGLF%')
+		-->
+		<select id="selectImmediateSuperiorPositions" resultType="map">
+	 		select  ph.FParentID position
+             from t_bd_person p
+             inner join t_hr_personposition hr on p.fid = hr.fpersonid
+             left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+             join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+             join T_ORG_Position Po  on Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1
+             join T_ORG_PositionHierarchy Ph on Ph.Fchildid = Po.Fid
+             join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+             where (m.cfmail is not null or m.femail is not null) and
+             p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1
+			<!-- 2014-8-25 lining 注释掉原先对信用管理中心的职位过滤 和取消正式环境中测试数据的过滤条件（正式环境中测试数据已经删除） and a.flongnumber not like '%05XGXSF%' and a.fnumber not like '%.%'-->
+             and (add_months(hr.fenterdate,6) &lt; sysdate or to_char(add_months(hr.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM'))
+             and 
+              <choose>
+			 <when test="list.size()>0">
+			( 
+				<foreach collection="list" index="index" item="tag" open="" separator="or" close="">
+			      a.flongnumber like '%'||#{tag}||'%' 
+			    </foreach>
+			 ) 
+			</when>
+			<otherwise>
+				1=1 
+			</otherwise>
+			</choose>
+		</select>
+		 <!-- 
+		 	间接上级的职位编码
+		  -->
+	 	<select id="selectIndirectSuperiorPositions" resultType="map">
+ 		    select Ph2.FParentID position
+             from t_bd_person p
+             inner join t_hr_personposition hr on p.fid = hr.fpersonid
+             left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+             join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+             join T_ORG_Position Po  on Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1
+             join T_ORG_PositionHierarchy Ph on Ph.Fchildid = Po.Fid
+             join T_ORG_PositionHierarchy Ph2 on Ph2.Fchildid = Ph.FParentID
+             join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+              where (m.cfmail is not null or m.femail is not null) and
+             p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1
+			<!--  2014-8-25 lining 注释掉原先对信用管理中心的职位过滤 和取消正式环境中测试数据的过滤条件（正式环境中测试数据已经删除） and a.flongnumber not like '%05XGXSF%' and a.fnumber not like '%.%'-->
+             and (add_months(hr.fenterdate,6) &lt; sysdate or to_char(add_months(hr.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM'))
+              and 
+              <choose>
+				 <when test="list.size()>0">
+				( 
+					<foreach collection="list" index="index" item="tag" open="" separator="or" close="">
+				      a.flongnumber like '%'||#{tag}||'%' 
+				    </foreach>
+				 ) 
+				</when>
+				<otherwise>
+					1=1 
+				</otherwise>
+			</choose>
+             group by  Ph2.FParentID
+		</select>
+		<!--查询直接上级对应的人员信息/间接上级的人员的信息
+			直接过滤掉既没有企业邮箱，有没有私人邮箱信息
+			上级的信息不能够加 是否为主职的条件进行过滤
+		-->
+		<select id="selectSuperiorPerson" resultType="map" parameterType="string">
+				select distinct p.fid as personId,p.fname_l2 personname,P.Fnumber as personcode,m.femail email,p.fbackupemail fbackupemail,
+			     A.FID as deptId,
+		         A.Fname_L2 as deptname,
+		         A.Fnumber as deptcode,
+				 Po.Fid as positionId,
+				 Po.Fname_L2 as positionname,
+				 m.cfmail as cfmail
+				 from t_bd_person P 
+				 left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+			     inner join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+				 join T_ORG_Position Po  on Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1
+				 left  join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+				 where  P.FDeletedStatus = 1 and (m.cfmail is not null or m.femail is not null)
+         		  and Po.Fid = #{positionId,jdbcType=VARCHAR}
+		</select>
+		<!-- 根据直接上级的职位编码 ,查询直接上级下的下属人员,
+			转正预警查询的只是试用期快到期的，不用根据是否在职进行查询（FinService）
+			 where Po.Fid in (select Ph.FChildID  from  T_ORG_PositionHierarchy Ph where Ph.Fparentid = #{positionId,jdbcType=VARCHAR})
+			 稍后再改进这句话
+			   and (A.flongnumber like '%07RXGLF%' or A.flongnumber like '%07JSGLF%')
+		-->
+		<select id="selectImmediatePersonInfoByParentPositionId" resultType="map" parameterType="string">
+		  	select distinct A.flevel as flevel,P.fid as  personId,
+	         P.FNAME_L2 as personname,
+	         P.Fnumber  as personcode,
+	         A.FID as deptId,
+	         A.Fname_L2 as deptname,
+	         A.Fnumber as deptcode,
+	         A.fdisplayname_l2 as fdisplayname,
+	         Po.fid  as positionid,
+	         Po.Fname_L2 as positionname,
+	         hr.fenterdate  as fenterdate,
+	         add_months(hr.fenterdate,6) as probzz,
+	         hr.fformaldate  as formaldate,
+	         ct.fname_l2 as city,
+           	 ctr.FName_l2 as pqfname,
+	         ctr.FNumber as pqfnumber,
+             et.fname_l2 as emptype
+	      	 from t_bd_person p
+             inner join t_hr_personposition hr on p.fid = hr.fpersonid
+		     left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+		     left join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1)
+		     left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	         left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	         left join T_HR_BDEmployeeType et on et.fid = P.femployeetypeid
+			 left join T_HR_EmployeeClassify  ctr  on  p.FEmployeeClassifyID = ctr.fid
+	         where Po.Fid in (select Ph.FChildID  from  T_ORG_PositionHierarchy Ph where Ph.Fparentid = #{positionId,jdbcType=VARCHAR})
+	 		 and p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1
+			<!--2014-8-25 lining 注释掉原先对信用管理中心的职位过滤 和取消正式环境中测试数据的过滤条件（正式环境中测试数据已经删除）  and a.flongnumber not like '%05XGXSF%' and a.fnumber not like '%.%'-->
+	 		  and add_months(hr.fenterdate,6) &lt;= add_months(sysdate,1)
+<!--             and add_months(hr.fenterdate,6) >= sysdate-->
+<!--             and (add_months(hr.fenterdate,6) &lt; sysdate or to_char(add_months(hr.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM'))-->
+	 </select>
+		<!-- 根据间接上级的职位编码 ，查询间接上级下的下属人员
+			 and (A.flongnumber like '%07RXGLF%' or A.flongnumber like '%07JSGLF%')
+		 -->
+		<select id="selectIndirectPersonInfoByParentPositionId" resultType="map" parameterType="string">
+		  	select distinct A.flevel as flevel,P.fid as  personId,
+	         P.FNAME_L2 as personname,
+	         P.Fnumber  as personcode,
+	         A.FID as deptId,
+	         A.Fname_L2 as deptname,
+	         A.Fnumber as deptcode,
+	         A.fdisplayname_l2 as fdisplayname,
+	         Po.fid  as positionid,
+	         Po.Fname_L2 as positionname,
+	         hr.fenterdate  as fenterdate,
+	         add_months(hr.fenterdate,6) as probzz,
+	         hr.fformaldate  as formaldate,
+	         ct.fname_l2 as city,
+	         ctr.FName_l2 as pqfname,
+	         ctr.FNumber as pqfnumber,
+	         et.fname_l2 as emptype
+	      	 from t_bd_person p
+             inner join t_hr_personposition hr on p.fid = hr.fpersonid
+		     left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+		     left join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1)
+		     left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	         left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	         left join T_HR_BDEmployeeType et on et.fid = P.femployeetypeid
+	         left join  CT_HR_RZZG ctr on p.cfrzzgid = ctr.fid
+	         left join T_ORG_PositionHierarchy Ph on Ph.Fchildid = Po.Fid
+	         left join T_ORG_PositionHierarchy Ph2 on Ph2.Fchildid = Ph.FParentID
+	         where Ph2.Fparentid = #{positionId,jdbcType=VARCHAR}
+             and p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1
+			<!-- 2014-8-25 lining 注释掉原先对信用管理中心的职位过滤 和取消正式环境中测试数据的过滤条件（正式环境中测试数据已经删除） and a.flongnumber not like '%05XGXSF%' and a.fnumber not like '%.%'-->
+             and (add_months(hr.fenterdate,6) &lt; sysdate or to_char(add_months(hr.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM'))
+	 </select>
+	 <!-- 根据部门负责人的部门编码查询
+	 	加这A.fnumber != '02JSGLF' 这个查询条件的目的是为了过滤掉部门负责人。
+	  	查询出来的符合条件的信息和部门负责人的编码进行匹配
+	  	最后查询出来哪个部门的有转正的人员
+	  	更新记录：
+	  		1.2013/7/2日:
+	  		  join v_org_split_new tt on tt.rootnum = A2.fnumber and tt.flevel=3 and tt.fisousealup=0 and tt.fisleaf=0
+	  		2.  
+	  -->
+	  <select id="selectResponsePersonOrg" resultType="map" parameterType="string">
+          select tt.fnumber as orgnumber from (select t1.*,t2.fenterdate as fenterdate,t2.fformaldate as fformaldate from (select * from t_bd_person p where p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1) t1
+	      inner join (select t.fpersonid as fpersonid,t.fenterdate as fenterdate,t.fformaldate as fformaldate from t_hr_personposition t where add_months(t.fenterdate,6) &lt; sysdate or to_char(add_months(t.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM')) t2
+	      on t1.fid = t2.fpersonid) P
+	      left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+	      left join T_ORG_Position Po  on Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1
+	       left join t_Org_Admin A2 on A2.Fid = Po.Fadminorgunitid
+	       join v_org_split_new tt on tt.rootnum = A2.fnumber and tt.FTERRITORY='D'
+	       where
+			<!-- 2014-8-25 lining 注释掉原先对信用管理中心的职位过滤 和取消正式环境中测试数据的过滤条件（正式环境中测试数据已经删除）a2.flongnumber not like '%05XGXSF%' and a2.fnumber not like '%.%' and-->
+              <choose>
+			 <when test="list.size()>0">
+			( 
+				<foreach collection="list" index="index" item="tag" open="" separator="or" close="">
+			      tt.fnumber = #{tag} 
+			    </foreach>
+			 ) 
+			</when>
+			<otherwise>
+				1=1 
+			</otherwise>
+			</choose>
+           group by tt.fnumber
+	  </select>
+	  <!-- 
+	  		根据部门负责人的编码查询，对应的部门负责人
+	  		没有部门足额发人就直接过滤掉了
+	   -->
+	   <select id="selectResponsePersonInfo" resultType="map" parameterType="string">
+       	  select p.fid as personId,p.fname_l2 pname,p.femail email,p.fbackupemail fbackupemail,
+	       A.FID as deptId,
+	       A.Fname_L2 as deptname,
+	       A.Fnumber as deptcode,
+	       Po.Fid as positionId,
+	       Po.Fname_L2 as positionname,
+	       m.cfmail as cfmail ,
+	       p.Fnumber as fnumber 
+	       from t_org_admin A 
+	       left join T_ORG_Position Po  on Po.fid = A.FResponPositionID 
+	       left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid
+	       inner join t_bd_person p on p.fid = Pm.Fpersonid
+	       left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+           where A.FTERRITORY_l2 ='D'
+           and (m.cfmail is not null or m.femail is not null)
+           and A.fnumber =  #{orgnumber,jdbcType=VARCHAR}
+	</select>
+	<!-- 根据部门负责人的编码查询对应的该部门下有多少需要转正的人员 
+   		转正人员中要 去除掉部门负责人 ，（可能还得去掉那些等级更高的转正的人员的信息)
+   		注意：按照现在的这种方式查询出来的人员的信息，有空的情况。（比如现在的转正的人员的信息里有部门负责人
+   		关于部门负责人是试用的状态，需要再验证
+	-->
+	 <select id="selectUnderResponsePersonInfo" resultType="map" parameterType="string" >
+	 	select distinct A.flevel as flevel,P.fid as  personId,
+	         P.FNAME_L2 as personname,
+	         P.Fnumber  as personcode,
+	         A.FID as deptId,
+	         A.Fname_L2 as deptname,
+	         A.Fnumber as deptcode,
+	         A.fdisplayname_l2 as fdisplayname,
+	         Po.fid  as positionid,
+	         Po.Fname_L2 as positionname,
+	         P.fenterdate  as fenterdate,
+	         add_months(P.fenterdate,6) as probzz,
+	         P.fformaldate  as formaldate,
+	         ct.fname_l2 as city,
+           	 ctr.FName_l2 as pqfname,
+	         ctr.FNumber as pqfnumber,
+             et.fname_l2 as emptype
+	      	 from (select t1.*,t2.fenterdate as fenterdate,t2.fformaldate as fformaldate from (select * from t_bd_person p where p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1) t1
+			 inner join (select t.fpersonid as fpersonid,t.fenterdate as fenterdate,t.fformaldate as fformaldate from t_hr_personposition t where add_months(t.fenterdate,6) &lt; sysdate or to_char(add_months(t.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM')) t2
+			 on t1.fid = t2.fpersonid) P
+		     left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+		     left join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1)
+		     left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	         left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	         left join T_HR_BDEmployeeType et on et.fid = P.femployeetypeid
+	         left join  CT_HR_RZZG ctr on p.cfrzzgid = ctr.fid
+	         where A.FLongNumber like #{orgnumber,jdbcType=VARCHAR} 
+	 </select>
+	 	<!--获取职位对应的过生日的直接下属	 -->
+	 <select id="selectImmediatePersonInfoByParentPositionIdOnBirthdayWarn" resultType="map" parameterType="string">
+		  	select distinct
+	         P.FNAME_L2 as personname,
+	         P.Fnumber  as personcode,
+	         A.fdisplayname_l2 as fdisplayname,
+	         hr.fenterdate  as fenterdate,
+	         P.Fbirthday as birthday
+	      	 from t_bd_person p
+             inner join t_hr_personposition hr on p.fid = hr.fpersonid
+             left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+		     left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+		     left join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1)
+		     left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	         where Po.Fid in (select Ph.FChildID  from  T_ORG_PositionHierarchy Ph where Ph.Fparentid = #{positionId,jdbcType=VARCHAR})
+	 		 and p.FDeletedStatus = 1
+	 		 and to_char(trunc(P.Fbirthday),'mmdd') =to_char(sysdate+1,'mmdd') 
+	 		 and ( Pcm.Cfmail is not null  or pcm.femail is not null )
+			<!-- 2014-8-25 lining 注释掉原先对信用管理中心的职位过滤 和取消正式环境中测试数据的过滤条件（正式环境中测试数据已经删除） and a.flongnumber not like '%05XGXSF%' and a.fnumber not like '%.%'-->
+	 </select>
+	<!--获取职位对应的过生日的间接下属	 -->
+	 <select id="selectIndirectPersonInfoByParentPositionIdOnBirthdayWarn" resultType="map" parameterType="string">
+		  	select distinct 
+	         P.FNAME_L2 as personname,
+	         P.Fnumber  as personcode,
+	         A.fdisplayname_l2 as fdisplayname,
+	         hr.fenterdate  as fenterdate,
+	         P.Fbirthday as birthday
+	      	 from t_bd_person p
+             inner join t_hr_personposition hr on p.fid = hr.fpersonid
+             left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+		     left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+		     left join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1)
+		     left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	         left join T_ORG_PositionHierarchy Ph on Ph.Fchildid = Po.Fid
+	         left join T_ORG_PositionHierarchy Ph2 on Ph2.Fchildid = Ph.FParentID
+	         where Ph2.Fparentid = #{positionId,jdbcType=VARCHAR}
+	         and p.FDeletedStatus = 1
+	 		 and to_char(trunc(P.Fbirthday),'mmdd') =to_char(sysdate+1,'mmdd') 
+	 		 and ( Pcm.Cfmail is not null  or pcm.femail is not null )
+			<!-- 2014-8-25 lining 注释掉原先对信用管理中心的职位过滤 和取消正式环境中测试数据的过滤条件（正式环境中测试数据已经删除）and a.flongnumber not like '%05XGXSF%' and a.fnumber not like '%.%'-->
+	 </select>
+	<!--获取部门负责人对应的过生日的下属	 -->
+	 <select id="selectUnderResponsePersonInfoOnBirthdayWarn" resultType="map" parameterType="string" >
+		  	select distinct
+	         P.FNAME_L2 as personname,
+	         P.Fnumber  as personcode,
+	         A.fdisplayname_l2 as fdisplayname,
+	         hr.fenterdate  as fenterdate,
+	         P.Fbirthday as birthday
+	      	 from t_bd_person p
+             inner join t_hr_personposition hr on p.fid = hr.fpersonid
+             left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+		     left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+		     left join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1)
+		     left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	         where A.FLongNumber like #{orgnumber,jdbcType=VARCHAR}
+	         and p.FDeletedStatus = 1
+	 		 and to_char(trunc(P.Fbirthday),'mmdd') =to_char(sysdate+1,'mmdd') 
+	 		 and ( Pcm.Cfmail is not null  or pcm.femail is not null )
+			<!-- 2014-8-25 lining 注释掉原先对信用管理中心的职位过滤 和取消正式环境中测试数据的过滤条件（正式环境中测试数据已经删除）and a.flongnumber not like '%05XGXSF%' and a.fnumber not like '%.%' -->
+	 </select>
+</mapper>

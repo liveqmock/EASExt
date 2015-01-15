@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.webservices.kingdee.dao.EmployeeInfoMapper">
+	<!-- 入职查询返回员工编号，姓名，部门名称，工作城市，员工状态  -->
+	<select id="enrollEmployeeQuery" resultType="Map" parameterType="Map">
+  
+  select distinct person.fnumber as empNO ,person.fname_l2 as empName,position.fid as positionId,
+  position.fname_l2 as positionName,adminunit.fid as deptId, adminunit.fdisplayname_l2 as deptName,
+  ygszd.fname_l2 as workCity ,emptype.fname_l2 as empStatus 
+  from  t_hr_empenrollbizbillentry   entrys  
+  left join  t_hr_empenrollbizbill  bill  on entrys.fbillid=bill.fid
+  left join t_bd_person  person  on  entrys.fpersonid=person.fid
+  left join t_org_positionmember  positionmember  on person.fid=positionmember.fpersonid and positionmember.fisprimary=1
+  left join T_ORG_Position  position  on positionmember.fpositionid=position.fid
+  left join t_org_admin  adminunit  on  position.fadminorgunitid = adminunit.fid
+  left join CT_HR_Ygszd ygszd on person.cfygszdid=ygszd.fid
+  left join T_HR_BDEmployeeType  emptype  on  person.femployeetypeid =emptype.fid
+  where  bill.fbillstate=3  and adminunit.flongnumber like 'CE!06%'
+  	<if test="beginTime != null and beginTime != '' ">
+  	and entrys.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="endTime != null and endTime != ''">
+  	and entrys.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	
+	</select>
+	
+	<!-- 离职查询返回员工编号  -->
+	<select id="resignEmployeeQuery" resultType="Map" parameterType="Map">
+	  select distinct person.fnumber as empNO
+  	from t_hr_resignbizbillentry entrys
+  	left join t_hr_resignbizbill bill on entrys.fbillid = bill.fid
+  	left join t_bd_person  person   on  entrys.fpersonid= person.fid
+  	where  bill.fbillstate=3  
+	<if test="beginTime != null and beginTime != '' ">
+  	and entrys.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="endTime != null and endTime != ''">
+  	and entrys.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+	</select>
+	
+	<!-- 异动查询返回员工编号  -->
+	<select id="fluctuationEmployeeQuery" resultType="Map" parameterType="Map">
+	select distinct person.fnumber  as empNO ,person.fname_l2 as empName,position.fid as positionId,
+ 	 position.fname_l2 as positionName,adminunit.fid as deptId,
+	adminunit.fdisplayname_l2 as deptName,ygszd.fname_l2 as workCity ,emptype.fname_l2 empStatus
+	 from t_bd_person  person 
+	left join t_org_positionmember  positionmember  on person.fid=positionmember.fpersonid and positionmember.fisprimary=1
+	left join T_ORG_Position  position  on positionmember.fpositionid=position.fid
+	left join t_org_admin  adminunit   on  adminunit.fid=position.fadminorgunitid
+	left join CT_HR_Ygszd ygszd on person.cfygszdid=ygszd.fid
+	left join T_HR_BDEmployeeType  emptype  on  person.femployeetypeid =emptype.fid
+	where  person.fid in (
+	<!-- 任职资格异动 -->
+	select empinfoentrys.fpersonid from T_HR_EmpInfoBizBillEntry  empinfoentrys
+	left join T_HR_EmpInfoBizBill  empinfobill  on empinfoentrys.fbillid=empinfobill.fid
+	where empinfobill.fbillstate=3  
+	<if test="beginTime != null and beginTime != '' ">
+  	and empinfoentrys.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="endTime != null and endTime != ''">
+  	and empinfoentrys.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	
+	union all 
+	<!-- 内部异动 -->
+	select flucentrys.fpersonid from T_HR_FluctuationBizBillEntry  flucentrys  
+	left join T_HR_FluctuationBizBill flucbill  on flucentrys.fbillid=flucbill.fid
+	where flucbill.fbillstate=3  
+	<if test="beginTime != null and beginTime != '' ">
+  	and flucentrys.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="endTime != null and endTime != ''">
+  	and flucentrys.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	
+  	union  all 
+  	<!-- 在职管理 -->
+  	select positionentrys.fpersonid from T_HR_OnPositionBizBillEntry  positionentrys
+	left join T_HR_OnPositionBizBill  positionbill 	on   positionentrys.fbillid= positionbill.fid
+  	where positionbill.fbillstate=3
+  	<if test="beginTime != null and beginTime != '' ">
+  	and positionentrys.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="endTime != null and endTime != ''">
+  	and positionentrys.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	
+  	union  all 
+  	<!-- 新员工转正 -->
+  	select emphireentrys.fpersonid from T_HR_EmpHireBizBillEntry  emphireentrys 
+  	left join T_HR_EmpHireBizBill  emphirebill 
+  	on emphireentrys.fbillid= emphirebill.fid
+  	where emphirebill.fbillstate=3
+  	<if test="beginTime != null and beginTime != '' ">
+  	and emphireentrys.fbizdate &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="endTime != null and endTime != ''">
+  	and emphireentrys.fbizdate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>)
+	</select>
+	
+	<!-- 员工基本信息变动  -->
+	<select id="updateEmployeeQuery" resultType="Map" parameterType="Map">
+	select distinct person.fnumber  as empNO ,person.fname_l2 as empName
+	 from t_bd_person  person 
+	 inner join T_ORG_PositionMember  positionmember  on  person.fid=positionmember.fpersonid  and  positionmember.fisprimary=1
+	where   person.flastupdatetime != person.fcreatetime
+	<if test="beginTime != null and beginTime != '' ">
+  	and person.flastupdatetime &gt;= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+  	<if test="endTime != null and endTime != ''">
+  	and person.flastupdatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+  	</if>
+	</select>
+</mapper>

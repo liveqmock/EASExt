@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.IFeedbackResultMapper" >
+	<resultMap id="BaseResultMap" type="com.creditease.eas.compliance.bean.IFeedbackResult" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="FEEDBACKTIME" property="feedBackTime" jdbcType="VARCHAR" />
+		<result column="FEEDBACKTYPEID" property="feedBackTypeId" jdbcType="INTEGER" />
+		<result column="REASON" property="reason" jdbcType="VARCHAR" />
+		<result column="NEXTSCHEMEID" property="nextSchemeId" jdbcType="INTEGER" />
+		<result column="SPECIALENDREASON" property="specialEndReason" jdbcType="VARCHAR" />
+		<result column="BASISOSI" property="basisosi" jdbcType="VARCHAR" />
+		<result column="OUTREASON" property="outReason" jdbcType="VARCHAR" />
+		<result column="FEEDBACKID" property="feedBackId" jdbcType="INTEGER" />
+		<result column="CREATERID" property="createrId" jdbcType="INTEGER" />
+		<result column="CREATETIME" property="createTime" jdbcType="DATE" />
+		<result column="LASTUPDATERID" property="lastUpdaterId" jdbcType="INTEGER" />
+		<result column="LASTUPDATETIME" property="lastUpdateTime" jdbcType="DATE" />
+		
+		<result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+		<result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+		<result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+		<result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+		<result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+		<result column="EXT6" property="ext6" jdbcType="VARCHAR" />
+		<result column="EXT7" property="ext7" jdbcType="VARCHAR" />
+		<result column="EXT8" property="ext8" jdbcType="VARCHAR" />
+		<result column="EXT9" property="ext9" jdbcType="VARCHAR" />
+		<result column="EXT10" property="ext10" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<sql id="Base_Column_List" >
+		ID, FEEDBACKTIME, FEEDBACKTYPEID, REASON, NEXTSCHEMEID, SPECIALENDREASON, BASISOSI,OUTREASON, FEEDBACKID, 
+		CREATERID, CREATETIME, LASTUPDATERID, LASTUPDATETIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10
+	</sql>
+  
+  	<sql id="preview_condition" >
+		<if test="orgName != null and orgName != '' "> AND ORGNAME like '%${orgName}%'</if>
+		<if test="startDate != null and startDate != '' "> AND CREATORTIME &gt;= TO_DATE('${startDate}','yyyy-mm-dd')</if>
+		<if test="paymentCycle != null and paymentCycle != '' "> AND PAYMENTCYCLE = #{paymentCycle,jdbcType=VARCHAR}</if>
+		<if test="lastCostCenter != null and lastCostCenter != '' "> AND LASTCOSTCENTER like '%${lastCostCenter}%'</if>
+		<if test="endDate != null and endDate != '' "> AND CREATORTIME &lt;= TO_DATE('${endDate}','yyyy-mm-dd')</if>
+		<if test="signatorys != null and signatorys != '' "> AND SIGNATORY in (${signatorys})</if>		
+  	</sql>
+  
+ 	<select id="getTotalCounts" resultType="int"  parameterType="map">
+		SELECT COUNT(ID) FROM (SELECT ROWNUM AS ROWNO,
+ 		<include refid="Base_Column_List" /> FROM T_COM_IFEEDBACKRESULT 
+ 		<where> 1=1 <include refid="preview_condition" /> </where>)  
+	</select>
+	
+	<select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		SELECT * FROM ( SELECT ROWNUM AS ROWNO, 
+	 	<include refid="Base_Column_List" /> FROM T_COM_IFEEDBACKRESULT   
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+				<include refid="preview_condition" />
+			</where> ) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT <include refid="Base_Column_List" /> FROM T_COM_IFEEDBACKRESULT WHERE ID = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+		DELETE FROM T_COM_IFEEDBACKRESULT WHERE ID = #{id,jdbcType=INTEGER}
+	</delete>
+  
+	<insert id="insert" parameterType="com.creditease.eas.compliance.bean.IFeedbackResult" >
+	    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   			SELECT T_COM_IFEEDBACKRESULT_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+			INSERT INTO T_COM_IFEEDBACKRESULT (ID, FEEDBACKTIME, FEEDBACKTYPEID, REASON, NEXTSCHEMEID, 
+				SPECIALENDREASON, BASISOSI, OUTREASON, FEEDBACKID, CREATERID, CREATETIME, 
+				EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10)
+			values (#{id,jdbcType=INTEGER}, #{feedBackTime,jdbcType=VARCHAR}, #{feedBackTypeId,jdbcType=INTEGER}, 
+				#{reason,jdbcType=VARCHAR}, #{nextSchemeId,jdbcType=INTEGER}, #{specialEndReason,jdbcType=VARCHAR}, 
+				#{basisosi,jdbcType=VARCHAR},#{outReason,jdbcType=VARCHAR},#{feedBackId,jdbcType=INTEGER},
+				#{createrId,jdbcType=INTEGER}, SYSDATE,#{ext1,jdbcType=VARCHAR}, 
+				#{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR},#{ext4,jdbcType=VARCHAR}, 
+				#{ext5,jdbcType=VARCHAR}, #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, 
+			  	#{ext8,jdbcType=VARCHAR}, #{ext9,jdbcType=VARCHAR}, #{ext10,jdbcType=VARCHAR})
+  	</insert>
+
+	<update id="updateByPrimaryKey" parameterType="com.creditease.eas.compliance.bean.IFeedbackResult" >
+  		UPDATE T_COM_IFEEDBACKRESULT SET 
+		    FEEDBACKTYPEID = #{feedBackTypeId,jdbcType=INTEGER},
+		    REASON = #{reason,jdbcType=VARCHAR},
+		    NEXTSCHEMEID = #{nextSchemeId,jdbcType=INTEGER},
+		    SPECIALENDREASON = #{specialEndReason,jdbcType=VARCHAR},
+		    BASISOSI = #{basisosi,jdbcType=VARCHAR},
+		    OUTREASON = #{outReason,jdbcType=VARCHAR},
+		    FEEDBACKID = #{feedBackId,jdbcType=INTEGER},
+		    LASTUPDATERID = #{lastUpdaterId,jdbcType=INTEGER},
+		    LASTUPDATETIME = SYSDATE,
+		    EXT1 = #{ext1,jdbcType=VARCHAR},
+		    EXT2 = #{ext2,jdbcType=VARCHAR},
+		    EXT3 = #{ext3,jdbcType=VARCHAR},
+		    EXT4 = #{ext4,jdbcType=VARCHAR},
+		    EXT5 = #{ext5,jdbcType=VARCHAR},
+		    EXT6 = #{ext6,jdbcType=VARCHAR},
+		    EXT7 = #{ext7,jdbcType=VARCHAR},
+		    EXT8 = #{ext8,jdbcType=VARCHAR},
+		    EXT9 = #{ext9,jdbcType=VARCHAR},
+		    EXT10 = #{ext10,jdbcType=VARCHAR}
+	  	WHERE ID = #{fId,jdbcType=INTEGER}
+	</update>
+	
+	<select id="getFeedBackId" resultType="java.lang.Integer" parameterType="java.lang.Integer" >
+		SELECT MAX(T.ID) FROM T_COM_IFEEDBACK T 
+			LEFT JOIN T_COM_IFEEDBACKREQUIRED A ON T.FEEDBACKREQUIREDID = A.ID
+		WHERE A.INVESTIGATIONID = #{investigationId,jdbcType=INTEGER}
+	</select>
+	<!--获取反馈结果下拉列表集合集合-->
+	<select id="getFeedBackTypes" resultType="map">
+		SELECT ID, VALUE FROM T_COM_IFBRTYPE
+	</select>
+	<!--获取下一步方案下拉列表集合-->
+	<select id="getNextSchemes" resultType="map">
+		SELECT ID, VALUE FROM T_COM_IFBRNEXTSHCEME
+	</select>
+	
+	<select id="getFeedbackRequiredById" resultType="com.creditease.eas.compliance.bean.IFeedbackRequired" 
+		parameterType="java.lang.Integer" >
+		select distinct t.id,t.sendtype,t.assistedperson,t.assistedpersonorg,t.investigationid,t.sendtime,t.feedbacktime,t.createrid,t.createtime,t.lastupdaterid,t.lastupdatetime,t.email from t_com_ifeedbackrequired t 
+			left join t_com_ifeedback a on t.id = a.feedbackrequiredid
+			left join t_com_ifeedbackresult b on a.id = b.feedbackid
+			where b.id = #{feedbackResultId,jdbcType=INTEGER}
+		<!--  select distinct t.* from t_com_ifeedbackrequired t 
+			left join t_com_ifeedback a on t.id = a.feedbackrequiredid
+			left join t_com_ifeedbackresult b on a.id = b.feedbackid
+		where b.id = #{feedbackResultId,jdbcType=INTEGER}-->
+	</select>
+</mapper>

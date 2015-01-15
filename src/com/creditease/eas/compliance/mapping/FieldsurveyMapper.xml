@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.FieldsurveyMapper" >
+	<resultMap id="BaseResultMap" type="com.creditease.eas.compliance.bean.Fieldsurvey" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="FIELDSURVEYTIME" property="fieldsurveyTime" jdbcType="VARCHAR" />
+		<result column="INVESTIGATED" property="investigated" jdbcType="VARCHAR" />
+		<result column="SUVEYPERSONS" property="suveyPersons" jdbcType="VARCHAR" />
+		<result column="SUVEYCHARGEMAN" property="suveyChargeMan" jdbcType="VARCHAR" />
+		<result column="CONTENT" property="content" jdbcType="VARCHAR" />
+		<result column="RESULT" property="result" jdbcType="VARCHAR" />
+		<result column="XZLSBMTIME" property="xzlsbmTime" jdbcType="VARCHAR" />
+		<result column="REQUIRED" property="required" jdbcType="VARCHAR" />
+		<result column="XZLSBM" property="xzlsbm" jdbcType="VARCHAR" />
+		<result column="XZLSBMCHARGEMAN" property="xzlsbmChargeMan" jdbcType="VARCHAR" />
+		<result column="EMAIL" property="email" jdbcType="VARCHAR" />
+		<result column="XZBMFBTIME" property="xzbmfbTime" jdbcType="VARCHAR" />
+		<result column="XZBMFBRESULT" property="xzbmfbResult" jdbcType="VARCHAR" />
+		<result column="XZBMFBRESULTID" property="xzbmfbResultId" jdbcType="INTEGER" />
+		<result column="INVESTIGATIONID" property="investigationId" jdbcType="INTEGER" />
+		<result column="CREATERID" property="createrId" jdbcType="INTEGER" />
+		<result column="CREATETIME" property="createTime" jdbcType="DATE" />
+		<result column="LASTUPDATERID" property="lastUpdaterId" jdbcType="INTEGER" />
+		<result column="LASTUPDATETIME" property="lastUpdateTime" jdbcType="DATE" />
+		
+		<result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+		<result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+		<result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+		<result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+		<result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+		<result column="EXT6" property="ext6" jdbcType="VARCHAR" />
+		<result column="EXT7" property="ext7" jdbcType="VARCHAR" />
+		<result column="EXT8" property="ext8" jdbcType="VARCHAR" />
+		<result column="EXT9" property="ext9" jdbcType="VARCHAR" />
+		<result column="EXT10" property="ext10" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<sql id="Base_Column_List" >
+		ID, FIELDSURVEYTIME, INVESTIGATED, SUVEYPERSONS,SUVEYCHARGEMAN,CONTENT, RESULT, XZLSBMTIME, REQUIRED,XZLSBM,XZLSBMCHARGEMAN, 
+		EMAIL,XZBMFBTIME, XZBMFBRESULT, XZBMFBRESULTID, INVESTIGATIONID, CREATERID, CREATETIME,
+		LASTUPDATERID, LASTUPDATETIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10
+	</sql>
+  
+  	<sql id="preview_condition" >
+		<if test="orgName != null and orgName != '' "> AND ORGNAME like '%${orgName}%'</if>
+		<if test="startDate != null and startDate != '' "> AND CREATORTIME &gt;= TO_DATE('${startDate}','yyyy-mm-dd')</if>
+		<if test="paymentCycle != null and paymentCycle != '' "> AND PAYMENTCYCLE = #{paymentCycle,jdbcType=VARCHAR}</if>
+		<if test="lastCostCenter != null and lastCostCenter != '' "> AND LASTCOSTCENTER like '%${lastCostCenter}%'</if>
+		<if test="endDate != null and endDate != '' "> AND CREATORTIME &lt;= TO_DATE('${endDate}','yyyy-mm-dd')</if>
+		<if test="signatorys != null and signatorys != '' "> AND SIGNATORY in (${signatorys})</if>		
+  	</sql>
+  
+ 	<select id="getTotalCounts" resultType="int"  parameterType="map">
+		SELECT COUNT(ID) FROM (SELECT ROWNUM AS ROWNO,
+ 		<include refid="Base_Column_List" /> FROM T_COM_FIELDSURVEY 
+ 		<where> 1=1 <include refid="preview_condition" /> </where>)  
+	</select>
+	
+	<select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		SELECT * FROM ( SELECT ROWNUM AS ROWNO, 
+	 	<include refid="Base_Column_List" /> FROM T_COM_FIELDSURVEY   
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+				<include refid="preview_condition" />
+			</where> ) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT <include refid="Base_Column_List" /> FROM T_COM_FIELDSURVEY WHERE ID = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+		DELETE FROM T_COM_FIELDSURVEY WHERE ID = #{id,jdbcType=INTEGER}
+	</delete>
+  
+	<insert id="insert" parameterType="com.creditease.eas.compliance.bean.Fieldsurvey" >
+	    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   			SELECT T_COM_FIELDSURVEY_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+			INSERT INTO T_COM_FIELDSURVEY (ID, FIELDSURVEYTIME, INVESTIGATED,SUVEYPERSONS,SUVEYCHARGEMAN, CONTENT, RESULT, 
+				XZLSBMTIME, REQUIRED,XZLSBM, XZLSBMCHARGEMAN,EMAIL, XZBMFBTIME, XZBMFBRESULT, XZBMFBRESULTID, INVESTIGATIONID, 
+				CREATERID, CREATETIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10)
+			values (#{id,jdbcType=INTEGER}, #{fieldsurveyTime,jdbcType=VARCHAR}, #{investigated,jdbcType=VARCHAR}, 
+				#{suveyPersons,jdbcType=VARCHAR},#{suveyChargeMan,jdbcType=VARCHAR},
+				#{content,jdbcType=VARCHAR}, #{result,jdbcType=VARCHAR}, #{xzlsbmTime,jdbcType=VARCHAR}, 
+				#{required,jdbcType=VARCHAR},#{xzlsbm,jdbcType=VARCHAR},#{xzlsbmChargeMan,jdbcType=VARCHAR},#{email,jdbcType=VARCHAR}, 
+				#{xzbmfbTime,jdbcType=VARCHAR}, #{xzbmfbResult,jdbcType=VARCHAR}, #{xzbmfbResultId,jdbcType=INTEGER}, 
+				#{investigationId,jdbcType=INTEGER},#{createrId,jdbcType=INTEGER}, SYSDATE, #{ext1,jdbcType=VARCHAR},
+				#{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR}, #{ext4,jdbcType=VARCHAR}, 
+				#{ext5,jdbcType=VARCHAR}, #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, 
+			  	#{ext8,jdbcType=VARCHAR}, #{ext9,jdbcType=VARCHAR}, #{ext10,jdbcType=VARCHAR})
+  	</insert>
+
+	<update id="updateByPrimaryKey" parameterType="com.creditease.eas.compliance.bean.Fieldsurvey" >
+  		UPDATE T_COM_FIELDSURVEY SET 
+		    FIELDSURVEYTIME = #{fieldsurveyTime,jdbcType=VARCHAR},
+		    INVESTIGATED = #{investigated,jdbcType=VARCHAR},
+		    SUVEYPERSONS = #{suveyPersons,jdbcType=VARCHAR},
+		    SUVEYCHARGEMAN = #{suveyChargeMan,jdbcType=VARCHAR},
+		    CONTENT = #{content,jdbcType=VARCHAR},
+		    RESULT = #{result,jdbcType=VARCHAR},
+		    XZLSBMTIME = #{xzlsbmTime,jdbcType=VARCHAR},
+		    REQUIRED = #{required,jdbcType=VARCHAR},
+		    XZLSBM = #{xzlsbm,jdbcType=VARCHAR},
+		    XZLSBMCHARGEMAN = #{xzlsbmChargeMan,jdbcType=VARCHAR},
+		    EMAIL = #{email,jdbcType=VARCHAR},
+		    XZBMFBTIME = #{xzbmfbTime,jdbcType=VARCHAR},
+		    XZBMFBRESULT = #{xzbmfbResult,jdbcType=VARCHAR},
+		    XZBMFBRESULTID = #{xzbmfbResultId,jdbcType=INTEGER},
+		    INVESTIGATIONID = #{investigationId,jdbcType=INTEGER},
+		    LASTUPDATERID = #{fLastUpdaterId,jdbcType=INTEGER},
+		    LASTUPDATETIME = SYSDATE,
+		    EXT1 = #{ext1,jdbcType=VARCHAR},
+		    EXT2 = #{ext2,jdbcType=VARCHAR},
+		    EXT3 = #{ext3,jdbcType=VARCHAR},
+		    EXT4 = #{ext4,jdbcType=VARCHAR},
+		    EXT5 = #{ext5,jdbcType=VARCHAR},
+		    EXT6 = #{ext6,jdbcType=VARCHAR},
+		    EXT7 = #{ext7,jdbcType=VARCHAR},
+		    EXT8 = #{ext8,jdbcType=VARCHAR},
+		    EXT9 = #{ext9,jdbcType=VARCHAR},
+		    EXT10 = #{ext10,jdbcType=VARCHAR}
+	  	WHERE FID = #{id,jdbcType=INTEGER}
+	</update>
+	<!--获取协助部门反馈结果下拉列表集合-->
+	<select id="getXzbmfbResults" resultType="map">
+		SELECT ID, VALUE FROM T_COM_XZBMFBRESULT
+	</select>
+	<!--根据investigationId查询所有的实际调查记录-->
+	<select id="getFieldsurvey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+		SELECT T.* FROM T_COM_FIELDSURVEY T WHERE T.INVESTIGATIONID = #{investigationId,jdbcType=INTEGER}
+	</select>
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.FixedAssetsMapper" >
+
+
+  
+ 
+  
+ <select id="getFixedAssetsByOrgId" resultType="HashMap" parameterType="string">
+<!-- select t.fname_l2 from t_bd_person t where t.fnumber in ( select persontf.fpersonnum -->
+<!-- from T_BA_FIXEDASSETSINTERFACE persontf -->
+<!-- where forgid = #{fid})-->
+select t.fpersonnum as userCode
+    from t_ba_fixedassetsinterface t
+   where t.forgid = #{fid}
+  </select>
+  
+ <select id="getParentId" resultType="HashMap" parameterType="string">
+ <![CDATA[  
+select fid from(select tp.fid,tp.fparentid,tp.flevel,tp.fdisplayname_l2
+  from t_org_admin tp
+connect by prior tp.fparentid=tp.fid
+ start with fid=#{fid}) where fid <> #{fid} 
+ ]]> 
+
+  </select>
+  
+ <select id="getFixedAssetsByCode" resultType="HashMap" parameterType="string">
+		select t.fpersonnum as userCode,t.forgid as deptId from t_ba_fixedassetsinterface t 
+		left join t_org_admin org on t.forgid=org.fid
+		where t.fpersonnum=#{fnumber}
+  </select> 
+  
+</mapper>

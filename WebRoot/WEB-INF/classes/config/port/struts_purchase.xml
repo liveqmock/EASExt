@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="purchase" extends="json-default" namespace="/purchase">
+		<!-- 菜单模块 -->
+		<action name="purchaseInfo" class="purchaseInfoAction">
+		    <result name="add">/pages/purchaseinfo/portAdd.jsp</result>
+			<result name="edit">pages/purchaseinfo/portEdit.jsp</result>
+			<result name="view">pages/purchaseinfo/portView.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+    </package>    
+</struts>

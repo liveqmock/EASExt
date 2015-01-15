@@ -1,0 +1,20 @@
+.pop-div {
+	width: 370px;
+	height: auto;
+	display: none;
+	background: #484A4E;
+	overflow: auto;
+}
+
+.pop-div a {
+	color: #DDDFE2
+}
+
+.pop-div .pop-but {
+	border: none;
+	background: #000;
+	width: 60px;
+	height: 28px;
+	margin: 10px;
+	color: #fff;
+}

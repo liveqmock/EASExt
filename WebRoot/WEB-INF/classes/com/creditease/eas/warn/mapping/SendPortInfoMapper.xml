@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.warn.dao.SendPortInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.warn.bean.SendPortInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="rentnumber" property="rentnumber" jdbcType="VARCHAR" />
+    <result column="orgnumber" property="orgnumber" jdbcType="VARCHAR" />
+    <result column="orgname" property="orgname" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="officeadd" property="officeadd" jdbcType="VARCHAR" />
+    <result column="lastcostcenter" property="lastcostcenter" jdbcType="VARCHAR" />
+    <result column="portmail" property="portmail" jdbcType="VARCHAR" />
+    <result column="isport" property="isport" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="contentfile" property="contentfile" jdbcType="VARCHAR" />
+    <result column="issend" property="issend" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="creatortime" property="creatortime" jdbcType="TIMESTAMP" />
+    <result column="lastupdater" property="lastupdater" jdbcType="VARCHAR" />
+    <result column="lastupdatetime" property="lastupdatetime" jdbcType="TIMESTAMP" />
+    <result column="ext1" property="ext1" jdbcType="VARCHAR" />
+    <result column="ext2" property="ext2" jdbcType="VARCHAR" />
+    <result column="ext3" property="ext3" jdbcType="VARCHAR" />
+    <result column="ext4" property="ext4" jdbcType="VARCHAR" />
+    <result column="ext5" property="ext5" jdbcType="VARCHAR" />
+    <result column="ext6" property="ext6" jdbcType="VARCHAR" />
+    <result column="ext7" property="ext7" jdbcType="VARCHAR" />
+    <result column="ext8" property="ext8" jdbcType="VARCHAR" />
+    <result column="ext9" property="ext9" jdbcType="VARCHAR" />
+    <result column="ext10" property="ext10" jdbcType="VARCHAR" />
+  </resultMap>
+  
+<!-- 汇总当天已发送的邮件   -->
+  <select id="allSendPortInfo" resultType="com.creditease.eas.warn.bean.SendPortInfo" parameterType="string">  
+  		select t.orgname,t.city,t.officeadd,t.lastcostcenter,t.portmail,t.content from t_sendportinfo t
+  		left join T_RENTCONTRACT r on t.officeadd=r.officeadd
+  		<where>
+  			issend = 1 and t.contentfile is null and t.creatortime between 
+ 			to_date(to_char(sysdate,'yyyy-mm-dd') || ' 00:00:01','yyyy-mm-dd hh24:mi:ss') and
+			to_date(to_char(sysdate,'yyyy-mm-dd') || ' 23:59:59','yyyy-mm-dd hh24:mi:ss')  
+  			<if test="orgname != null">
+  				<choose>
+  					<when test="orgname == 'xieyuner' "> and r.ext1=1</when>
+  					<when test="orgname == 'yujing' "> and r.ext1=2</when>
+  					<otherwise> and t.orgname=#{orgname,jdbcType=VARCHAR}</otherwise>
+  				</choose>
+  			</if>
+  		</where>  
+  		order by city 
+  </select>
+  
+  <sql id="Base_Column_List" >
+    id, rentnumber, orgnumber, orgname, city, officeadd, lastcostcenter, portmail, isport, 
+    content, contentfile, issend, creator, creatortime, lastupdater, lastupdatetime, ext1, 
+    ext2, ext3, ext4, ext5, ext6, ext7, ext8, ext9, ext10
+  </sql>
+  
+  <sql id="preview_condition" >
+    <if test="orgname != null and orgname != '' "> AND ORGNAME like '%${orgname}%'</if>
+	<if test="city != null and city != '' "> AND CITY like '%${city}%'</if>
+	<if test="officeadd != null and officeadd != '' "> AND OFFICEADD like '%${officeadd}%'</if>
+	<if test="lastcostcenter != null and lastcostcenter != '' "> AND LASTCOSTCENTER like '%${lastcostcenter}%'</if>
+	<if test="portmail != null and portmail != '' "> AND PORTMAIL like '%${portmail}%'</if>
+  </sql>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_sendportinfo
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_sendportinfo
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.creditease.eas.warn.bean.SendPortInfo" >
+     <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   		select SENDPORT_TB_SEQ.NEXTVAL from dual 
+	</selectKey>
+    insert into t_sendportinfo (id, rentnumber, orgnumber, 
+      orgname, city, officeadd, 
+      lastcostcenter, portmail, isport, 
+      content, contentfile, issend, 
+      creator, creatortime, lastupdater, 
+      lastupdatetime, ext1, ext2, 
+      ext3, ext4, ext5, ext6, 
+      ext7, ext8, ext9, ext10
+      )
+    values (#{id,jdbcType=INTEGER}, #{rentnumber,jdbcType=VARCHAR}, #{orgnumber,jdbcType=VARCHAR}, 
+      #{orgname,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{officeadd,jdbcType=VARCHAR}, 
+      #{lastcostcenter,jdbcType=VARCHAR}, #{portmail,jdbcType=VARCHAR}, #{isport,jdbcType=VARCHAR}, 
+      #{content,jdbcType=VARCHAR}, #{contentfile,jdbcType=VARCHAR}, #{issend,jdbcType=INTEGER}, 
+      #{creator,jdbcType=VARCHAR}, #{creatortime,jdbcType=TIMESTAMP}, #{lastupdater,jdbcType=VARCHAR}, 
+      #{lastupdatetime,jdbcType=TIMESTAMP}, #{ext1,jdbcType=VARCHAR}, #{ext2,jdbcType=VARCHAR}, 
+      #{ext3,jdbcType=VARCHAR}, #{ext4,jdbcType=VARCHAR}, #{ext5,jdbcType=VARCHAR}, #{ext6,jdbcType=VARCHAR}, 
+      #{ext7,jdbcType=VARCHAR}, #{ext8,jdbcType=VARCHAR}, #{ext9,jdbcType=VARCHAR}, #{ext10,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.creditease.eas.warn.bean.SendPortInfo" >
+    update t_sendportinfo
+    set rentnumber = #{rentnumber,jdbcType=VARCHAR},
+      orgnumber = #{orgnumber,jdbcType=VARCHAR},
+      orgname = #{orgname,jdbcType=VARCHAR},
+      city = #{city,jdbcType=VARCHAR},
+      officeadd = #{officeadd,jdbcType=VARCHAR},
+      lastcostcenter = #{lastcostcenter,jdbcType=VARCHAR},
+      portmail = #{portmail,jdbcType=VARCHAR},
+      isport = #{isport,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      contentfile = #{contentfile,jdbcType=VARCHAR},
+      issend = #{issend,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      creatortime = #{creatortime,jdbcType=TIMESTAMP},
+      lastupdater = #{lastupdater,jdbcType=VARCHAR},
+      lastupdatetime = #{lastupdatetime,jdbcType=TIMESTAMP},
+      ext1 = #{ext1,jdbcType=VARCHAR},
+      ext3 = #{ext3,jdbcType=VARCHAR},
+      ext4 = #{ext4,jdbcType=VARCHAR},
+      ext5 = #{ext5,jdbcType=VARCHAR},
+      ext6 = #{ext6,jdbcType=VARCHAR},
+      ext7 = #{ext7,jdbcType=VARCHAR},
+      ext8 = #{ext8,jdbcType=VARCHAR},
+      ext9 = #{ext9,jdbcType=VARCHAR},
+      ext10 = #{ext10,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+    
+  	<select id="getTotalCounts" resultType="int" parameterType="map">
+ 		select count(id) from t_sendportinfo 
+ 		<where> 
+			1=1
+			<include refid="preview_condition"/>
+		</where>
+	</select>
+	
+	<select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		select * from (
+			Select ROWNUM as ROWNO, <include refid="Base_Column_List"/> from t_sendportinfo   
+			<where> 
+				1=1
+				<include refid="preview_condition"/>
+				<![CDATA[ AND ROWNUM <= #{endRow,jdbcType=INTEGER} order by creatortime desc ]]> 
+			</where>
+		) 
+		<where>
+			<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+</mapper>

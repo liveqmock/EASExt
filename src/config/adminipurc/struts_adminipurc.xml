@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="purc" extends="json-default" namespace="/adminiPurc">
+		<!-- 基础信息模块 -->
+		<action name="adminiPurc" class="adminiPurcAction">
+		</action>
+		<!-- 接口人信息模块 -->
+		<action name="adminiPortPurc" class = "adminiPurcPortAction">
+			<result name="edit">/pages/adminipurc/portinfo/portEdit.jsp</result>
+			<result name="view">/pages/adminipurc/portinfo/portView.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+		<!-- 合同信息模块 -->
+		<action name="adminiPrucContract" class = "adminiPrucContractAction">
+			<result name="view">/pages/adminipurc/rentcontract/rentContractView.jsp</result>
+			<result name="edit">/pages/adminipurc/rentcontract/rentContractEdit.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+    </package>    
+</struts>

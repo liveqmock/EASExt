@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="accountr" extends="json-default" namespace="/accountr">
+	<action name="accountrAction" class="com.creditease.eas.accountr.action.AccountrAction">
+	<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			<result name="edit">/pages/account/editAccountr.jsp</result>
+			<result name="findAccountrRemarks">/pages/account/setEmail.jsp</result>
+		</action>
+		<action name="ckeditorUpload" class="com.creditease.eas.accountr.action.CkeditorUpload">
+	    </action>
+    </package>    
+</struts>

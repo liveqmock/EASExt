@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.PersonInfoMapper" >
+
+<resultMap id="BaseResultMap" type="com.creditease.eas.hr.bean.PersonInfo" >
+    <id column="FID" property="fid" jdbcType="VARCHAR" />
+    <result column="FIDNUM" property="fidnum" jdbcType="VARCHAR" />
+    <result column="FNAME_L1" property="fnameL1" jdbcType="VARCHAR" />
+    <result column="FNAME_L2" property="fnameL2" jdbcType="VARCHAR" />
+    <result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+    <result column="CFISBYJ" property="cfisbyj" jdbcType="VARCHAR" />
+    
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+  	FID,FIDNUM,FNAME_L1,FNAME_L2,FNUMBER,CFISBYJ
+  </sql>
+  
+   <select id="getFnumber" resultMap="BaseResultMap" parameterType="string">
+			 select 
+    <include refid="Base_Column_List" />
+    from T_BD_Person t1 where 1=1 and fnumber = #{fnumber}
+  </select>
+ <select id="getByj" resultType="map" parameterType="string">
+<!--注释掉原来高丽亚根据员工编号查询对应人员的备用金借款额，添加刘威提供的相应查询SQL 修改人：李宁 、日期：2014-08-20 20:25 -->
+<!--					select sum(Ab.FEndBalanceFor) as balance ,-->
+<!--          p.fname_l2 personName -->
+<!--					from T_GL_AssistBalance Ab-->
+<!--					join T_BD_Period Period on Period.Fid = Ab.Fperiodid-->
+<!--					join T_BD_Currency C on C.fid = Ab.Fcurrencyid-->
+<!--					join T_BD_AccountView Av on Av.Fid = Ab.Faccountid-->
+<!--					join T_BD_AssistantHG AHG on Ab.FAssistGrpID = AHG.FID-->
+<!--					join t_Bd_Person P on P.FID = AHG.Fpersonid -->
+<!--					join t_org_company Co on Co.Fid = Ab.FOrgUnitID-->
+<!--					where Ab.Fcurrencyid='dfd38d11-00fd-1000-e000-1ebdc0a8100dDEB58FDC' -->
+<!--					and Av.Fnumber='122104'-->
+<!--					and Ab.FBalType =1 -->
+<!--					and p.fnumber = #{fnumber}-->
+<!--					group by p.fname_l2-->
+					
+	select 
+		nvl(sum(costCenterAmount),0) costCenterAmount 
+	from ( 
+    	select 
+			nvl(sum(amount),0) costCenterAmount 
+		from(
+			select
+				periodnum,companynum,costcenter,costcenternum,amount,debitlocal,creditlocal
+			from(
+				select
+					period.fnumber periodnum,company.fnumber companynum,costcenter.fname_l2 costcenter,costcenter.fnumber costcenternum,
+    				nvl(AssistBalance.FEndBalanceLocal,0) amount,AssistBalance.fdebitlocal debitlocal,AssistBalance.fcreditlocal creditlocal
+    			from T_GL_AssistBalance AssistBalance
+    				left join t_bd_period period on period.fid = AssistBalance.fperiodid
+    	 			left join T_BD_AssistantHG  AssistantHG on AssistBalance.FAssistGrpID = AssistantHG.fid
+					left join t_Bd_Person P on P.FID = AssistantHG.Fpersonid
+         			left join t_org_company company on company.fid = assistbalance.forgunitid
+    	 			left join t_org_costcenter costcenter on costcenter.fid = AssistantHG.fcostorgid
+					left join T_BD_AccountView AccountView on AccountView.fid =AssistBalance.faccountid
+    	 		where AssistBalance.fbaltype = 1
+          			and AssistBalance.fcurrencyid = 'dfd38d11-00fd-1000-e000-1ebdc0a8100dDEB58FDC' 
+ 					and AccountView.fnumber = '122104'
+					and P.fnumber=#{fnumber}	
+    		)
+		)
+		where periodnum in(
+			select
+				case when max(periodnum) is not null
+				then to_char(add_months(to_date(max(periodnum)||'01','yyyymmdd'),-1),'yyyymm')
+				else null end  
+			from(
+				select
+					periodnum,companynum,costcenter,costcenternum,amount,debitlocal,creditlocal
+				from(
+					select
+						period.fnumber periodnum,company.fnumber companynum,costcenter.fname_l2 costcenter,costcenter.fnumber costcenternum, 
+	    				nvl(AssistBalance.FEndBalanceLocal,0) amount,AssistBalance.fdebitlocal debitlocal,AssistBalance.fcreditlocal creditlocal
+	    			from T_GL_AssistBalance AssistBalance
+	    				left join t_bd_period period on period.fid = AssistBalance.fperiodid
+	    	 			left join T_BD_AssistantHG  AssistantHG on AssistBalance.FAssistGrpID = AssistantHG.fid
+						left join t_Bd_Person P on P.FID = AssistantHG.Fpersonid
+	         			left join t_org_company company on company.fid = assistbalance.forgunitid
+	    	 			left join t_org_costcenter costcenter on costcenter.fid = AssistantHG.fcostorgid
+						left join T_BD_AccountView AccountView on AccountView.fid =AssistBalance.faccountid
+	    	 		where AssistBalance.fbaltype = 1
+	          			and AssistBalance.fcurrencyid = 'dfd38d11-00fd-1000-e000-1ebdc0a8100dDEB58FDC'
+	 					and AccountView.fnumber = '122104'
+						and P.fnumber=#{fnumber}	
+	    		)
+			)
+			where
+				abs(debitlocal+creditlocal) > 0)
+			
+	    	union all
+	    	
+	    	select
+	    		nvl(sum(debitlocal-creditlocal),0) costCenterAmount
+			from(
+				select
+					periodnum,companynum,costcenter,costcenternum,amount,debitlocal,creditlocal
+				from(
+					select
+						period.fnumber periodnum,company.fnumber companynum,costcenter.fname_l2 costcenter,costcenter.fnumber costcenternum, 
+	    				nvl(AssistBalance.FEndBalanceLocal,0) amount,AssistBalance.fdebitlocal debitlocal,AssistBalance.fcreditlocal creditlocal 
+	    			from T_GL_AssistBalance AssistBalance
+	    				left join t_bd_period period on period.fid = AssistBalance.fperiodid 
+	    	 			left join T_BD_AssistantHG  AssistantHG on   AssistBalance.FAssistGrpID = AssistantHG.fid 
+						left join t_Bd_Person P on P.FID = AssistantHG.Fpersonid
+	         			left join t_org_company company on company.fid = assistbalance.forgunitid 
+	    	 			left join t_org_costcenter costcenter on costcenter.fid = AssistantHG.fcostorgid 
+						left join T_BD_AccountView AccountView on AccountView.fid =AssistBalance.faccountid
+	    	 		where AssistBalance.fbaltype = 1 
+	          			and AssistBalance.fcurrencyid = 'dfd38d11-00fd-1000-e000-1ebdc0a8100dDEB58FDC' 
+	 					and AccountView.fnumber = '122104'
+						and　P.fnumber=#{fnumber}
+	    		)
+		    )
+			where periodnum in(
+			select
+				max(periodnum)
+			from(
+				select
+					periodnum,companynum,costcenter,costcenternum,amount,debitlocal,creditlocal
+				from(
+					select
+						period.fnumber periodnum,company.fnumber companynum,costcenter.fname_l2 costcenter,costcenter.fnumber costcenternum, 
+	    				nvl(AssistBalance.FEndBalanceLocal,0) amount,AssistBalance.fdebitlocal debitlocal,AssistBalance.fcreditlocal creditlocal 
+	    			from T_GL_AssistBalance AssistBalance
+	    				left join t_bd_period period on period.fid = AssistBalance.fperiodid 
+	    	 			left join T_BD_AssistantHG  AssistantHG on   AssistBalance.FAssistGrpID = AssistantHG.fid 
+						left join t_Bd_Person P on P.FID = AssistantHG.Fpersonid
+	         			left join t_org_company company on company.fid = assistbalance.forgunitid 
+	    	 			left join t_org_costcenter costcenter on costcenter.fid = AssistantHG.fcostorgid 
+						left join T_BD_AccountView AccountView on AccountView.fid =AssistBalance.faccountid
+	    	 		where AssistBalance.fbaltype = 1 
+	          			and AssistBalance.fcurrencyid = 'dfd38d11-00fd-1000-e000-1ebdc0a8100dDEB58FDC' 
+	 					and AccountView.fnumber = '122104'
+						and　P.fnumber=#{fnumber}
+	    		)
+		    )
+			where
+				abs(debitlocal+creditlocal) > 0
+			)
+    )
+	</select>
+</mapper>
+

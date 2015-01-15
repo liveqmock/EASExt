@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.common.dao.SendMailDao" >
+	<!--逐条插入待发邮件-->
+	<insert id="insertMailForSend" parameterType="com.creditease.eas.common.vo.EmailInfo">
+		<selectKey keyProperty="fid" resultType="String" order="BEFORE">  
+            select COMMON_SEQ.NEXTVAL from dual   
+    	</selectKey>
+		insert into t_sys_emailinfo (FID,BUSINESS_ID, SENDER_ADDR, SENDER_PSWD, RECEIVER_NAMES, RECEIVER_ADDRS, CC_ADDRS, THEME, CONTENT_PATH, INFOTYPE_ID, SENDDATE, SENDTIME, CREATEUSER, CREATETIME)
+		values 
+	    (#{fid},#{businessId}, #{senderAddr}, #{senderPswd}, #{receiverNames}, #{receiverAddrs}, #{ccAddrs}, #{theme}, #{contentPath}, #{infoType}, #{sendDate}, #{sendTime}, #{createUser}, to_char(sysdate,'yyyy-MM-dd hh24:mi:ss'))
+	</insert>
+ 	<!--批量插入待发邮件附件信息-->
+	<insert id="insertAttachmentForSend" parameterType="java.util.List">
+	    insert into t_sys_attachment (FID,EMAILINFO_ID, CONTENT, CONTENTTYPE)
+	    SELECT COMMON_SEQ.NEXTVAL,temp.* from (
+	    <foreach collection="list" item="item" index="index" separator="union all" >
+	    	select #{item.emailInfo,jdbcType=VARCHAR},#{item.content,jdbcType=VARCHAR},#{item.contentType,jdbcType=VARCHAR} from dual
+	    </foreach> ) temp
+	</insert>
+	<!--根据邮件记录id获取对应的附件和图片-->
+	<select id="selectAttachmentByInfoId" parameterType="String" resultType="map">
+	    select 
+	    	CONTENT,CONTENTTYPE
+	    from 
+	    	t_sys_attachment
+	    where 
+	    	EMAILINFO_ID = #{infoId}
+	</select>
+	<!-- 从预警信息表中获取预警所需信息 -->
+	<select id="selectMailForWillSend" resultType="map">
+		select
+       		FID INFOID,SENDER_ADDR SENDER,SENDER_PSWD PWD,RECEIVER_ADDRS TOS,CC_ADDRS CC,THEME THEME,CONTENT_PATH CONTENT,HANDLETIMES TIMES
+		from
+       		t_sys_emailinfo
+		where DEL_FLAG = 'Y' and INFOSTATE = 'willsend' and METHOD_ID = 'mail'	
+    		and to_date(SENDDATE,'yyyy-MM-dd') like sysdate 
+    		and to_date(to_char(to_date(SENDTIME,'hh24:mi:ss'),'hh24'),'hh24') = to_date(to_char(sysdate,'hh24'),'hh24')
+	</select>
+	<!--批量更新已发邮件状态-->
+	<update id="updateMailAfterSended" parameterType="Map">   
+        update t_sys_emailinfo
+        	 set INFOSTATE = #{infoState}
+        	 	 ,HANDLETIMES = HANDLETIMES+1
+        where fid in   
+        <foreach collection="stateList" index="index" item="item" open="(" separator="," close=")" >  
+            #{item}  
+        </foreach>
+	</update>
+	
+</mapper>

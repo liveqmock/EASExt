@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="admin" extends="json-default" namespace="/admin">
+		<!-- 配置自定义拦截器LoginedCheckInterceptor -->
+<!--		<interceptors>-->
+<!--			<interceptor name="mylogin" class="com.creditease.eas.interceptor.LoginedCheckInterceptor"></interceptor>-->
+<!--			<interceptor-stack name="mystack">-->
+<!--				<interceptor-ref name="mylogin" />-->
+<!--				<interceptor-ref name="defaultStack" />-->
+<!--			</interceptor-stack>-->
+<!--		</interceptors>	    -->
+		<!-- 定义全局result -->
+<!--		<global-results>-->
+<!--		定义名为exception的全局result -->
+<!--		    <result name="exception">/exception.jsp</result>-->
+<!--		    <result name="tologin">/login.jsp</result>-->
+<!--		</global-results>-->
+<!--		 定义全局异常映射 -->
+<!--		<global-exception-mappings>-->
+<!--			 捕捉到Exception异常(所有异常)时跳转到exception所命名的视图上 -->
+<!--			<exception-mapping exception="java.lang.Exception" result="exception"/>-->
+<!--		</global-exception-mappings>		-->
+		<!-- 发送的明细信息 -->
+		<action name="login" class="loginAction">
+		    <result name="loginSuccess">/index.jsp</result>
+		    <result name="tologin">/login.jsp</result>
+		</action>
+		<!-- 用户登录的action -->
+		<action name="user" class="userAction">
+		    <result name="add_usersuccess">/admin/userList.jsp</result>
+		    <result name="edit">/admin/editUser.jsp</result>
+		    <result name="editself">/admin/editUserself.jsp</result>
+		    <result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			 <result name="adduser">/admin/addUser.jsp</result>
+		</action>
+    </package>    
+</struts>

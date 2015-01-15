@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.adminipurc.dao.AdminContractInfoMapper" >
+   <resultMap id="BaseResultMap" type="com.creditease.eas.adminipurc.bean.AdminContractInfo" >
+    <id column="FID" property="fid" jdbcType="DECIMAL" />
+    <result column="FORGNAME" property="forgname" jdbcType="VARCHAR" />
+    <result column="FCITY" property="fcity" jdbcType="VARCHAR" />
+    <result column="FLASTCOSTCENTER" property="flastcostcenter" jdbcType="VARCHAR" />
+    <result column="FOFFICEADDR" property="fofficeaddr" jdbcType="VARCHAR" />
+    <result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+    <result column="FSERIALNUMBER" property="fserialNumber" jdbcType="INTEGER" />
+    <result column="FCONTRACTTYPEID" property="fcontracttypeid" jdbcType="INTEGER" />
+    <result column="FSUPPLIERNAME" property="fsuppliername" jdbcType="VARCHAR" />
+    <result column="FSUPPLIERFNUMBER" property="fsupplierfnumber" jdbcType="VARCHAR" />
+    <result column="FCONTRACTAMOUNT" property="fcontractamount" jdbcType="VARCHAR" />
+    <result column="FBEGINDATE" property="fbegindate" jdbcType="DATE" />
+    <result column="FENDDATE" property="fenddate" jdbcType="DATE" />
+    <result column="FISRENEWAL" property="fisrenewal" jdbcType="VARCHAR" />
+    <result column="FDURTIME" property="fdurtime" jdbcType="DECIMAL" />
+    <result column="FMONTHCOST" property="fmonthcost" jdbcType="VARCHAR" />
+    <result column="FPRINTDEPOSIT" property="fprintdeposit" jdbcType="VARCHAR" />
+    <result column="FPAYTYPEID" property="fpaytypeid" jdbcType="INTEGER" />
+    <result column="FDELETESTATUS" property="fdeletestatus" jdbcType="VARCHAR" />
+    <result column="FCONTRACTSTATUS" property="fcontractstatus" jdbcType="INTEGER" />
+    <result column="FREMARK" property="fremark" jdbcType="VARCHAR" />
+    <result column="FCREATOR" property="fcreator" jdbcType="DECIMAL" />
+    <result column="FCREATETIME" property="fcreatetime" jdbcType="DATE" />
+    <result column="FLASTUPDATER" property="flastupdater" jdbcType="DECIMAL" />
+    <result column="FLASTUPDATETIME" property="flastupdatetime" jdbcType="DATE" />
+    <result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+    <result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+    <result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+    <result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+    <result column="FEXT7" property="fext7" jdbcType="VARCHAR" />
+    <result column="FEXT8" property="fext8" jdbcType="VARCHAR" />
+    <result column="FEXT6" property="fext6" jdbcType="VARCHAR" />
+    <result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+    <result column="FEXT9" property="fext9" jdbcType="VARCHAR" />
+    <result column="FEXT10" property="fext10" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    FID, FORGNAME, FCITY, FLASTCOSTCENTER, FOFFICEADDR, FNUMBER,FSERIALNUMBER,FCONTRACTTYPEID, FSUPPLIERNAME, 
+    FSUPPLIERFNUMBER, FCONTRACTAMOUNT, FBEGINDATE, FENDDATE, FISRENEWAL, FDURTIME, FMONTHCOST, 
+    FPRINTDEPOSIT, FPAYTYPEID, FDELETESTATUS, FCONTRACTSTATUS, FREMARK, FCREATOR, FCREATETIME, 
+    FLASTUPDATER, FLASTUPDATETIME, FEXT1, FEXT2, FEXT3, FEXT4, FEXT7, FEXT8, FEXT6, FEXT5, 
+    FEXT9, FEXT10
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    FID, FORGNAME, FCITY, FLASTCOSTCENTER, FOFFICEADDR, FNUMBER,FSERIALNUMBER,FCONTRACTTYPEID, FSUPPLIERNAME, 
+    FSUPPLIERFNUMBER, FCONTRACTAMOUNT, FBEGINDATE, FENDDATE, FISRENEWAL, FDURTIME, FMONTHCOST, 
+    FPRINTDEPOSIT, FPAYTYPEID, FDELETESTATUS, FCONTRACTSTATUS, FREMARK, FCREATOR, FCREATETIME, 
+    FLASTUPDATER, FLASTUPDATETIME, FEXT1, FEXT2, FEXT3, FEXT4, FEXT7, FEXT8, FEXT6, FEXT5, 
+    FEXT9,  CASE WHEN FENDDATE >sysdate THEN '生效'   ELSE '终止'   END FEXT10
+    from T_ADMINI_CONTRACTINFO
+    where FID = #{fid,jdbcType=DECIMAL}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from T_ADMINI_CONTRACTINFO
+    where FID = #{fid,jdbcType=DECIMAL}
+  </delete>
+  <!-- 添加合同信息 -->
+  <insert id="insert" parameterType="com.creditease.eas.adminipurc.bean.AdminContractInfo" >
+      <selectKey resultType="java.lang.Long" keyProperty="fid" order="BEFORE"> 
+	   		select common_seq.NEXTVAL from dual 
+	</selectKey>
+      insert into T_ADMINI_CONTRACTINFO (FID, FORGNAME, FCITY, 
+      FLASTCOSTCENTER, FOFFICEADDR, FNUMBER,FSERIALNUMBER, 
+      FCONTRACTTYPEID, FSUPPLIERNAME, FSUPPLIERFNUMBER, 
+      FCONTRACTAMOUNT, FBEGINDATE, FENDDATE, 
+      FISRENEWAL, FDURTIME, FMONTHCOST, 
+      FPRINTDEPOSIT, FPAYTYPEID, FDELETESTATUS, 
+      FCONTRACTSTATUS, FREMARK, FCREATOR, 
+      FCREATETIME, FLASTUPDATER, FLASTUPDATETIME, 
+      FEXT1, FEXT2, FEXT3, 
+      FEXT4, FEXT7, FEXT8, 
+      FEXT6, FEXT5, FEXT9, 
+      FEXT10)
+      values (#{fid,jdbcType=DECIMAL}, #{forgname,jdbcType=VARCHAR}, #{fcity,jdbcType=VARCHAR}, 
+      #{flastcostcenter,jdbcType=VARCHAR}, #{fofficeaddr,jdbcType=VARCHAR}, #{fnumber,jdbcType=VARCHAR},#{fserialNumber,jdbcType=INTEGER},
+      #{fcontracttypeid,jdbcType=INTEGER}, #{fsuppliername,jdbcType=VARCHAR}, #{fsupplierfnumber,jdbcType=VARCHAR}, 
+      #{fcontractamount,jdbcType=VARCHAR}, #{fbegindate,jdbcType=DATE}, #{fenddate,jdbcType=DATE}, 
+      #{fisrenewal,jdbcType=VARCHAR}, #{fdurtime,jdbcType=DECIMAL}, #{fmonthcost,jdbcType=VARCHAR}, 
+      #{fprintdeposit,jdbcType=VARCHAR}, #{fpaytypeid,jdbcType=INTEGER}, #{fdeletestatus,jdbcType=VARCHAR}, 
+      #{fcontractstatus,jdbcType=INTEGER}, #{fremark,jdbcType=VARCHAR}, #{fcreator,jdbcType=DECIMAL}, 
+      #{fcreatetime,jdbcType=DATE}, #{flastupdater,jdbcType=DECIMAL}, #{flastupdatetime,jdbcType=DATE}, 
+      #{fext1,jdbcType=VARCHAR}, #{fext2,jdbcType=VARCHAR}, #{fext3,jdbcType=VARCHAR}, 
+      #{fext4,jdbcType=VARCHAR}, #{fext7,jdbcType=VARCHAR}, #{fext8,jdbcType=VARCHAR}, 
+      #{fext6,jdbcType=VARCHAR}, #{fext5,jdbcType=VARCHAR}, #{fext9,jdbcType=VARCHAR}, 
+      #{fext10,jdbcType=VARCHAR})
+  </insert>
+  <!-- 更新合同信息 -->
+  <update id="update" parameterType="com.creditease.eas.adminipurc.bean.AdminContractInfo" >
+    update T_ADMINI_CONTRACTINFO
+    <set >
+      <if test="forgname != null" >
+        FORGNAME = #{forgname,jdbcType=VARCHAR},
+      </if>
+      <if test="fcity != null" >
+        FCITY = #{fcity,jdbcType=VARCHAR},
+      </if>
+      <if test="flastcostcenter != null" >
+        FLASTCOSTCENTER = #{flastcostcenter,jdbcType=VARCHAR},
+      </if>
+      <if test="fofficeaddr != null" >
+        FOFFICEADDR = #{fofficeaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="fnumber != null" >
+        FNUMBER = #{fnumber,jdbcType=VARCHAR},
+      </if>
+       <if test="fserialNumber != null" >
+        FSERIALNUMBER = #{fserialNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="fcontracttypeid != null" >
+        FCONTRACTTYPEID = #{fcontracttypeid,jdbcType=INTEGER},
+      </if>
+      <if test="fsuppliername != null" >
+        FSUPPLIERNAME = #{fsuppliername,jdbcType=VARCHAR},
+      </if>
+      <if test="fsupplierfnumber != null" >
+        FSUPPLIERFNUMBER = #{fsupplierfnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="fcontractamount != null" >
+        FCONTRACTAMOUNT = #{fcontractamount,jdbcType=VARCHAR},
+      </if>
+        FBEGINDATE = #{fbegindate,jdbcType=DATE},
+        FENDDATE = #{fenddate,jdbcType=DATE},
+      <if test="fisrenewal != null" >
+        FISRENEWAL = #{fisrenewal,jdbcType=VARCHAR},
+      </if>
+      <if test="fdurtime != null" >
+        FDURTIME = #{fdurtime,jdbcType=DECIMAL},
+      </if>
+      <if test="fmonthcost != null" >
+        FMONTHCOST = #{fmonthcost,jdbcType=VARCHAR},
+      </if>
+      <if test="fprintdeposit != null" >
+        FPRINTDEPOSIT = #{fprintdeposit,jdbcType=VARCHAR},
+      </if>
+      <if test="fpaytypeid != null" >
+        FPAYTYPEID = #{fpaytypeid,jdbcType=INTEGER},
+      </if>
+      <if test="fdeletestatus != null" >
+        FDELETESTATUS = #{fdeletestatus,jdbcType=VARCHAR},
+      </if>
+      <if test="fcontractstatus != null" >
+        FCONTRACTSTATUS = #{fcontractstatus,jdbcType=INTEGER},
+      </if>
+      <if test="fremark != null" >
+        FREMARK = #{fremark,jdbcType=VARCHAR},
+      </if>
+      <if test="fcreator != null" >
+        FCREATOR = #{fcreator,jdbcType=DECIMAL},
+      </if>
+      <if test="fcreatetime != null" >
+        FCREATETIME = #{fcreatetime,jdbcType=DATE},
+      </if>
+      <if test="flastupdater != null" >
+        FLASTUPDATER = #{flastupdater,jdbcType=DECIMAL},
+      </if>
+      <if test="flastupdatetime != null" >
+        FLASTUPDATETIME = #{flastupdatetime,jdbcType=DATE},
+      </if>
+      <if test="fext1 != null" >
+        FEXT1 = #{fext1,jdbcType=VARCHAR},
+      </if>
+      <if test="fext2 != null" >
+        FEXT2 = #{fext2,jdbcType=VARCHAR},
+      </if>
+      <if test="fext3 != null" >
+        FEXT3 = #{fext3,jdbcType=VARCHAR},
+      </if>
+      <if test="fext4 != null" >
+        FEXT4 = #{fext4,jdbcType=VARCHAR},
+      </if>
+      <if test="fext7 != null" >
+        FEXT7 = #{fext7,jdbcType=VARCHAR},
+      </if>
+      <if test="fext8 != null" >
+        FEXT8 = #{fext8,jdbcType=VARCHAR},
+      </if>
+      <if test="fext6 != null" >
+        FEXT6 = #{fext6,jdbcType=VARCHAR},
+      </if>
+      <if test="fext5 != null" >
+        FEXT5 = #{fext5,jdbcType=VARCHAR},
+      </if>
+      <if test="fext9 != null" >
+        FEXT9 = #{fext9,jdbcType=VARCHAR},
+      </if>
+      <if test="fext10 != null" >
+        FEXT10 = #{fext10,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where FID = #{fid,jdbcType=DECIMAL}
+  </update>
+  	<!-- 查询是否已经添加了重复的合同信息 -->
+	<select id="findIfContractExists" parameterType="map" resultMap="BaseResultMap">
+		 select * from T_ADMINI_CONTRACTINFO where 1=1
+		 <if test="forgName != null and forgName != ''" >
+	        and  FORGNAME = #{forgName,jdbcType=VARCHAR}
+	      </if>
+	      <if test="fcity != null and fcity != ''" >
+	       	and FCITY = #{fcity,jdbcType=VARCHAR}
+	      </if>
+	      <if test="flastCostcenter != null and flastCostcenter != ''" >
+	        and  FLASTCOSTCENTER = #{flastCostcenter,jdbcType=VARCHAR}
+	      </if>
+	      <if test="fofficeAdd != null and fofficeAdd != ''" >
+	        and FOFFICEADDR = #{fofficeAdd,jdbcType=VARCHAR}
+	      </if>
+	       <if test="fcontracttypeid != null and fcontracttypeid != ''" >
+	        and FCONTRACTTYPEID = #{fcontracttypeid,jdbcType=INTEGER}
+	      </if>
+	       <if test="fbegindate != null and fbegindate != ''" >
+	        and FBEGINDATE = #{fbegindate,jdbcType=DATE}
+	      </if>
+	       <if test="FENDDATE != null and FENDDATE != ''" >
+	        and FENDDATE = #{fenddate,jdbcType=INTEGER}
+	      </if>
+	</select>
+	<!-- 查询合同编号的流水号 
+		位数不够，则补零-->
+	<select id="findContractSerialNumber" parameterType="string" resultType="Integer">
+		select nvl(max(fserialNumber)+1,1) fserialNumber
+		from t_admini_contractinfo where fnumber like '%'||#{contractFnumberPre,jdbcType=VARCHAR}||'%'
+	</select>
+	<!-- 查询条件 -->
+      <sql id="preview_condition" >
+      	<if test="condition!= null and condition!=''">
+      			${condition}
+      	</if>
+      	<if test="fnumber != null and fnumber != '' "> AND fnumber like '%${fnumber}%'</if>
+		<if test="forgname != null and forgname != '' "> AND FORGNAME like '%${forgname}%'</if>
+		<if test="fcontracttypeid != null and fcontracttypeid != '' "> AND fcontracttypeid = '${fcontracttypeid}'</if>
+		<if test="fbegindate != null and fbegindate != '' "> AND fbegindate &gt;= TO_DATE('${fbegindate}','yyyy-mm-dd')</if>
+		<if test="fenddate != null and fenddate != '' ">AND fenddate &lt;= TO_DATE('${fenddate}','yyyy-mm-dd')</if>
+		<if test="fcity != null and fcity != '' "> AND FCITY like '%${fcity}%'</if>
+		<if test="fcontractStatus != null and fcontractStatus != '' "> AND FCONTRACTSTATUS = ${fcontractStatus}</if>
+		<if test="flastcostcenter != null and flastcostcenter != '' "> AND FLASTCOSTCENTER like '%${flastcostcenter}%'</if>
+		<if test="fStatus != null and fStatus != '' and fStatus==1">
+			AND fenddate >= sysdate or fenddate is null
+		</if>
+		<if test="fStatus != null and fStatus != '' and fStatus==2">
+			AND fenddate &lt;= sysdate
+		</if>	
+		<!-- 查询合同自动终止的数据信息 -->
+  	</sql>
+	<!-- 查询合同信息 :返回值为map-->
+	<select id="queryPageMapByParams" resultType="map" parameterType="map">
+	Select * FROM(Select ROWNUM as ROWNO,t.* from
+			(select  FID, FORGNAME, FCITY, FLASTCOSTCENTER, FOFFICEADDR, FNUMBER,FSERIALNUMBER,FCONTRACTTYPEID, FSUPPLIERNAME, 
+			    FSUPPLIERFNUMBER, FCONTRACTAMOUNT,to_char(ac.FBEGINDATE,'yyyy-MM-dd') FBEGINDATE,to_char(ac.FENDDATE,'yyyy-MM-dd') FENDDATE, FISRENEWAL, FDURTIME, FMONTHCOST, 
+			    FPRINTDEPOSIT, FPAYTYPEID, FDELETESTATUS, FCONTRACTSTATUS, FREMARK, FCREATOR, FCREATETIME, 
+			    FLASTUPDATER, FLASTUPDATETIME,item.itemid itemid,item.itemname itemname,itemcs.itemname FCONTRACTSTATUSNAME,
+			    CASE WHEN ac.FENDDATE >sysdate or ac.fenddate is null THEN '生效'   ELSE '终止'   END fStatus 
+			    from  T_ADMINI_CONTRACTINFO ac 
+			    left join  t_dictionary_item item on item.id = ac.fcontracttypeid
+			      left join  t_dictionary_item itemcs on itemcs.id = ac.FCONTRACTSTATUS	
+				<where> 
+					fdeleteStatus=1
+					<include refid="preview_condition"/>
+				</where>
+	      order by FID desc) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+	      where ROWNO>= #{startRow,jdbcType=INTEGER}
+	</select>
+	<!-- 查询合同信息的数量 -->
+	<select id="getTotalCountsByParams" resultType="int" parameterType="map">
+	 		select count(*) from T_ADMINI_CONTRACTINFO ac
+	 		 left join  t_dictionary_item item on item.id = ac.fcontracttypeid	
+			<where> 
+				fdeleteStatus=1
+				<include refid="preview_condition"/>
+			</where>
+	</select>
+	  <!-- 物理主键删除合同信息 -->
+   <delete id="physicalDeletion" parameterType="java.lang.Long" >
+   	update t_admini_contractinfo set fdeleteStatus=2
+    where FID = #{fid,jdbcType=DECIMAL}
+  </delete>
+  <!-- 查询合同信息 :用于导出excel-->
+	<select id="queryDatasetByParams" resultType="com.creditease.eas.adminipurc.vo.AdminContractInfoForExportExcelVo" parameterType="map">
+		  select ac.FNUMBER,ac.FORGNAME,ac.FCITY,ac.FLASTCOSTCENTER,ac.FOFFICEADDR,item.itemname FCONTRACTTYPEID,ac.FSUPPLIERNAME, 
+          ac.FCONTRACTAMOUNT,to_char(ac.FBEGINDATE,'yyyy-MM-dd') FBEGINDATE,to_char(ac.FENDDATE,'yyyy-MM-dd') FENDDATE,ac.FISRENEWAL, 
+          ac.FDURTIME,ac.FMONTHCOST,ac.FPRINTDEPOSIT,itempt.itemname FPAYTYPEID,itemcs.itemname FCONTRACTSTATUS,ac.FREMARK
+          from  T_ADMINI_CONTRACTINFO ac 
+          left join  t_dictionary_item item on item.id = ac.fcontracttypeid
+          left join  t_dictionary_item itemcs on itemcs.id = ac.FCONTRACTSTATUS
+          left join t_dictionary_item itempt on itempt.id = ac.fpaytypeid
+				<where> 
+					ac.fdeleteStatus=1
+					<include refid="preview_condition"/>
+				</where>
+	      		order by ac.FID desc
+	</select>
+	<!-- 查询合同信息 -->
+	<select id="queryInfoToMail" resultType="map">
+			select * from  T_ADMINI_CONTRACTINFO 	
+	</select>
+	<!-- 批量更新合同信息的扩展字段 -->
+   <update id="updateFext1ByEmail" parameterType="map">
+   		update T_ADMINI_CONTRACTINFO set fext1 = #{fportNewEmail,jdbcType=VARCHAR}
+   		where fext1 = #{fportOldEmail,jdbcType=VARCHAR}
+   </update>
+</mapper>

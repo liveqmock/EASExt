@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.finance.kingdee.dao.EASAsstProgramWSMapper" >
+	<!-- 辅助核算项  客户或者是供应商-->
+ 		<select id="selectCustomerOrSupplier"  resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+         SELECT *  FROM 
+         (select A.*, ROWNUM RN  FROM (select distinct cus.fnumber,cus.FName_l2 fname,cusp.fnumber fparentNumber,
+	 	 cus.flastUpdateTime,cus.FUsedStatus fusedStatus,cus.FEffectedStatus feffectedStatus
+		 from ${tableName} cus 
+         	left join T_BD_customer cusp on cusp.fid = cus.fparentId
+		left join T_ORG_CtrlUnit ctrlUnit on ctrlUnit.fid = cus.FAdminCUID) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+ 	</select>
+ 	<!-- 通过辅助核算项目，查询对应的 表名 和自定义辅助核算类别的id -->
+ 	<select id="selectTableNameByAsstActType" resultType="map" parameterType="map">
+ 			select FRealtiondataobject,FGlAsstActTypeGrpID from T_BD_AsstActType
+ 			where fnumber= #{fnumber}
+ 	</select>
+ 	<!-- 辅助核算项的数量 -->
+ 	<select id="selectAsstProgramCountQuery" resultType="Integer" parameterType="map">
+ 		 select count(*) from ${tableName}
+		 	where 1=1 
+		  <if test="beginTime != null and beginTime !=''">
+		  	and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+	  	 </if>
+	  	 <if test="fgroupid != null and fgroupid != ''">
+	  	 	and fgroupID = #{fgroupid}
+	  	</if>
+	  	<if test="fgroupid = 'rlgAAAAAXBsF0s0M'">
+	  	 	and flongnumber != '01!03!01'
+	  	</if>
+  		 <if test="beginTime != null and beginTime !=''">
+		  	and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+	  	 </if>
+ 	</select>
+ 	<!-- 辅助核算项-接口测试
+ 		传参数时，将#{tableName}改为${tableName},效果预编译 
+ 		这种方式的使用是非常不安全的，要谨慎使用
+ 		 SELECT *  FROM (select A.*, ROWNUM RN   FROM (select * from 
+	       (select distinct ta.fname_l2 fname,ta.fnumber,ta.flastUpdateTime  
+		 	from ${tableName} ta
+	 		where 1=1 
+	 		 <if test="beginTime != null and beginTime !=''">
+			  	and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+		  	 </if>
+	 		)) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+ 	 -->
+	<select id="selectAsstProgramQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		  SELECT *  FROM (select A.*, ROWNUM RN   FROM (select * from 
+	       (select distinct ta.fname_l2 fname,ta.fnumber,ta.flastUpdateTime
+		 	from ${tableName} ta
+	 		where 1=1 
+	 		 <if test="beginTime != null and beginTime !=''">
+			  	and (ta.fcreatetime>=#{beginTime} or ta.flastupdatetime >=#{beginTime}) 		
+		  	 </if>
+	 		)) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+	</select>
+	<!-- 自定义辅助核算项的查询 
+		产品-房贷那个给财务的商定好了，她们以后只用第一个房贷
+		我们给AMS提供数据也只提供第一个
+		 <if test="fgroupid = 'rlgAAAAAXBsF0s0M'">
+	  	 	and ta.flongnumber != '01.03.01'
+	  	</if>
+	-->
+	<select id="selectGeneralAsstProgramQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+	  	   SELECT *  FROM (select A.*, ROWNUM RN   FROM (select * from 
+	       (select  ta.fname_l2 fname,ta.flongnumber fnumber,ta.fnumber fparentNumber,ta.FIsEnabled,
+			ta.FIsLeaf,ta.FLevel,ta.flastUpdateTime  
+			from T_BD_GeneralAsstActType ta
+			left join T_BD_GeneralAsstActType tap on tap.fid = ta.fparentId
+		 	where 1=1 
+	 		 <if test="beginTime != null and beginTime !=''">
+			  	and (ta.fcreatetime>=#{beginTime} or ta.flastupdatetime >=#{beginTime}) 		
+		  	 </if>
+		  	 <if test="fgroupid != null and fgroupid != ''">
+		  	 	and ta.fgroupID = #{fgroupid}
+		  	</if>
+		  	<if test="fgroupid = 'rlgAAAAAXBsF0s0M'">
+		  	 	and ta.flongnumber != '01!03!01'
+		  	</if>
+	  		 <if test="beginTime != null and beginTime !=''">
+			  	and (ta.fcreatetime>=#{beginTime} or ta.flastupdatetime >=#{beginTime}) 		
+		  	 </if>)) A 
+	      WHERE ROWNUM &lt;= #{max}) 
+	      WHERE RN &gt;= #{min} 
+	       order by fnumber
+	</select>
+	<!-- 查询客商分类信息的查询 -->
+	<select id="selectCsspgroupQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		select css.fnumber as fnumber,css.fname_l2 as fname,cssp.fnumber as ftreeparentNumber,
+		css.FLevel as flevel,css.fisleaf as fisleaf,1 as istree,css.flastUpdateTime as flastUpdateTime ,
+		css.fdeletedstatus as fdeletedstatus from t_bd_csspgroup css 
+		left join  t_bd_csspgroup cssp on cssp.fid = css.fparentid 
+		left join T_ORG_BaseUnit org on css.FControlUnitID = org.fid 
+		where org.fid !='rlgAAAAABCvM567U' and css.FCSSPGroupStandardID = #{fsid}  
+		<if test="beginTime != null and beginTime !=''">
+			and (css.fcreatetime>=#{beginTime} or css.flastupdatetime >=#{beginTime}) 		
+		</if>
+		order by css.fnumber 
+	</select>
+	<!--所有 客户信息的查询 -->
+	<select id="selectCustomerQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+	<!-- 	select distinct cus.fnumber as fnumber,cus.FName_l2 as fname,cusp.fnumber as fparentNumber,css.fnumber as ftreeParentNumber,
+		 0 as istree,(case when cus.FUsedStatus=1 then 1 when cus.FUsedStatus!=1 then 0 end) as status,cus.flastUpdateTime as flastUpdateTime 
+		 from T_BD_Customer cus left join T_BD_customer cusp on cusp.fid = cus.fparentId 
+		left join T_BD_CSSPGroup css on cus.FBrowseGroupID = css.fid 
+		left join T_ORG_CtrlUnit org on cus.FControlUnitID = org.fid 
+		 where org.fid !='rlgAAAAABCvM567U' and css.FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000002BC122A7F'
+		  
+		<if test="beginTime != null and beginTime !=''">
+			and (cus.fcreatetime>=#{beginTime} or cus.flastupdatetime >=#{beginTime}) 		
+		</if>
+		order by cus.fnumber 
+		 -->
+		select rownum as rn,cus.fnumber as fnumber,cus.FName_l2 as fname,
+      com.fname_l2 as companyname,cus.flastUpdateTime as flastUpdateTime , 
+       0 as istree,(case when cus.FUsedStatus=1 then 1 when cus.FUsedStatus!=1 then 0 end) as status 
+       ,cusp.fnumber as fparentNumber,css.fnumber as ftreeParentNumber,com.fnumber as fcompanynumber
+      from t_org_company com inner join T_BD_CustomerCompanyInfo temp on temp.FComOrgID = com.fid 
+      left join T_BD_Customer cus on cus.fid = temp.FCustomerID 
+       left join T_BD_CSSPGroup css on cus.FBrowseGroupID = css.fid 
+        left join T_BD_CSSPGroup css on cus.FBrowseGroupID = css.fid 
+    left join T_ORG_CtrlUnit org on cus.FControlUnitID = org.fid 
+    left join T_BD_customer cusp on cusp.fid = cus.fparentId 
+     where org.fid !='rlgAAAAABCvM567U' and 
+		  css.FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000002BC122A7F'  
+        and cus.fname_l2 like '%张劲松%' and com.fnumber = '311' 
+	</select> 
+	
+	<!--所有 供应商信息的查询 -->
+	<select id="selectSupplierQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		select distinct sup.fnumber as fnumber,sup.FName_l2 as fname,supp.fnumber as fparentNumber,css.fnumber as ftreeParentNumber,
+		 0 as istree,(case when sup.FUsedStatus=1 then 1 when sup.FUsedStatus!=1 then 0 end) as status,sup.flastUpdateTime as flastUpdateTime 
+		 from T_BD_Supplier sup left join T_BD_Supplier supp on supp.fid = sup.fparentId 
+		left join T_BD_CSSPGroup css on sup.FBrowseGroupID = css.fid 
+		left join T_ORG_CtrlUnit org on  sup.FControlUnitID = org.fid 
+		 where org.fid !='rlgAAAAABCvM567U' and css.FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000001BC122A7F' 
+		<if test="beginTime != null and beginTime !=''">
+			and (sup.fcreatetime>=#{beginTime} or sup.flastupdatetime >=#{beginTime}) 		
+		</if>
+		order by sup.fnumber 
+	</select>  
+	
+	
+	<!-- 供应商信息的查询 -->
+	<select id="selectSupplierQueryByFnumber" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="string">
+		select distinct cus.fnumber fnumber,cus.FName_l2 fname,css.FName_l2 fname,cus.flastUpdateTime as flastUpdateTime 
+		from T_BD_Supplier cus left join  T_BD_CSSPGroup css on cus.FBrowseGroupID = css.fid 
+		where css.fid =#{fid} 
+	</select>
+	
+	
+	<!--所有组织信息的查询 -->
+	<select id="selectOrgAdminQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		select org.fnumber as fnumber,org.fname_l2 as fname,
+  		(case when orgp.fnumber = 'CE' then null when orgp.fnumber !='CE' then orgp.fnumber end) as ftreeparentNumber,
+		org.FLevel as flevel,org.fisleaf as fisleaf,1 as istree ,org.flastUpdateTime as flastUpdateTime 
+		,decode(org.FIsSealUp,'1','1','0') as status from t_org_admin org 
+		left join  t_org_admin orgp on orgp.fid = org.fparentid 
+		 where 1 =1 and org.fnumber not like '%.%' and org.fnumber != 'CE' 
+		<if test="beginTime != null and beginTime !=''"> 
+			and (org.fcreatetime>=#{beginTime} or org.flastupdatetime >=#{beginTime}) 		
+		</if> 
+		order by org.fnumber 
+	</select>
+	<!--所有职位信息的查询 -->
+	<select id="selectPositionQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		select distinct po.fnumber as fnumber,po.FName_l2 as fname,a.fnumber as ftreeParentNumber, 0 as istree,a.flastUpdateTime as flastUpdateTime 
+		,decode(po.fdeletedstatus,'1','1','0') as status from T_ORG_Position po left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid  
+		 where 1 =1 and po.fnumber not like '%.%' 
+		<if test="beginTime != null and beginTime !=''">
+			and (po.fcreatetime>=#{beginTime} or po.flastupdatetime >=#{beginTime}) 		
+		</if>
+		order by po.fnumber 
+	</select>
+	
+	<!--所有人员信息的查询 -->
+	<select id="selectPersonQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+	  select distinct p.fnumber as fnumber,p.FName_l2 as fname,po.fnumber as ftreeParentNumber, 0 as istree,
+	  p.flastUpdateTime as flastUpdateTime,decode(po.fdeletedstatus,'1','1','0') as status from t_bd_person P 
+	  left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID 
+	  left join T_ORG_Position Po  on Po.fid = Pm.FPositionID 
+	  left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid 
+     left join T_ORG_HRO hr on hr.Fid = P.FHROrgUnitID
+	  where 1 =1 and hr.fnumber not like '%.%' 
+	  <if test="beginTime != null and beginTime !=''">
+		and (p.fcreatetime>=#{beginTime} or p.flastupdatetime >=#{beginTime}) 		
+	  </if>
+	    order by p.fnumber 
+	</select>
+	<!-- 客户信息查询分页
+		修改记录：
+		2013年12月3日：增加了ext1字段
+	 -->
+	<select id="selectCusPageQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		 select rn,fnumber,fname,companyname,flastUpdateTime,istree,status,fparentNumber,ftreeParentNumber,ext1 from (
+      select rownum as rn,cus.fnumber as fnumber,cus.FName_l2 as fname,
+			com.fname_l2 as companyname,cus.flastUpdateTime as flastUpdateTime , 
+			 0 as istree,(case when cus.FUsedStatus=1 then 1 when cus.FUsedStatus!=1 then 0 end) as status 
+			 ,cusp.fnumber as fparentNumber,css.fnumber as ftreeParentNumber,cus.fnumber||' '||css.fdisplayName_l2||'_'||cus.fname_l2 ext1 
+			from t_org_company com inner join T_BD_CustomerCompanyInfo temp on temp.FComOrgID = com.fid 
+			left join T_BD_Customer cus on cus.fid = temp.FCustomerID 
+			 left join T_BD_CSSPGroup css on cus.FBrowseGroupID = css.fid 
+				left join T_BD_CSSPGroup css on cus.FBrowseGroupID = css.fid 
+		left join T_ORG_CtrlUnit org on cus.FControlUnitID = org.fid 
+		left join T_BD_customer cusp on cusp.fid = cus.fparentId 
+		 where org.fid !='rlgAAAAABCvM567U' and 
+		  css.FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000002BC122A7F' 
+		   <if test="beginTime != null and beginTime !=''"> 
+			and (cus.fcreatetime>=#{beginTime} or cus.flastupdatetime >=#{beginTime}) 		
+			</if> 
+		 		and rownum &lt;= #{max} 
+		) where rn &gt;= #{min} order by fnumber asc 
+	</select>
+	
+	
+	<!-- 客商信息 分页 -->
+	<select id="pageCsspQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		select * from (
+			select rownum as rn,css.fnumber as fnumber,css.fname_l2 as fname,cssp.fnumber as ftreeparentNumber,
+			css.FLevel as flevel,css.fisleaf as fisleaf,1 as istree,
+			(case when css.fdeletedstatus=1 then 1 when css.fdeletedstatus!=1 then 0 end) as status
+			,css.flastUpdateTime as flastUpdateTime from t_bd_csspgroup css 
+			left join  t_bd_csspgroup cssp on cssp.fid = css.fparentid 
+			where css.FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000002BC122A7F' 
+			 <if test="beginTime != null and beginTime !=''"> 
+			and (css.fcreatetime>=#{beginTime} or css.flastupdatetime >=#{beginTime}) 		
+			</if> 
+			 and rownum &lt;= #{max} 
+	    ) where rn &gt;= #{min}  
+	    order by fnumber asc 
+<!--    order by rn -->
+	</select>
+	<!-- 供应商信息查询	分页 -->
+	<select id="selectSupPageQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+		 select rn,fnumber,fname,companyname,flastUpdateTime,istree,status,fparentNumber,ftreeParentNumber from (
+     select rownum as rn,sup.fnumber as fnumber,sup.FName_l2 as fname,supp.fnumber as fparentNumber,css.fnumber as ftreeParentNumber,
+     0 as istree,(case when sup.FUsedStatus=1 then 1 when sup.FUsedStatus!=1 then 0 end) as status,
+     sup.flastUpdateTime as flastUpdateTime,com.fname_l2 as companyname 
+     from  t_org_company com 
+     inner join T_BD_SupplierCompanyInfo temp on temp.FComOrgID = com.fid
+	 left join  T_BD_Supplier sup on sup.fid = temp.FSupplierID
+     left join T_BD_Supplier supp on supp.fid = sup.fparentId 
+		left join T_BD_CSSPGroup css on sup.FBrowseGroupID = css.fid 
+		left join T_ORG_CtrlUnit org on  sup.FControlUnitID = org.fid   
+	 where org.fid !='rlgAAAAABCvM567U' and css.FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000001BC122A7F' 
+	 <if test="beginTime != null and beginTime !=''"> 
+			and (sup.fcreatetime>=#{beginTime} or sup.flastupdatetime >=#{beginTime}) 		
+	</if> 
+		  and rownum &lt;= #{max} 
+		) where rn &gt;= #{min} order by fnumber asc 
+	</select>
+	
+	<!-- 客商信息 总数-->
+	<select id="csspCount" resultType="int">
+	select count(fid) from t_bd_csspgroup where FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000002BC122A7F' 
+	<if test="beginTime != null and beginTime !=''"> 
+			and (fcreatetime>=#{beginTime} or flastupdatetime >=#{beginTime}) 		
+	</if> 
+	</select>
+	<!-- 客户信息总数 -->
+	<select id="custCount" resultType="int">
+		select count(cus.fid) from T_BD_Customer cus 
+	 left join T_BD_customer cusp on cusp.fid = cus.fparentId 
+		left join T_BD_CSSPGroup css on cus.FBrowseGroupID = css.fid 
+		left join T_ORG_CtrlUnit org on cus.FControlUnitID = org.fid 
+ 	where org.fid !='rlgAAAAABCvM567U' and css.FCSSPGroupStandardID = '00000000-0000-0000-0000-000000000002BC122A7F' 
+	</select>
+	
+	<!--所有公司信息的查询 -->
+	<select id="selectCompanyQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+	    select cpy.fnumber as fnumber,cpy.fname_l2 as fname,cpyp.fnumber as ftreeparentNumber,
+	    cpy.FLevel as flevel,cpy.fisleaf as fisleaf,1 as istree ,cpy.flastUpdateTime as flastUpdateTime 
+	    ,decode(cpy.FIsSealUp,'1','0','1') as status from t_org_company cpy 
+	    left join  t_org_company cpyp on cpyp.fid = cpy.fparentid 
+	     where 1 =1 and cpy.fnumber not like '%.%' 
+		<if test="beginTime != null and beginTime !=''"> 
+			and (cpy.fcreatetime>=#{beginTime} or cpy.flastupdatetime >=#{beginTime}) 		
+		</if> 
+		order by cpy.fnumber 
+	</select>
+	<!--成本中心信息的查询
+		更改记录：
+		2013-12-3:增加长编码，长名称
+	 -->
+	<select id="selectCostCenterQuery" resultType="com.creditease.eas.finance.bean.AsstBean" parameterType="map">
+	  select cost.fnumber as fnumber,cost.fname_l2 as fname,costp.fnumber as ftreeparentNumber,
+      cost.FLevel as flevel,cost.fisleaf as fisleaf,1 as istree,cost.flastUpdateTime as flastUpdateTime,cost.fid ext1,costp.fid ext2,
+      cost.fdisplayname_l2 ext3,cost.flongnumber ext4,decode(cost.FIsSealUp,'1','0','1') as status from T_ORG_CostCenter cost 
+      left join  T_ORG_CostCenter costp on costp.fid = cost.fparentid 
+       where 1 =1 and cost.fnumber not like '%.%' 
+		<if test="beginTime != null and beginTime !=''"> 
+			and (cost.fcreatetime>=#{beginTime} or cost.flastupdatetime >=#{beginTime}) 		
+		</if> 
+		order by cost.fnumber 
+	</select>
+	
+</mapper>

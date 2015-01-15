@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.WSSupplierMapper" >
+  
+    <resultMap  id="baseResult" type="com.creditease.eas.hr.bean.oa.WSSupplierBean">
+			<result column="SUPPLIERNUMBER" property="supplierNumber" jdbcType="VARCHAR" />
+		    <result column="SUPPLIERNAME" property="supplierName" jdbcType="VARCHAR" />
+		    <result column="PROVINCENUMBER" property="provinceNumber" jdbcType="VARCHAR" />
+		    <result column="PROVINCENAME" property="provinceName" jdbcType="VARCHAR" />
+		    <result column="CITYNUMBER" property="cityNumber" jdbcType="VARCHAR" />
+		    <result column="CITYNAME" property="cityName" jdbcType="VARCHAR" />
+		    <result column="BANKNAME" property="bankName" jdbcType="VARCHAR" />
+		    <result column="BANKACCOUNT" property="bankAccount" jdbcType="VARCHAR" />
+		    <result column="BANKADDRESS" property="bankAddress" jdbcType="VARCHAR" />
+	</resultMap> 
+	
+	<resultMap  id="proAndCityResult" type="com.creditease.eas.hr.bean.oa.ProvinceAndCityBean">
+			<result column="CITYNUMBER" property="cityNumber" jdbcType="VARCHAR" />
+		    <result column="CITYNAME" property="cityName" jdbcType="VARCHAR" />
+		    <result column="PROVINCENUMBER" property="provinceNumber" jdbcType="VARCHAR" />
+		    <result column="PROVINCENAME" property="provinceName" jdbcType="VARCHAR" />
+	</resultMap> 
+<!--	<parameterMap id="WrapperMap" type="com.creditease.eas.hr.bean.oa.WrapperMap"  >  -->
+<!--	  		 <parameter   property="max" jdbcType="DECIMAL" />-->
+<!--		     <parameter   property="min" jdbcType="DECIMAL" />-->
+<!--		     <parameter   property="supplierName" jdbcType="VARCHAR" />-->
+<!--	</parameterMap> -->
+<!--	       -->
+ 
+	
+	<!-- 供应商 
+		T_BD_SupplierCompanyBank
+		T_BD_SupplierCompanyInfo
+		select * from T_BD_Supplier
+		查询所有的供应商的信息
+		数据量太大了，怎么办？
+		只查询某个供应商的信(现在查询出来的数据是否是有问题的？？？？？
+	-->
+ 	<select id="selectWSSupplierInfo"  resultMap="baseResult" parameterType="com.creditease.eas.hr.bean.oa.WrapperMap">
+	 <!-- 需求改变，根据供应商名字分页查询
+	 	select distinct su.fname_l2 supplierName,su.fnumber supplierNumber,pr.fnumber provinceNumber,
+		  pr.fname_l2 provinceName,ct.fname_l2  ctiyName,ct.fnumber ctiyNumber,scb.FBank bankName,
+		  scb.FBankAccount bankAccount,scb.FBankAddress bankAddress     
+	     from T_BD_Supplier su
+	    left join T_BD_SupplierCompanyInfo sci on sci.FSupplierID = su.fid
+	    left join T_BD_SupplierCompanyBank scb on scb.FSupplierCompanyInfoID = sci.fid
+	    left join T_BD_Province pr on pr.fid = su.FProvinceID
+	    left join t_bd_city ct on ct.fid = su.FCityID
+        where su.fnumber = #{fnumber,jdbcType=VARCHAR}
+       -->
+      SELECT *  FROM    (select A.*, ROWNUM RN   FROM (select *   from 
+       (select distinct su.fname_l2 supplierName,su.fnumber supplierNumber,pr.fnumber provinceNumber,
+		  pr.fname_l2 provinceName,ct.fname_l2  cityName,ct.fnumber cityNumber,scb.FBank bankName,
+		  scb.FBankAccount bankAccount,scb.FBankAddress bankAddress     
+	      from T_BD_Supplier su
+	    left join T_BD_SupplierCompanyInfo sci on sci.FSupplierID = su.fid
+	    left join T_BD_SupplierCompanyBank scb on scb.FSupplierCompanyInfoID = sci.fid
+	    left join T_BD_Province pr on pr.fid = su.FProvinceID
+	    left join t_bd_city ct on ct.fid = su.FCityID
+	       WHERE 
+	         su.FUsedStatus = 1   and sci.FComOrgID = 'rlgAAAAABbXM567U'
+        	 AND   su.fname_l2 like  #{supplierName}        
+	    )
+        ) A 
+      WHERE ROWNUM &lt;= #{max} ) 
+      WHERE RN &gt;= #{min} 
+ 	</select>
+ 	<!-- 分页供应商总行数 -->
+ 	<select id="selectWSSuppliercount" resultType="Integer"    parameterType="com.creditease.eas.hr.bean.oa.WrapperMap">
+ 	  <!--  select  count  (distinct su.fid) as count     
+	     from T_BD_Supplier su
+	    left join T_BD_SupplierCompanyInfo sci on sci.FSupplierID = su.fid
+	    left join T_BD_SupplierCompanyBank scb on scb.FSupplierCompanyInfoID = sci.fid
+	    left join T_BD_Province pr on pr.fid = su.FProvinceID
+	    left join t_bd_city ct on ct.fid = su.FCityID
+          where su.fname_l2 like #{supplierName}
+           -->
+          
+           select COUNT(*)  as count 
+             from  
+            (select distinct su.fname_l2 supplierName,su.fnumber supplierNumber,pr.fnumber provinceNumber,
+		    pr.fname_l2 provinceName,ct.fname_l2  cityName,ct.fnumber cityNumber,scb.FBank bankName,
+		    scb.FBankAccount bankAccount,scb.FBankAddress bankAddress     
+	        from T_BD_Supplier su
+	       left join T_BD_SupplierCompanyInfo sci on sci.FSupplierID = su.fid
+	       left join T_BD_SupplierCompanyBank scb on scb.FSupplierCompanyInfoID = sci.fid
+	       left join T_BD_Province pr on pr.fid = su.FProvinceID
+	       left join t_bd_city ct on ct.fid = su.FCityID
+           where  su.FUsedStatus = 1  and sci.FComOrgID = 'rlgAAAAABbXM567U' 
+           AND su.fname_l2 like #{supplierName}
+      )  
+ 	</select>
+ 	
+	 
+	
+	<!-- 省-->
+	<select id="selectProvinceInfo" resultMap="proAndCityResult">
+		select fname_l2 as provinceName,fnumber as provinceNumber from T_BD_Province
+	</select>
+
+	<!-- 市-->
+	<select id="selectCityInfoByProvincenumber" resultMap="proAndCityResult" parameterType="string">
+		select ct.fname_l2 cityName,ct.fnumber cityNumber from t_bd_city ct
+     	left join T_BD_Province pr on pr.fid = ct.FProvinceID
+        where pr.fnumber =  #{fnumber,jdbcType=VARCHAR}
+	</select>
+</mapper>

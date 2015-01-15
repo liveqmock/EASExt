@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.warn.kingdee.dao.ContractMapper">
+	<!-- 查询隔月合同将要到期的人员职位id  还需要过滤下T_ORG_PositionMember（是否是主要职位:FIsPrimary-->
+	<select id="selectPositions" resultType="map">
+	 	select Pm.FPositionID as position from 
+           (select t.fid as fid from t_bd_person t
+            join T_HR_ContractSignBizBillEntry tc on tc.fpersonid = t.fid
+            where to_char(tc.fenddate,'yyyy-MM') = to_char(add_months(sysdate,2),'yyyy-MM') and t.FDeletedStatus = 1) P
+            join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+            group by  Pm.FPositionID
+	</select>
+	<!-- 查询隔月合同要到期的人员的名单相关信息 -->
+	<select id="selectContractPersonInfoByPositionId" resultType="map" parameterType="string">
+		  select A.flevel as flevel,P.fid as  personId,
+           P.FNAME_L2 as personname,
+           P.Fnumber  as personcode,
+           A.FID as deptId,
+           A.Fname_L2 as deptname,
+           A.Fnumber as deptcode,
+           A.fdisplayname_l2 as fdisplayname,
+           Po.fid     as positionid,
+           Po.Fname_L2 as positionname,
+           th.fenterdate  as fenterdate,
+           ct.fname_l2 as city
+           from(select t.* from t_bd_person t
+	       join T_HR_ContractSignBizBillEntry tc on tc.fpersonid = t.fid
+	       where to_char(tc.fenddate,'yyyy-MM') = to_char(add_months(sysdate,2),'yyyy-MM') and t.FDeletedStatus = 1) P
+	       left join t_hr_personposition th on P.fid = th.fpersonid
+           join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+           join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fid =#{positionId,jdbcType=VARCHAR})
+           join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+           left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	 </select>
+	 <!-- 查询合同要到期的人员的上级的信息:查询出来的信息还需要再过滤 
+	 	注意：T_HR_PersonContactMethod里面的 Femail和t_bd_person的p.femail字段对应的值是一样的
+	 	这里查询人员信息的时候使用的是T_HR_PersonContactMethod表里的m.cfmail(企业邮箱)
+	 	和p.femail里的个人邮箱。
+	 	如果取T_HR_PersonContactMethod里的cfmail（企业邮箱)和femail里面的个人邮箱也没有什么问题
+	 -->
+	<select id="selectHighLeverPersonByPositionId" resultType="map" parameterType="string">
+		select p.fid as personId,p.fname_l2 pname,p.femail email,p.fbackupemail fbackupemail,
+	     A.FID as deptId,
+         A.Fname_L2 as deptname,
+         A.Fnumber as deptcode,
+		 Po.Fid as positionId,
+		 Po.Fname_L2 as positionname,
+		 m.cfmail as cfmail
+		 from t_bd_person P 
+		 left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+		 inner join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+		 join T_ORG_Position Po  on Po.fid = Pm.FPositionID
+		 left  join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+		 where Po.Fid =(select Ph.Fparentid  from  T_ORG_PositionHierarchy Ph where Ph.FChildID = #{positionId,jdbcType=VARCHAR})
+	</select>
+	<!-- 查询部门负责人的sql -->
+	<select id="selectResponsePersonInfo" resultType="map" parameterType="string">
+       	  select p.fid as personId,p.fname_l2 pname,p.femail email,p.fbackupemail fbackupemail,
+	       A.FID as deptId,
+	       A.Fname_L2 as deptname,
+	       A.Fnumber as deptcode,
+	       Po.Fid as positionId,
+	       Po.Fname_L2 as positionname,
+	       m.cfmail as cfmail 
+	       from t_org_admin A 
+	       left join T_ORG_Position Po  on Po.fid = A.FResponPositionID 
+	       left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid
+	       left join t_bd_person p on p.fid = Pm.Fpersonid
+	       left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+           where A.fnumber =(select vn.fnumber from t_org_admin t1 
+		   inner join t_org_position po on Po.Fadminorgunitid = t1.Fid 
+           inner join V_ORG_SPLIT_NEW  vn on vn.rootnum = t1.fnumber and vn.FTERRITORY='D' 
+           where po.fid = #{positionId,jdbcType=VARCHAR}) and (m.Cfmail is not null or m.femail is not null )    
+	</select>
+	<!-- 根据编码查直接上级、隔级上级信息 -->
+	 <select id="getPersonByFnumber" resultType="map" parameterType="string">  
+  select P.Fnumber as personNumber, p.fname_l2 as name, po.fname_l2 
+     as position,  Po.fid  as positionID , pcm.femail  as femail,Pcm.Cfmail as cfemail , Po.Fadminorgunitid as orgID ,
+       a.fnumber as fnumber ,a.fname_l2 orgname 
+      from t_bd_person p   
+      inner join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+       inner join T_ORG_Position Po  on Po.fid = Pm.FPositionID   
+       left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid 
+       left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid 
+    where P.FDeletedStatus = 1 and P.Fnumber = #{fnumber,jdbcType=VARCHAR} and Pm.Fisprimary=1    
+    and ( Pcm.Cfmail is not null  or pcm.femail is not null ) 
+   </select>
+   
+   <!-- 查询部门负责人 -->
+   <select id="getOrgByFnumber" resultType="map" parameterType="string">  
+    select p.fid as personId,p.fname_l2 as name,p.femail as femail,p.fbackupemail as fbackupemail,
+         A.FID as deptId,P.Fnumber as fnumber, 
+         A.Fname_L2 as deptname,
+         A.Fnumber as deptcode,
+         Po.Fid as positionId,
+         Po.Fname_L2 as positionname,
+         m.cfmail as cfemail,
+	a.flongnumber as longnumber 
+         from t_org_admin A 
+         left join T_ORG_Position Po  on Po.fid = A.FResponPositionID  
+         left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid 
+         inner join t_bd_person p on p.fid = Pm.Fpersonid 
+         left join T_HR_PersonContactMethod m on m.fpersonid = p.fid 
+           where A.FTERRITORY_l2='D'
+           and (m.cfmail is not null or m.femail is not null) 
+           and A.fnumber = #{fnumber,jdbcType=VARCHAR} and rownum = 1 
+   </select>
+   <!-- 查询合同要到期的人员的信息 -->
+	<select id="selectRenewalList" resultType="map">
+	  select P.Fnumber as personNumber, p.fname_l2 as pname, pol.fname_l2 as politics,ygszd.fname_l2 as nplace, po.fname_l2 
+     as position,poty.fname_l2 as potype,emty.fname_l2 as pstatus,p.fgender as gender,floor(MONTHS_BETWEEN(sysdate,p.fbirthday)/12)  as age 
+     ,dip.fname_l2 as degreed,edu.fgraduateschool as school,edu.fspecialty as specialty,ct.fname_l2 as posiqual,
+      a.flongnumber as longnumber,a.fdisplayname_l2 as disname,a.fnumber as orgid,a.fname_l2 as orgname,pp.fenterdate as enterdate,tc.FEndDate as endDate
+      from t_bd_person p 
+      join T_HR_ContractSignBizBillEntry tc on p.fid=tc.fpersonid
+      left join CT_HR_Ygszd ygszd on ygszd.fid = P.CFYGSZDID
+     left join T_BD_HRPolitical pol on p.FPoliticalFaceID=pol.fid 
+      left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+       left join T_ORG_Position Po  on Po.fid = Pm.FPositionID  
+     left join T_HR_PersonDegree edu on edu.FPersonId=p.fid 
+      left join T_BD_HRDiploma dip on edu.FDiploma=dip.fid 
+      left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid 
+      left join T_BD_PositionType poty on po.fpositiontypeid= poty.fid
+      left join T_HR_BDEmployeeType emty on p.femployeetypeid=emty.fid 
+      left join T_HR_PersonPosition PP on PP.Fpersonid = P.Fid 
+      left join CT_HR_RZZG ct on p.cfrzzgid=ct.fid 
+     where to_char(tc.fenddate,'yyyy-MM') = to_char(add_months(sysdate,2),'yyyy-MM') and p.FDeletedStatus = 1 and emty.Finservice=1 
+     <!--2014-7-13 lining 取消原来信管部门独立设置的合同预警发送，去除获取合同预警信息时对信管部门的过滤
+     and a.flongnumber not like '%05XGXSF%' and a.fnumber not like '%.%'-->
+     and Pm.Fisprimary=1 and edu.fishighest=1 order by a.flongnumber desc 
+	</select>
+	<!-- 查询一级部门 -->
+	<select id="selectDeptList" resultType="map">
+	    select P.Fnumber as personNumber, p.fname_l2 as name,ygszd.fname_l2 as nplace,po.fname_l2 
+     as position,emty.fname_l2 as pstatus,ct.fname_l2 as posiqual, Po.fid  as positionID,
+      a.flongnumber as longnumber,a.fdisplayname_l2 as disname,a.fnumber as orgid,a.fname_l2 
+       as orgname,pp.fenterdate as enterdate,tc.FEndDate as endDate
+      from t_bd_person p
+      join T_HR_ContractSignBizBillEntry tc on p.fid=tc.fpersonid
+      left join CT_HR_Ygszd ygszd on ygszd.fid = P.CFYGSZDID 
+      left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+       left join T_ORG_Position Po  on Po.fid = Pm.FPositionID   
+      left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid  
+      left join T_HR_BDEmployeeType emty on p.femployeetypeid=emty.fid 
+      left join T_HR_PersonPosition PP on PP.Fpersonid = P.Fid 
+      left join CT_HR_RZZG ct on p.cfrzzgid=ct.fid 
+      left join CT_HR_Positionclass ctpo on po.cfzwdjid = ctpo.fid 
+     where to_char(tc.fenddate,'yyyy-MM') = to_char(add_months(sysdate,2),'yyyy-MM') and p.FDeletedStatus = 1 and emty.Finservice=1 
+      and p.femployeetypeid != 'rlgAAAAAExyinoWz' 
+	<!-- 2014-8-25 lining 取消信管HR预警需求特例，将其纳入统一的hr预警中，省去过滤组织测试数据条件（正式环境已经删除）     and a.flongnumber not like '%05XGXSF%' and a.fnumber not like '%.%'-->
+     and Pm.Fisprimary=1 and 
+<!--     (instr(a.flongnumber,'07RXGLF') > 0 or instr(a.flongnumber,'07JSGLF') > 0)-->
+
+		<choose>
+				<when test="list.size()>0">
+				( 
+					<foreach collection="list" index="index" item="tag" open="" separator="or" close="">
+				      a.flongnumber like '%'||#{tag}||'%' 
+				    </foreach>
+				 ) 
+				</when>
+			<otherwise>
+				1=1 
+			</otherwise>
+		</choose>
+		
+       order by a.flongnumber desc 
+	</select>
+	
+	<select id="selectRenewalListById" resultType="map" parameterType="string" >
+		   select P.Fnumber as personNumber, p.fname_l2 as pname, pol.fname_l2 as politics,p.fnativeplace_l2 as nplace, po.fname_l2 
+		 as position,poty.fname_l2 as potype,emty.fname_l2 as pstatus,p.fgender as gender,floor(MONTHS_BETWEEN(sysdate,p.fbirthday)/12)  as age 
+		 ,dip.fname_l2 as degreed,edu.fgraduateschool as school,edu.fspecialty as specialty,pqf.fname_l2 as posiqual,
+		  a.flongnumber as longnumber,a.fdisplayname_l2 as disname,a.fnumber as orgid,a.fname_l2 as orgname 
+		  from t_bd_person p 
+      join T_HR_ContractSignBizBillEntry tc on p.fid=tc.fpersonid 
+     left join T_BD_HRPolitical pol on p.FPoliticalFaceID=pol.fid 
+		  left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+       left join T_ORG_Position Po  on Po.fid = Pm.FPositionID  
+		 left join T_HR_PersonDegree edu on edu.FPersonId=p.fid 
+      left join T_BD_HRDiploma dip on edu.FDiploma=dip.fid 
+		  left join T_HR_PosiPosiQual ppq on ppq.fpositionid = po.fid 
+      left join T_HR_PosiQualification pqf on ppq.fposiqualid = pqf.fid 
+      left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid 
+      left join T_BD_PositionType poty on po.fpositiontypeid= poty.fid
+       left join T_HR_BDEmployeeType emty on p.femployeetypeid=emty.fid 
+        left join T_HR_PersonPosition PP on PP.Fpersonid = P.Fid 
+     where to_char(tc.fenddate,'yyyy-MM') = to_char(add_months(sysdate,2),'yyyy-MM') and p.FDeletedStatus = 1 and emty.Finservice=1 
+     and Pm.Fisprimary=1 and edu.fishighest=1  and  a.flongnumber like   '%'||#{name}||'%'
+	</select>
+	
+	<select id="test" resultType="map">
+	 		select * from t_org_admin
+	</select>
+</mapper>

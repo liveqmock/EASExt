@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.StatisMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.compliance.bean.Statis" >
+    <result column="fcityname" property="fcityname" jdbcType="VARCHAR" />
+    <result column="fdeptname" property="fdeptname" jdbcType="VARCHAR" />
+    <result column="qizha" property="qizha" jdbcType="INTEGER" />
+    <result column="weichengxin" property="weichengxin" jdbcType="INTEGER" />
+    <result column="huilu" property="huilu" jdbcType="INTEGER" />
+    <result column="baomi" property="baomi" jdbcType="INTEGER" />
+    <result column="fuwu" property="fuwu" jdbcType="INTEGER" />
+    <result column="other" property="other" jdbcType="INTEGER" />
+    <result column="countnum" property="countnum" jdbcType="INTEGER" />
+    <result column="manytypecount" property="manytypecount" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="preview_condition" >
+		<if test="fcityname != null and fcityname != '' "> AND fcityname like '%${fcityname}%'</if>
+		<if test="fdeptname != null and fdeptname != '' "> AND fdeptname like '%${fdeptname}%'</if>
+		
+  </sql>
+  
+  <select id="getTotalCountsByParams" resultType="int"  parameterType="map">
+		SELECT COUNT(*) FROM (
+			SELECT ROWNUM AS ROWNO from 
+			(select d.fcityname,d.fdeptname,sum(r.qizhaCount) qizha,
+       			 sum(r.weichengxinCount) weichengxin,
+       			 sum(r.huiluCount) huilu,
+       			 sum(r.baomiCount) baomi,
+       			 sum(r.fuwuCount) fuwu,
+       			 sum(r.otherCount) other,
+      			 count(DISTINCT a.id) countnum
+      			 <if test="manytypecount!=null and manytypecount !='' ">
+      			 ,sum(case when ${manytypecount} then 1 else 0 end) manytypecount</if>
+
+        	from T_COM_DEPTINFO d,t_Com_Investigation i,
+			 (SELECT max(id) as id,investigationid from t_com_applysettlement where OUTOFLINEID=1 GROUP BY investigationid) a,
+				(select 
+					applysettlementid,
+					count(case when inicasetypeid=1 then 1 else null end) qizhaCount,
+					count(case when inicasetypeid=2 then 1 else null end) weichengxinCount,
+					count(case when inicasetypeid=3 then 1 else null end) huiluCount,
+					count(case when inicasetypeid=4 then 1 else null end) baomiCount,
+					count(case when inicasetypeid=5 then 1 else null end) fuwuCount,
+					count(case when inicasetypeid=6 then 1 else null end) otherCount
+				from t_com_rel_inicasetype GROUP BY applysettlementid) r
+	   where d.fcomplainid=i.caseid and i.id=a.investigationid and a.id=r.applysettlementid
+        and i.statusid='17' group by d.fcityname,d.fdeptname)
+			
+ 		<where> 1=1 <include refid="preview_condition" /> </where>)  
+	</select>
+	
+	
+	<select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		SELECT * FROM ( 
+			SELECT ROWNUM AS ROWNO,fcityname,fdeptname,qizha,weichengxin,huilu,baomi,fuwu,other,countnum
+			<if test="manytypecount!=null and manytypecount !='' ">,manytypecount</if>
+		from  (select d.fcityname,d.fdeptname,sum(r.qizhaCount) qizha,
+       			 sum(r.weichengxinCount) weichengxin,
+       			 sum(r.huiluCount) huilu,
+       			 sum(r.baomiCount) baomi,
+       			 sum(r.fuwuCount) fuwu,
+       			 sum(r.otherCount) other,
+      			 count(DISTINCT a.id) countnum
+      			 <if test="manytypecount!=null and manytypecount !='' ">
+      			 ,sum(case when ${manytypecount} then 1 else 0 end) manytypecount</if>
+
+        	from T_COM_DEPTINFO d,t_Com_Investigation i,
+			 (SELECT max(id) as id,investigationid from t_com_applysettlement where OUTOFLINEID=1 GROUP BY investigationid) a,
+				(select 
+					applysettlementid,
+					count(case when inicasetypeid=1 then 1 else null end) qizhaCount,
+					count(case when inicasetypeid=2 then 1 else null end) weichengxinCount,
+					count(case when inicasetypeid=3 then 1 else null end) huiluCount,
+					count(case when inicasetypeid=4 then 1 else null end) baomiCount,
+					count(case when inicasetypeid=5 then 1 else null end) fuwuCount,
+					count(case when inicasetypeid=6 then 1 else null end) otherCount
+				from t_com_rel_inicasetype GROUP BY applysettlementid) r
+	   where d.fcomplainid=i.caseid and i.id=a.investigationid and a.id=r.applysettlementid
+        and i.statusid='17' group by d.fcityname,d.fdeptname)
+			
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+				<include refid="preview_condition" />
+			</where> ) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+ 
+</mapper>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>   
+
+<!-- 
+Quartz中时间表达式的设置  时间格式:  s m h d m w(?) y(?) ,   分别对应: 秒>分>小时>日>月>周>年,  
+
+ -->
+
+        <!-- 要调用的工作类 -->
+        <bean id="quartzJob" class="com.creditease.eas.quartz.CommonQuartzJob"></bean>
+        <bean id="emailJob" class="com.creditease.eas.quartz.SetEmailQuartzJob"></bean>
+<!--        <bean id="emailJob" class="com.creditease.eas.warn.action.ConfigInfoAction"></bean>-->
+        <!-- 定义调用对象和调用对象的方法 -->
+        <bean id="jobtask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="quartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>sendYearOfWorkMailTest</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+         <bean id="jobtask2" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="quartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>sendCell</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+        
+         <bean id="jobtask3" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="quartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>sendContractMail</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+        
+         <bean id="jobtask4" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="quartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>sendRegularMailTest</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+        
+        <bean id="jobtask5" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="quartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>sendBirthdayImage</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+   
+
+         <!-- 创建企业邮箱 -->
+         <bean id="jobtask7" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="emailJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>setEmail</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+        
+         <!-- 关联空联系人 -->
+         <bean id="jobtask8" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="emailJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>setEmpty</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+        
+         <!-- 去掉用户名的空格、清空错误邮箱测试 -->
+         <bean id="jobtask9" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="emailJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>trimName</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+        
+        <!--向生日人员的上级和所属部门负责人发送预警邮件 -->
+         <bean id="jobtask10" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="quartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>sendBirthdayWarn</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+        
+        
+        
+        
+        
+        <!-- 定义触发时间  司龄-->
+        <bean id="doTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtask"/>
+            </property>
+<!--             cron表达式 -->
+<!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 30 10 * * ?</value>
+            </property>
+        </bean>
+        
+        <bean id="doTime2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtask2"/>
+            </property>
+            <!-- cron表达式  生日  短信 -->
+            <!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 0 10 * * ?</value>
+            </property>
+        </bean>
+        
+         <bean id="doTime3" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtask3"/>
+            </property>
+            <!-- cron表达式 合同-->
+            <!-- 0 15 10 15 * ? 表示每月15号10点15分运行 0 0 11 15 * ? -->
+            <property name="cronExpression">
+                <value>0 0 11 15 * ?</value>
+            </property>
+        </bean>
+        
+         <bean id="doTime4" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtask4"/>
+            </property>
+            <!-- cron表达式 转正-->
+            <!-- 0 0 10 ? 1 THU 周四发  0 25 10 25 * ?  -->
+            <property name="cronExpression">
+                <value>0 0 9 15 * ?</value>
+            </property>
+        </bean>
+            
+        <bean id="doTime5" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtask5"/>
+            </property>
+            <!-- cron表达式  生日 邮件-->
+            <!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 0 10 * * ?</value>
+            </property>
+        </bean>
+        
+       <!-- cron表达式  创建企业邮箱 -->
+        <bean id="doTime7" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtask7"/>
+            </property>
+            <property name="cronExpression">
+                <value>0 0 4 * * ?</value>
+            </property>
+        </bean>
+        
+         <!-- cron表达式  关联空联系人 -->
+         <bean id="doTime8" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtask8"/>
+            </property>
+            <property name="cronExpression">
+                <value>0 1 19 * * ?</value>
+            </property>
+        </bean>
+         
+         <!-- cron表达式  去掉用户名的空格、清空错误邮箱 -->
+         <bean id="doTime9" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtask9"/>
+            </property>
+            <property name="cronExpression">
+                <value>0 30 2 * * ?</value>
+            </property>
+        </bean>
+        
+         <!--向生日人员的上级和所属部门负责人发送预警邮件 -->
+         <bean id="doTime10" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtask10"/>
+            </property>
+            <property name="cronExpression">
+                <value>0 10 10 * * ?</value>
+            </property>
+        </bean>
+        
+        <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+        <bean id="startQuertz" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+            <property name="triggers">
+                <list>
+                    <ref bean="doTime"/>
+                    <ref bean="doTime2"/>
+                    <ref bean="doTime3"/>
+                    <ref bean="doTime4"/>
+                    <ref bean="doTime5"/>
+                    <ref bean="doTime7"/>
+                    <ref bean="doTime8"/>
+                    <ref bean="doTime9"/>
+                    <ref bean="doTime10"/>
+                </list>
+            </property>
+        </bean>
+    
+</beans>

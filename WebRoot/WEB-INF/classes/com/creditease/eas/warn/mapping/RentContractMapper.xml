@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.warn.dao.RentContractMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.warn.bean.RentContract" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="rentnumber" property="rentnumber" jdbcType="VARCHAR" />
+    <result column="orgnumber" property="orgnumber" jdbcType="VARCHAR" />
+    <result column="orgname" property="orgname" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="officeadd" property="officeadd" jdbcType="VARCHAR" />
+    <result column="lastcostcenter" property="lastcostcenter" jdbcType="VARCHAR" />
+    <result column="signatory" property="signatory" jdbcType="VARCHAR" />
+     <result column="paymoney" property="paymoney" jdbcType="VARCHAR" />
+     <result column="monthmoney" property="monthmoney" jdbcType="VARCHAR" />
+    <result column="paymentcycle" property="paymentcycle" jdbcType="VARCHAR" />
+    <result column="paytype" property="paytype" jdbcType="VARCHAR" />
+    <result column="paycount" property="paycount" jdbcType="INTEGER" />
+    <result column="rentstarttime" property="rentstarttime" jdbcType="VARCHAR" />
+    <result column="rentendtime" property="rentendtime" jdbcType="VARCHAR" />
+     <result column="rentyear" property="rentyear" jdbcType="VARCHAR" />
+    <result column="payfirsttime" property="payfirsttime" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="creatortime" property="creatortime" jdbcType="TIMESTAMP" />
+    <result column="lastupdater" property="lastupdater" jdbcType="VARCHAR" />
+    <result column="lastupdatetime" property="lastupdatetime" jdbcType="TIMESTAMP" />
+    <result column="ext1" property="ext1" jdbcType="VARCHAR" />
+    <result column="ext2" property="ext2" jdbcType="VARCHAR" />
+    <result column="ext3" property="ext3" jdbcType="VARCHAR" />
+    <result column="ext4" property="ext4" jdbcType="VARCHAR" />
+    <result column="ext5" property="ext5" jdbcType="VARCHAR" />
+    <result column="ext6" property="ext6" jdbcType="VARCHAR" />
+    <result column="ext7" property="ext7" jdbcType="VARCHAR" />
+    <result column="ext8" property="ext8" jdbcType="VARCHAR" />
+    <result column="ext9" property="ext9" jdbcType="VARCHAR" />
+    <result column="ext10" property="ext10" jdbcType="VARCHAR" />
+    
+    <result column="CONTRACTNUM" property="contractNum" jdbcType="VARCHAR" />
+    <result column="COSTCENTERNUM" property="costcenterNum" jdbcType="VARCHAR" />
+    <result column="PAYORGNAME" property="payorgName" jdbcType="VARCHAR" />
+    <result column="TOACCOUNT" property="toAccount" jdbcType="VARCHAR" />
+    <result column="AREASQM" property="areaSqm" jdbcType="VARCHAR" />
+    <result column="HOUSINGDEPOSIT" property="housingDeposit" jdbcType="VARCHAR" />
+    <result column="PROPERTYDEPOSIT" property="propertyDeposit" jdbcType="VARCHAR" />
+    <result column="RENTFREEPERIOD" property="rentFreePeriod" jdbcType="VARCHAR" />
+    <result column="ANNUALRENT" property="annualRent" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="VARCHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    ID, RENTNUMBER, ORGNUMBER, ORGNAME, CITY, OFFICEADD, LASTCOSTCENTER, SIGNATORY,PAYMONEY,MONTHMONEY, PAYMENTCYCLE, 
+    PAYTYPE, PAYCOUNT, RENTSTARTTIME, RENTENDTIME,RENTYEAR, PAYFIRSTTIME, CREATOR, CREATORTIME, 
+    LASTUPDATER, LASTUPDATETIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10, CONTRACTNUM, COSTCENTERNUM,
+    PAYORGNAME, TOACCOUNT, AREASQM, HOUSINGDEPOSIT, PROPERTYDEPOSIT, RENTFREEPERIOD, ANNUALRENT, STATUS, REMARK
+  </sql>
+  
+  <sql id="preview_condition" >
+    <if test="typeid!=null and typeid!=''">
+<!--				typeid==2普惠职能端部门总接口人//typeid==6财富端部门总接口人-->
+<!--				typeid==4普惠职能端总接口人负责人(谢允儿)//typeid==8财富端总接口人负责人(于静)-->
+<!--				typeid==5普惠职能端行政部门负责人（曹莹）//typeid==9财富端行政部门负责人（徐广宁）-->
+<!--				typeid==10财务人员（同曹莹，徐文宁）-->
+<!--						<when test="typeid in(2,6,4,8,5,9)">-->
+		<choose>
+			<when test="typeid==2 or typeid==6 or typeid==4 or typeid==8 or typeid==5 or typeid==9 or typeid==10">
+				and orgname in
+				(select p.orgname from t_portinfo p left join t_user u on u.username = p.portmail where 1=1
+				<if test="typeid==2 or typeid==6">
+					and u.email = #{email,jdbcType=VARCHAR} and p.isport = 0 and u.typeid =#{typeid,jdbcType=DECIMAL}
+				</if>
+				<if test="typeid==4"> and p.ext1=1</if>
+				<if test="typeid==8"> and p.ext1=2</if>
+				)
+			</when>
+<!--				typeid==3普惠职能端普通部门接口人//typeid==7财富端普通部门接口人-->
+<!--						<when test="typeid in(3,7)">-->
+			<when test="typeid ==3 or typeid==7">
+				and (orgname ,lastcostcenter ) in 
+				( select p.orgname ,p.lastcostcenter from t_portinfo p left join t_user u on u.username = p.portmail 
+				where u.email = #{email,jdbcType=VARCHAR} and p.isport = 1 and u.typeid =#{typeid,jdbcType=DECIMAL}
+				<if test="typeid==3"> and and p.ext1=1</if>
+				<if test="typeid==7"> and and p.ext1=2</if>
+				)
+			</when>
+		</choose>					
+	</if>
+	<if test="orgname != null and orgname != '' "> AND ORGNAME like '%${orgname}%'</if>
+	<if test="startDate != null and startDate != '' "> AND RENTSTARTTIME &gt;= '${startDate}'</if>
+	<if test="paymentcycle != null and paymentcycle != '' "> AND PAYMENTCYCLE = '${paymentcycle}'</if>
+	<if test="lastcostcenter != null and lastcostcenter != '' "> AND LASTCOSTCENTER like '%${lastcostcenter}%'</if>
+	<if test="endDate != null and endDate != '' "> AND RENTENDTIME &lt;= '${endDate}'</if>
+  </sql>
+  
+  <select id="getTotalCounts" resultType="int"  parameterType="map">
+	 select count(id) from (Select ROWNUM as ROWNO,
+	 	<include refid="Base_Column_List" /> from t_rentcontract 
+	 			<where> 
+				1=1
+				<include refid="preview_condition"/>
+			</where>
+			)  
+	</select>
+	
+	<select id="selectRentByOfficeadd" resultType="int" parameterType="string">
+  		select count(id) from t_rentcontract where officeadd = #{officeadd,jdbcType=VARCHAR} 
+  	</select>
+  
+   <select id="selectPortByOrgname" resultType="int">
+  		select count(id) from t_rentcontract where orgname is null 
+  </select>
+  
+	<select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		Select * FROM(Select ROWNUM as ROWNO, 
+	 	<include refid="Base_Column_List" /> from t_rentcontract   
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+				<include refid="preview_condition"/>
+			</where>
+			) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_rentcontract
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_rentcontract
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.creditease.eas.warn.bean.RentContract" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   		select RENT_TB_SEQ.NEXTVAL from dual 
+	</selectKey>
+    INSERT INTO T_RENTCONTRACT (ID, RENTNUMBER, ORGNUMBER, 
+      ORGNAME, CITY, OFFICEADD, 
+      LASTCOSTCENTER, SIGNATORY,PAYMONEY,MONTHMONEY, PAYMENTCYCLE, 
+      PAYTYPE, PAYCOUNT, RENTSTARTTIME, 
+      RENTENDTIME,RENTYEAR, PAYFIRSTTIME, CREATOR, 
+      CREATORTIME, EXT1, EXT2, EXT3, EXT4, 
+      EXT5, EXT6, EXT7, EXT8, 
+      EXT9, EXT10, CONTRACTNUM, COSTCENTERNUM,
+    PAYORGNAME, TOACCOUNT, AREASQM, HOUSINGDEPOSIT, PROPERTYDEPOSIT, RENTFREEPERIOD, ANNUALRENT, STATUS, REMARK)
+    values (#{id,jdbcType=INTEGER}, #{rentnumber,jdbcType=VARCHAR}, #{orgnumber,jdbcType=VARCHAR}, 
+      #{orgname,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{officeadd,jdbcType=VARCHAR}, 
+      #{lastcostcenter,jdbcType=VARCHAR}, #{signatory,jdbcType=VARCHAR},
+      #{paymoney,jdbcType=VARCHAR},#{monthmoney,jdbcType=VARCHAR}, #{paymentcycle,jdbcType=VARCHAR}, 
+      #{paytype,jdbcType=VARCHAR}, #{paycount,jdbcType=INTEGER}, #{rentstarttime,jdbcType=VARCHAR}, 
+      #{rentendtime,jdbcType=VARCHAR},#{rentyear,jdbcType=VARCHAR}, #{payfirsttime,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      sysdate,#{ext1,jdbcType=VARCHAR}, #{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR}, #{ext4,jdbcType=VARCHAR}, 
+      #{ext5,jdbcType=VARCHAR}, #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, #{ext8,jdbcType=VARCHAR}, 
+      #{ext9,jdbcType=VARCHAR}, #{ext10,jdbcType=VARCHAR},#{contractNum,jdbcType=VARCHAR},
+      #{costcenterNum,jdbcType=VARCHAR},#{payorgName,jdbcType=VARCHAR},#{toAccount,jdbcType=VARCHAR},#{areaSqm,jdbcType=VARCHAR},#{housingDeposit,jdbcType=VARCHAR},
+      #{propertyDeposit,jdbcType=VARCHAR},#{rentFreePeriod,jdbcType=VARCHAR},#{annualRent,jdbcType=VARCHAR},#{status,jdbcType=VARCHAR},#{remark,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="com.creditease.eas.warn.bean.RentContract" >
+    UPDATE T_RENTCONTRACT
+    	SET RENTNUMBER = #{rentnumber,jdbcType=VARCHAR},
+      ORGNUMBER = #{orgnumber,jdbcType=VARCHAR},
+      ORGNAME = #{orgname,jdbcType=VARCHAR},
+      CITY = #{city,jdbcType=VARCHAR},
+      OFFICEADD = #{officeadd,jdbcType=VARCHAR},
+      LASTCOSTCENTER = #{lastcostcenter,jdbcType=VARCHAR},
+      SIGNATORY = #{signatory,jdbcType=VARCHAR},
+      PAYMONEY = #{paymoney,jdbcType=VARCHAR},
+      MONTHMONEY = #{monthmoney,jdbcType=VARCHAR},
+      <if test="paymentcycle!=null and paymentcycle!='' ">
+     	PAYMENTCYCLE = #{paymentcycle,jdbcType=VARCHAR},
+      </if>
+      PAYTYPE = #{paytype,jdbcType=VARCHAR},
+      PAYCOUNT = #{paycount,jdbcType=INTEGER},
+      RENTYEAR = #{rentyear,jdbcType=VARCHAR},
+      <if test="rentstarttime!=null and rentstarttime!='' ">
+	      RENTSTARTTIME = #{rentstarttime,jdbcType=VARCHAR},
+      </if>
+      <if test="rentendtime!=null and rentendtime!='' ">
+      	RENTENDTIME = #{rentendtime,jdbcType=VARCHAR},
+      </if>
+      <if test="payfirsttime!=null and payfirsttime!='' ">
+      	PAYFIRSTTIME = #{payfirsttime,jdbcType=VARCHAR},
+      </if>
+      LASTUPDATER = #{lastupdater,jdbcType=VARCHAR},
+      LASTUPDATETIME = sysdate,
+      EXT2 = #{ext2,jdbcType=VARCHAR},
+      EXT3 = #{ext3,jdbcType=VARCHAR},
+      EXT4 = #{ext4,jdbcType=VARCHAR},
+      EXT5 = #{ext5,jdbcType=VARCHAR},
+      EXT6 = #{ext6,jdbcType=VARCHAR},
+      EXT7 = #{ext7,jdbcType=VARCHAR},
+      EXT8 = #{ext8,jdbcType=VARCHAR},
+      EXT9 = #{ext9,jdbcType=VARCHAR},
+      EXT10 = #{ext10,jdbcType=VARCHAR},
+      CONTRACTNUM = #{contractNum,jdbcType=VARCHAR},
+      COSTCENTERNUM = #{costcenterNum,jdbcType=VARCHAR},
+      PAYORGNAME = #{payorgName,jdbcType=VARCHAR},
+      TOACCOUNT = #{toAccount,jdbcType=VARCHAR},
+      AREASQM = #{areaSqm,jdbcType=VARCHAR},
+      HOUSINGDEPOSIT = #{housingDeposit,jdbcType=VARCHAR},
+      PROPERTYDEPOSIT = #{propertyDeposit,jdbcType=VARCHAR},
+      RENTFREEPERIOD = #{rentFreePeriod,jdbcType=VARCHAR},
+      ANNUALRENT = #{annualRent,jdbcType=VARCHAR},
+      STATUS = #{status,jdbcType=VARCHAR},
+      REMARK = #{remark,jdbcType=VARCHAR}
+    WHERE ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

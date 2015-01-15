@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="EASExt"  basedir=".">
+	
+	<!-- Initialization -->
+	<property environment="env" />
+	<property name="src.dir" location="${basedir}/src" />
+	<property name="conf.dir" location="${basedir}/cfg" />
+	<property name="webdir.name" value="WebRoot" />
+	<property name="web.dir" location="${basedir}/${webdir.name}" />
+	<property name="compilelib.dir" location="${basedir}/${webdir.name}/WEB-INF/lib" />
+	<property name="tomcatlib.dir" location="${env.TOMCAT_HOME}/lib" />
+
+	<property name="build.dir" location="../build" />
+ 	 <property name="build.dest" location="${build.dir}/classes"/>
+
+	<!-- deploy environment configuration -->
+	<property file="../env_EASExt/${ci.properties}" />
+
+
+	<!-- =================================================================== -->
+	<!-- setup classpath                                                     -->
+	<!-- =================================================================== -->
+	<path id="classpath.common">
+		<fileset dir="${compilelib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${tomcatlib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+	</target>
+
+	<target name="prepare">	
+		<mkdir dir="${build.dir}"/>
+		<copy todir="${build.dir}" preservelastmodified="true">
+			<fileset dir="${web.dir}"/>
+		</copy>
+		<mkdir dir="${build.dest}"/>
+		<copy todir="${build.dest}" preservelastmodified="true">
+			<fileset dir="${conf.dir}"/>
+		</copy>
+		<mkdir dir="${build.dest}"/>
+		
+     	</target>
+
+	
+	<!-- =================================================================== -->
+	<!-- Compiles the source directory                                       -->
+	<!-- =================================================================== -->
+	<target name="compile" >
+		<javac srcdir="${src.dir}" 
+			destdir="${build.dest}" 
+			deprecation="off" 
+			debug="on" 
+			encoding="UTF-8"
+			fork="true"
+			memoryMaximumSize="1024m"
+			includeantruntime="on">
+			<classpath refid="classpath.common"/>
+		</javac>
+
+		<copy todir="${build.dest}">
+			<fileset dir="${conf.dir}"/>
+			<fileset dir="${src.dir}" excludes="**/*.java"/>
+		</copy>
+	
+	</target>
+	<!-- =================================================================== -->
+	<!-- configure properties for online environment                         -->
+	<!-- =================================================================== -->
+
+	<target name="configure" >	
+		<!--applicationContext_quartz_port.xml-->
+		<move file="${build.dest}/bapplicationContext_quartz_port.xml" tofile="${build.dest}/applicationContext_quartz_port.xml" overwrite="true" force="true" />		
+		<!--applicationContext_quartz_ws.xml-->
+		<move file="${build.dest}/bapplicationContext_quartz_ws.xml" tofile="${build.dest}/applicationContext_quartz_ws.xml" overwrite="true" force="true" />		
+		<!--applicationContext_quartz.xml-->
+		<move file="${build.dest}/bapplicationContext_quartz.xml" tofile="${build.dest}/applicationContext_quartz.xml" overwrite="true" force="true" />		
+		<!--bapplicationContext_quartz_eas2rp.xml-->
+		<move file="${build.dest}/bapplicationContext_quartz_eas2rp.xml" tofile="${build.dest}/applicationContext_quartz_eas2rp.xml" overwrite="true" force="true" />		
+		<!--bapplicationContext_quartz_project.xml-->
+		<move file="${build.dest}/bapplicationContext_quartz_project.xml" tofile="${build.dest}/applicationContext_quartz_project.xml" overwrite="true" force="true" />
+				
+		
+		<!--eas02.properties-->
+		<replaceregexp file="${build.dest}/eas02.properties" match="jdbc.url( *)=(.*)" replace="jdbc.url=${jdbc.url}" byline="true"/>
+		<replaceregexp file="${build.dest}/eas02.properties" match="jdbc.username( *)=(.*)" replace="jdbc.username=${jdbc.username}" byline="true"/>
+		<replaceregexp file="${build.dest}/eas02.properties" match="jdbc.password( *)=(.*)" replace="jdbc.password=${jdbc.password}" byline="true"/>
+		<replaceregexp file="${build.dest}/eas02.properties" match="minPoolSize( *)=(.*)" replace="minPoolSize=${minPoolSize}" byline="true"/>
+		<replaceregexp file="${build.dest}/eas02.properties" match="initialPoolSize( *)=(.*)" replace="initialPoolSize=${initialPoolSize}" byline="true"/>
+		<replaceregexp file="${build.dest}/eas02.properties" match="maxIdleTime( *)=(.*)" replace="maxIdleTime=${maxIdleTime}" byline="true"/>
+		
+		<!--easext.properties-->
+		<replaceregexp file="${build.dest}/easext.properties" match="jdbc.url( *)=(.*)" replace="jdbc.url=${easext.jdbc.url}" byline="true"/>
+		<replaceregexp file="${build.dest}/easext.properties" match="jdbc.username( *)=(.*)" replace="jdbc.username=${easext.jdbc.username}" byline="true"/>
+		<replaceregexp file="${build.dest}/easext.properties" match="jdbc.password( *)=(.*)" replace="jdbc.password=${easext.jdbc.password}" byline="true"/>
+		<replaceregexp file="${build.dest}/easext.properties" match="minPoolSize( *)=(.*)" replace="minPoolSize=${easext.minPoolSize}" byline="true"/>
+		<replaceregexp file="${build.dest}/easext.properties" match="initialPoolSize( *)=(.*)" replace="initialPoolSize=${easext.initialPoolSize}" byline="true"/>
+		<replaceregexp file="${build.dest}/easext.properties" match="maxIdleTime( *)=(.*)" replace="maxIdleTime=${easext.maxIdleTime}" byline="true"/>
+		
+		<!--AddressConfig.java-->
+		<replaceregexp file="${src.dir}/com/creditease/eas/util/consts/AddressConfig.java" match="^[^//](.*)EMPWSDLLOCATION(.*)" replace="${EMPWSDLLOCATION}" byline="true"/>
+		<replaceregexp file="${src.dir}/com/creditease/eas/util/consts/AddressConfig.java" match="^[^//](.*)POSITIONWSDLLOCATION(.*)" replace="${POSITIONWSDLLOCATION}" byline="true"/>
+		<replaceregexp file="${src.dir}/com/creditease/eas/util/consts/AddressConfig.java" match="^[^//](.*)ORGWSDLLOCATION(.*)" replace="${ORGWSDLLOCATION}" byline="true"/>
+		
+		<!--ConfigConst.java-->
+		<replaceregexp file="${src.dir}/com/creditease/eas/util/consts/ConfigConst.java" match="^[^//](.*)CONFIGCONST(.*)" replace="${CONFIGCONST}" byline="true"/>
+										
+	</target>
+	
+	<target name="configure_uat" >		
+		<!--eas02.properties-->
+		<replaceregexp file="${build.dest}/eas02.properties" match="^jdbc.url( *)=(.*)" replace="jdbc.url=${jdbc.url}" byline="true"/>
+		<replaceregexp file="${build.dest}/eas02.properties" match="jdbc.username( *)=(.*)" replace="jdbc.username=${jdbc.username}" byline="true"/>
+		<replaceregexp file="${build.dest}/eas02.properties" match="jdbc.password( *)=(.*)" replace="jdbc.password=${jdbc.password}" byline="true"/>
+		
+		<!--easext.properties-->
+		<replaceregexp file="${build.dest}/easext.properties" match="^jdbc.url( *)=(.*)" replace="jdbc.url=${easext.jdbc.url}" byline="true"/>
+		<replaceregexp file="${build.dest}/easext.properties" match="jdbc.username( *)=(.*)" replace="jdbc.username=${easext.jdbc.username}" byline="true"/>
+		<replaceregexp file="${build.dest}/easext.properties" match="jdbc.password( *)=(.*)" replace="jdbc.password=${easext.jdbc.password}" byline="true"/>
+	
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Package application as a WAR file                                   -->
+	<!-- =================================================================== -->
+	<target name="war" >
+		<war destfile="${build.dir}/${ant.project.name}.war" webxml="${basedir}/${webdir.name}/WEB-INF/web.xml">
+			<fileset dir="${basedir}/${webdir.name}" />
+			<classes dir="${build.dest}" />
+		</war>				
+	</target>
+	
+	<target name="scp" >
+		<sshexec host="${remote.ip}" username="${remote.username}" port="${remote.port}" password="${remote.password}" command="${remote.tomcat}/bin/shutdown.sh" trust="yes"/>
+		<sshexec host="${remote.ip}" username="${remote.username}" port="${remote.port}" password="${remote.password}" command="sleep 20" trust="yes"/>
+		<sshexec host="${remote.ip}" username="${remote.username}" port="${remote.port}" password="${remote.password}" command="rm -rf ${remote.tomcat}/webapps/${ant.project.name}*" trust="yes"/>
+		<scp file="${build.dir}/${ant.project.name}.war" port="${remote.port}" todir="${remote.username}:${remote.password}@${remote.ip}:${remote.tomcat}/webapps" trust="yes"/>
+		<sshexec host="${remote.ip}" username="${remote.username}" port="${remote.port}" password="${remote.password}" command="${remote.tomcat}/bin/startup.sh" trust="yes"/>
+	</target>
+
+	<!-- =================================================================== -->
+  <!-- CI target                                                           -->
+  <!-- =================================================================== -->
+	<target name="package" depends="clean,prepare,compile,war"/>
+        
+	<target name="env_package" depends="clean,prepare,compile,war"/>
+
+  <target name="uat_scp_deploy" depends="clean,prepare,compile,configure_uat,war,scp"/>
+
+</project>
+

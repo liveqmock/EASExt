@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="statis" extends="json-default" namespace="/statis">
+		<!--违规统计情况 -->
+		<action name="statisAction" class="statisAction">
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+		
+    </package>    
+</struts>

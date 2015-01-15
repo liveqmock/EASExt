@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="role" extends="json-default" namespace="/admin">
+		<action name="roleaction" class="roleAction" >
+		
+		<result name="queryPageJson" type="json">
+				 <param name="root">pagination</param>
+				 <param name="excludeNullProperties">true</param>  
+		</result>
+		<result name="queryPageJsonBack">/admin/rolelist.jsp</result>
+		<result name="selerolemenuid">/admin/editrolemenu.jsp</result>
+		<result name="selerolefuncid">/admin/editrolefunc.jsp</result>
+		<result name="addRoleAction">/admin/addrole.jsp</result>
+		<result name="editrolename">/admin/editrolename.jsp</result>
+		
+		
+		
+		</action>
+    </package>    
+</struts>

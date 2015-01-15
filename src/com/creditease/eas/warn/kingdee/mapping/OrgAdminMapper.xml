@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.warn.kingdee.dao.OrgAdminMapper">
+
+  <resultMap id="BaseResultMap" type="com.creditease.eas.warn.bean.OrgAdmin" >
+  
+    <id column="FID" property="fid" jdbcType="DECIMAL" />
+    <result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+    <result column="FNAME" property="fname" jdbcType="VARCHAR" />
+  </resultMap> 
+<!-- 
+根据人员编码查询人员部门编码相关信息 
+1	75		个贷营销中心	吴跃东	yuedongwu@creditease.cn		06GDXSF	4		201211110311									
+ -->
+ <select id="selectPersonInfoByFnumber"  resultType="map" parameterType="string">
+  select P.Fnumber as personNumber, p.fname_l2 as name, po.fname_l2 
+     as position,  Po.fid  as positionID , pcm.femail  as femail,Pcm.Cfmail as cfemail , Po.Fadminorgunitid as orgID ,
+     a.fnumber as fnumber ,a.fname_l2 as orgname 
+      from t_bd_person p   
+      inner join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+       inner join T_ORG_Position Po  on Po.fid = Pm.FPositionID   
+       left join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid 
+       left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid 
+    where P.FDeletedStatus = 1 and P.Fnumber = #{fnumber} 
+ </select> 
+		 
+		 <select id="selectAllPerson"  resultType="map">
+		 	select fid,fname_l2 as fname,fparentid,fnumber,flevel from T_ORG_Admin  WHERE  FLevel &lt;= 3 and FIsOUSealUp = 0 and fisleaf =0    
+		 </select> 
+		 
+		  <select id="selectAllOrg"  resultType="map">
+		 	select fid,fname_l2 as fname,fparentid,fnumber as fnumber,flevel from T_ORG_Admin 
+		 	  WHERE  FTERRITORY_l2='D'    
+		 </select> 
+		 <!-- 
+		 	变更记录：2013/7/2 杨高权
+		 		1. 原来的:
+		 		select fid,fname_l2 as fname,fparentid,fnumber as fnumber,flevel from T_ORG_Admin 
+		 	  WHERE  FLevel = 3 and FIsOUSealUp = 0 and fisleaf =0  
+			union all 
+		    select fid,fname_l2 as fname,fparentid,fnumber as fnumber,flevel from T_ORG_Admin 
+			  WHERE  FIsOUSealUp = 0 and fisleaf =0 and fname_l2 like '%融资租赁%'   
+		  -->
+		 <select id="selectAllOrgManager"  resultType="map">
+		 	select fid,fname_l2 as fname,fparentid,fnumber as fnumber,flevel from T_ORG_Admin 
+		 	 WHERE FTERRITORY_l2='D'
+		 	 order by fnumber
+		 </select> 
+		<!-- 下面的方法，不知道是否有用，暂时先不修改 -->
+		 <select id="getTotalCounts" resultType="int">  
+            select count(FID) from 
+			(select fid,fname_l2 as fname,fparentid,fnumber as fnumber,flevel from T_ORG_Admin 
+		 	 WHERE FTERRITORY_l2='D'
+			  ) 
+ 		 </select>
+		 
+		   <select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+			Select * FROM(Select ROWNUM as ROWNO,FID, FNUMBER, FNAME from 
+			(select fid,fname_l2 as FNAME, fnumber from T_ORG_Admin 
+		 	  WHERE FTERRITORY_l2='D'
+			  ) 
+			<where> 
+			<![CDATA[ROWNUM <= #{endRow,jdbcType=INTEGER}]]> 
+			</where>
+			) 
+			<where>
+			<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+			</where>
+	</select>
+		 
+		 <select id="getOrgNameByFnumber" resultType="string" parameterType="string">
+		 	 select t.fname_l2 as fname from t_org_admin t where t.flevel &lt;= 3 and t.FIsOUSealUp = 0  and t.fisleaf =0 and t.fnumber = #{fnumber,jdbcType=VARCHAR} 
+		 </select>
+</mapper>

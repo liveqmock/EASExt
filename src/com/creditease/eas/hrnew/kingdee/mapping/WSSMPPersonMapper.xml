@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hrnew.kingdee.dao.WSSMPPersonMapper" >
+	<resultMap  id="FluctuationBeanResult" type="com.creditease.smp.manager.dto.EASTransferDTO">
+			<result column="userCode" property="userCode" jdbcType="VARCHAR" />
+		    <result column="oldPositionCode" property="oldPositionCode" jdbcType="VARCHAR" />
+		    <result column="newPositionCode" property="newPositionCode" jdbcType="VARCHAR" />
+		    <result column="oldOrganizeCode" property="oldOrganizeCode" jdbcType="VARCHAR" />
+		    <result column="newOrganizeCode" property="newOrganizeCode" jdbcType="VARCHAR" />
+		    <result column="transferDate" property="transferDate" />
+		    <result column="pushTime" property="pushTime"  />
+	</resultMap>
+	<!-- 查询内部异动历史 -->
+	<select id="selectFluctuation"  resultType="com.creditease.smp.manager.dto.EASTransferDTO" parameterType="map">
+			select t3.fnumber userCode,t4.Fnumber oldPositionCode, t5.Fnumber newPositionCode,t6.Fnumber oldOrganizeCode,
+			t7.Fnumber  newOrganizeCode,t1.FBizDate transferDate ,sysdate as pushTime 
+			 from T_HR_FluctuationBizBillEntry t1 
+   	   left join T_HR_FluctuationBizBill  t2 on t1.FBillID = t2.Fid 
+ 	   left join T_BD_Person t3 on t3.fid = t1.FPersonID
+  	   left join T_ORG_Position t4 on t4.fid = t1.FOldPositionID
+   	   left join T_ORG_Position t5 on t5.fid = t1.FPositionID
+       left join T_ORG_ADMIN t6 on t6.fid = t1.FOldAdminOrgID
+       left join T_ORG_ADMIN t7 on t7.fid = t1.FAdminOrgID 
+       where 1 =1 and t6.fnumber not like '%.%'
+       
+              <!--     and t3.fnumber  '201210290063' -->
+                   
+       <if test="beginTime != null and beginTime !=''">
+		and t1.FBizDate >= #{beginTime} 
+		</if>
+		 <if test="endTime != null and endTime !=''">
+		and t1.FBizDate &lt;= #{endTime} 
+		</if>
+		order by t3.fnumber
+	</select>
+	<!-- 查询人员信息属性 -->
+	<select id="selectPerson"  resultType="com.creditease.smp.manager.dto.EASEmployeeDTO">
+	select * from ( 
+			select p.FName_l2 as userName，substr(Pcm.Cfmail,0,instr(Pcm.Cfmail,'@',1)-1) as loginName,
+			Pcm.Cfmail as userEmail,p.FIndex as  USERORDERNO,p.FNativePlace_l2 as userNativePlace,
+			'' as USERPASSWORD,p.Fnumber as userCode,p.CFOLDNUMBER as userOldCode ,
+			(case when p.FGender =1 then 0 when p.FGender =2 then 1 end) as userSex,
+			(case when p.FGender = 1 then '男' when p.FGender = 2 then '女' end ) as  userSexDisplayName,
+			p.FBirthday as BIRTHDAY,p.FHomePhone as TELPHONE,P.FCell as CELLPHONE,pcm.FHomePhone as TELEPHONEHOME,
+			'' as certType,''as certNumber,pcm.FPostalcode as POSTCODE,Pcm.Faddress as ADDRESS,
+			'' as COMMENTS,'' as USERFAX,ct.fnumber as CITYNUMBER,ct.fname_l2 as cityNumberDisplayName,
+			Po.fname_l2 as hrPositionDisplayName, Po.fnumber as hrPositionCode,'' as DIRECTREPORTS,
+			CASE WHEN p.fcreatetime = p.flastupdatetime  THEN 0 else 1 END as OPERATESIGN,1 as operloginName,
+			 '' as workPlace,'' as workPlaceDisplayName,t2.fnumber as employeeType,
+			t2.fname_l2 as employeeTypeDisplayName,A.Fdisplayname_l2 as organizeDisplayName,
+			pp.FEnterDate as EnterDate,t4.Fdisplayname_l2 as rzzgDisplayName,
+			t5.fname_l2 as FHighestDegreeDisplayName,p.FEMail as fEmail,
+			Pcm.FQQ as FQQ,Pcm.fOfficePhone as FOfficePhone,sysdate as pushTime,
+			Pm.Fisprimary isMainJob
+			from T_BD_Person p
+			inner join T_HR_PersonContactMethod Pcm on (Pcm.Fpersonid = P.Fid and pcm.cfmail is not null and trim(pcm.cfmail) is not null)
+			left join T_HR_PersonPosition PP on PP.Fpersonid = P.Fid
+			left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+			left join T_HR_BDEmployeeType t2 on t2.fid=p.FEmployeeTypeID
+			left join t_hr_personposition t3 on p.fid = t3.fpersonid
+			left join t_Org_Admin A on A.fid = t3.FPersonDep
+			left join T_HR_EmployeeClassify t4 on t4.fid = p.FEmployeeClassifyID
+			left join T_BD_HRDiploma t5 on t5.fid = p.FHighestDegreeID
+			left join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+			left join T_ORG_Position Po  on Po.fid = Pm.FPositionID
+			where 1 =1 and A.fnumber not like '%.%'        
+			 
+				and  	Pcm.Cfmail is not null    
+				<!-- 分多次推送，一次推送4k --> 
+<!--				                 and p.fnumber &gt;= '201301170058'      -->
+<!--				               and p.fnumber &lt; '201304190066'  -->
+				 
+				<!--  and Po.fnumber is not null  and  ct.fnumber is not null  -->
+				
+			<if test="beginTime != null and beginTime !=''"> 
+		and (
+				( P.fcreatetime>=#{beginTime} 
+					 <if test="endTime != null and endTime !=''"> 
+					 and P.fcreatetime &lt;=#{endTime}
+					 </if>
+				 ) 
+				or ( P.FLastUpdateTime>=#{beginTime}
+					<if test="endTime != null and endTime !=''"> 
+					 and P.FLastUpdateTime&lt;=#{endTime} 
+					</if>
+					)
+		)
+		 </if>
+		 <if test="beginTime ==null or beginTime ==''">
+		 <if test="endTime != null and endTime !=''">
+		 and (
+		 P.fcreatetime &lt;=#{endTime} or P.FLastUpdateTime&lt;=#{endTime}  
+		 )
+		 </if>
+		 </if>
+			order by p.fnumber 
+			) 
+		<!-- 	where rownum &lt;= 1000  --> 
+	</select>
+	
+	<!--组织信息的查询 --> 
+	<select id="selectOrgAdminQuery" resultType="com.creditease.smp.manager.dto.EASOrganizeDTO" parameterType="map">
+	  select distinct 
+	     ta.fnumber as ext1, <!-- 组织number -->
+	     decode(ta.fnumber,'CE',ta.fnumber,tp.fnumber) as ext2,<!-- parentnumber,即为ext1的父 -->
+	     ta.FIsSealUp as ext3, <!-- 是否封存(1表示已封存) -->
+	     ta.FParentID as parentNumber, ta.fid as "NUMBER",
+		ta.FPRINCIPALID as PRINCIPALID, t1.fnumber as fResponPositionID,
+		ta.FINDEX as "INDEX", 
+		ta.FEFFECTDATE as EFFECTDATE,
+		ta.FINVALIDDATE as INVALIDDATE,
+		ta.FISFREEZE as ISFREEZE,
+		ta.FISSTART as ISSTART,
+		ta.FORGTYPESTR as ORGTYPESTR,
+		ta.FISLEAF as ISLEAF,
+		ta.FLEVEL as "LEVEL",
+		ta.fname_L2 as DISPLAYNAME,
+		ta.FDESCRIPTION_L2 as "DESCRIPTION",
+		ta.FSIMPLENAME as SIMPLENAME,
+		nvl(center.FIsBizUnit,2) as isCostCenter, 
+		 ta.flongnumber as parentLongNumber ,
+		 sysdate as pushTime 
+	    from   t_org_admin ta 
+		left join t_org_admin tp on tp.fid = ta.FParentID
+		left join T_ORG_CostCenter center on ta.fid = center.fid 
+		left join T_BD_Person t1 on t1.fid=ta.FPrincipalID
+      	where 1 =1 and ta.fnumber not like '%.%'   
+    
+    
+        <if test="beginTime != null and beginTime !=''">
+		and ta.FLastUpdateTime >= #{beginTime} 
+		</if>
+		 <if test="endTime != null and endTime !=''">
+		and ta.FLastUpdateTime &lt;= #{endTime} 
+		</if>
+		 
+		 
+			order by ta.fnumber
+	</select>
+	<!-- 职位信息 -->
+	<select id="selectOrgPositionQuery" resultType="com.creditease.smp.manager.dto.EASPositionDTO" parameterType="map">
+	select * from  
+	(
+	  select distinct
+	   Po.FNUMBER as ext1, pp.fnumber as ext2,
+       Po.FID as "NUMBER",  pp.fID as PARENTNUMBER,
+     
+	   pc.fnumber as POSITIONLEVEL,
+	     zc.FNumber as POSITIONLAYER,
+	     zl.FNumber as JOBTYPE,
+	     Po.FSortCode as SortCode,
+	     Po.FDeletedStatus as DeletedStatus,
+	     Pt.FNumber as positionType,
+	     Po.FIndex as "INDEX",
+	     job.fname_l2 as JOB,
+	     Po.FEffectDate as EFFECTDATE,
+	     Po.FVALIDATE as INVALIDDATE,
+	     Po.FSIMPLENAME as SIMPLENAME,
+	     Po.FDESCRIPTION_L2 as "DESCRIPTION",
+<!--	     Po.FNUMBER as "NUMBER",-->
+	     Po.FNAME_L2 as POSITIONNAME,
+<!--	     pp.fnumber as PARENTNUMBER,-->
+	     A.fnumber as DEPTNUMBER,
+	<!--      Pm.FIsPrimary as ISMAINJOB,  -->
+	     pc.fname_l2 as positionLevelDisplayName,
+	     zc.fname_l2 as positionLayerDisplayName,
+	     zl.fname_l2 as jobTypeDisplayName,
+	     pt.fname_l2 as positionTypeDisplayName,
+	     sysdate as pushTime    
+	    from  T_ORG_Position Po
+		left join T_ORG_PositionHierarchy Ph on Ph.Fchildid = Po.Fid
+		left join　CT_HR_Positionclass　Pc on Pc.fid = Po.Cfzwdjid
+		left join T_BD_PositionType Pt on Pt.fid = Po.FPositionTypeID
+	    left join T_ORG_Job job　on Po.FJOBID = job.fid
+		left join t_org_position pp on pp.fid =  Ph.Fparentid
+		join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+		left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid
+		left join ct_hr_zl zl on po.CFZLID = zl.fid 
+		left join ct_hr_zc zc on po.CFZCID = zc.fid 
+		where 1 =1 and a.fnumber not like '%.%' 
+		
+		 <!-- 职层是否可为空？ 放开为空 -->
+		<!--  and zc.FNumber is not null  -->
+	<!-- 	 and  zc.fname_l2 ='基层'  -->
+		
+		<if test="beginTime != null and beginTime !=''"> 
+		and (
+				( Po.fcreatetime>=#{beginTime} 
+					 <if test="endTime != null and endTime !=''"> 
+					 and Po.fcreatetime &lt;=#{endTime}
+					 </if>
+				 ) 
+				or ( Po.FLastUpdateTime>=#{beginTime}
+					<if test="endTime != null and endTime !=''"> 
+					 and Po.FLastUpdateTime&lt;=#{endTime} 
+					</if>
+					)
+		)
+		 </if>
+		 <if test="beginTime ==null or beginTime ==''">
+		 <if test="endTime != null and endTime !=''">
+		 and (
+		 Po.fcreatetime &lt;=#{endTime} or Po.FLastUpdateTime&lt;=#{endTime}  
+		 )
+		 </if>
+		 </if>
+		order by po.fnumber 
+		)
+	<!-- 	where rownum &lt;= 1000  -->
+	</select>
+	
+</mapper>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="doc" extends="json-default" namespace="/doc">
+	<action name="Dcontractaction" class="com.creditease.eas.doc.action.DcontractAction">
+	<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+			<result name="edit">/doc/contractEdit.jsp</result>
+		</action>
+    </package>    
+</struts>

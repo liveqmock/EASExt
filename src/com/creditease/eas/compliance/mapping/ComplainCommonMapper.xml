@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.ComplainCommonMapper" >
+	<resultMap id="BaseDictMap" type="com.creditease.eas.util.Dictionary" >
+	    <id column="fid" property="key" jdbcType="DECIMAL" />
+	    <result column="fname" property="value" jdbcType="VARCHAR" />
+    </resultMap>
+    <!-- 客户来源 -->
+	<select id="findCussource" resultMap="BaseDictMap">
+		select fid,fname from t_com_cussource
+	</select>
+	<!-- 服务类型 ,涉及的业务端-->
+	<select id="findServicetype" resultMap="BaseDictMap">
+		select fid,fname from t_com_servicetype
+	</select>
+	<!-- 客户状态 -->
+	<select id="findCusstatus" resultMap="BaseDictMap" parameterType="map">
+		select fid,fname  from t_com_cusstatus
+		where fservicetypeid = #{fservicetypeid,jdbcType=INTEGER}
+	</select>
+	<!-- 查询某个案件类型的最大的案件信息-->
+	<select id="findMaxComplain" resultType="Integer">
+	select decode(max(com.findex),null,1,max(com.findex)+1) maxIndex from t_com_complain com
+	</select>
+	<!-- 查询某个案件类型的最大的案件信息-->
+	
+	<select id="findinicasetype" resultType="map" parameterType="Integer">
+	   select fid,fname,fnumber from t_com_inicasetype
+	   where fid = #{finicasetypeid,jdbcType=INTEGER}
+	</select>
+	
+	 <!-- 投诉渠道 -->
+	<select id="findDitch" resultMap="BaseDictMap">
+		select fid,fname from t_com_ditch
+	</select>
+	 <!-- 证据类型 -->
+	<select id="findEvidenceType" resultMap="BaseDictMap">
+		select fid,fname from T_com_evidenceType
+	</select>
+	<!-- 案件初步分类 -->
+	<select id="findInicaseType" resultMap="BaseDictMap">
+	<![CDATA[ 
+		select fid,fname from t_com_inicasetype where fid<=7
+	]]>	
+	</select>
+	<!-- 根据初步分类id获得初步分类名称 -->
+	<select id="getTypeNameById" resultType="string">
+	   select fname from t_com_inicasetype where fid in
+      	 <foreach item="item" index="index" collection="array" open="(" separator="," close=")"> 
+        	#{item}
+     	 </foreach>
+	</select>
+	<!-- 案件详细分类 -->
+	<select id="findDetailCaseType" resultMap="BaseDictMap" parameterType="Integer">
+		select fid,fname from t_com_detailCaseType
+		where finicasetype = #{finicasetype,jdbcType=INTEGER}
+	</select>
+	<!--根据被投诉人的姓名查询这个人被投诉的次数
+		经过确认，去掉该查询条件
+		and FISINNER = 1
+	-->
+	<select id="findPersonCompCount" resultType="Integer" parameterType="map">
+		select count(*) as count from t_com_person where fname = #{fname,jdbcType=VARCHAR}
+	</select>
+	<!-- 根据被投诉人的姓名查询涉及到的案子
+		and p.FISINNER = 1 
+	-->
+	<select id="findPersonRelComplian" resultType="map" parameterType="map">
+		select com.fid,com.fnumber from t_com_complain com
+		left join t_com_person p on p.fcomplainid = com.fid
+		where com.ftempstatus = 1 and p.fname = #{fname,jdbcType=VARCHAR}
+	</select>
+	<sql id="SqlCount">
+	<if test="fid !=null and fid != '' "> and T_COM_COMPLAIN.fid!='${fid}'</if>
+	</sql>
+	<!-- 根据手机号查询该手机号被投诉次数 -->
+	<select id="findFmobileCount" resultType="Integer" parameterType="map">
+	SELECT count(*) FROM (SELECT ROWNUM AS ROWNO,T_COM_COMPLAIN.FNUMBER,T_COM_COMPLAIN.FCOMPTIME,T_COM_COMPLAIN.FISEVIDENCE,
+     T_COM_DITCH.FNAME DITCHNAME,
+     T_COM_CUSSTATUS.FNAME STATUSNAME,T_COM_SERVICETYPE.FNAME SERVICENAME,T_COM_ISTATUS.VALUE STATUSVALUE
+     FROM  T_COM_COMPLAIN LEFT JOIN T_COM_DITCH ON T_COM_COMPLAIN.FCOMPCHANNELID=T_COM_DITCH.FID
+     LEFT JOIN T_COM_CUSSTATUS ON T_COM_COMPLAIN.FCUSSTATUSID=T_COM_CUSSTATUS.FID
+     LEFT JOIN T_COM_SERVICETYPE ON T_COM_COMPLAIN.FSERVICETYPEID=T_COM_SERVICETYPE.FID 
+     LEFT JOIN T_COM_INVESTIGATION ON  T_COM_COMPLAIN.FID=T_COM_INVESTIGATION.CASEID
+     LEFT JOIN T_COM_ISTATUS ON T_COM_INVESTIGATION.STATUSID=T_COM_ISTATUS.ID WHERE T_COM_COMPLAIN.FTEMPSTATUS=1 AND T_COM_INVESTIGATION.PARENTID IS NULL
+	 AND  T_COM_COMPLAIN.FMOBILE LIKE '%${fmobile}%' <include refid="SqlCount"/>)
+	</select>
+	<!-- 根据QQ号查询该QQ号被投诉次数-->
+	<select id="findFqqCount" resultType="Integer" parameterType="map">
+	SELECT count(*) FROM (SELECT ROWNUM AS ROWNO,T_COM_COMPLAIN.FNUMBER,T_COM_COMPLAIN.FCOMPTIME,T_COM_COMPLAIN.FISEVIDENCE,
+     T_COM_DITCH.FNAME DITCHNAME,
+     T_COM_CUSSTATUS.FNAME STATUSNAME,T_COM_SERVICETYPE.FNAME SERVICENAME,T_COM_ISTATUS.VALUE STATUSVALUE
+     FROM  T_COM_COMPLAIN LEFT JOIN T_COM_DITCH ON T_COM_COMPLAIN.FCOMPCHANNELID=T_COM_DITCH.FID
+     LEFT JOIN T_COM_CUSSTATUS ON T_COM_COMPLAIN.FCUSSTATUSID=T_COM_CUSSTATUS.FID
+     LEFT JOIN T_COM_SERVICETYPE ON T_COM_COMPLAIN.FSERVICETYPEID=T_COM_SERVICETYPE.FID 
+     LEFT JOIN T_COM_INVESTIGATION ON  T_COM_COMPLAIN.FID=T_COM_INVESTIGATION.CASEID
+     LEFT JOIN T_COM_ISTATUS ON T_COM_INVESTIGATION.STATUSID=T_COM_ISTATUS.ID WHERE T_COM_COMPLAIN.FTEMPSTATUS=1 AND T_COM_INVESTIGATION.PARENTID IS NULL
+	 AND FQQ = #{fqq,jdbcType=VARCHAR} <include refid="SqlCount"/>)
+	</select>
+	<!-- 根据客户姓名查询该客户被投诉次数 -->
+	<select id="findFcusNameCount" resultType="Integer" parameterType="map">
+	SELECT count(*) FROM (SELECT ROWNUM AS ROWNO,T_COM_COMPLAIN.FNUMBER,T_COM_COMPLAIN.FCOMPTIME,T_COM_COMPLAIN.FISEVIDENCE,
+     T_COM_DITCH.FNAME DITCHNAME,
+     T_COM_CUSSTATUS.FNAME STATUSNAME,T_COM_SERVICETYPE.FNAME SERVICENAME,T_COM_ISTATUS.VALUE STATUSVALUE
+     FROM  T_COM_COMPLAIN LEFT JOIN T_COM_DITCH ON T_COM_COMPLAIN.FCOMPCHANNELID=T_COM_DITCH.FID
+     LEFT JOIN T_COM_CUSSTATUS ON T_COM_COMPLAIN.FCUSSTATUSID=T_COM_CUSSTATUS.FID
+     LEFT JOIN T_COM_SERVICETYPE ON T_COM_COMPLAIN.FSERVICETYPEID=T_COM_SERVICETYPE.FID 
+     LEFT JOIN T_COM_INVESTIGATION ON  T_COM_COMPLAIN.FID=T_COM_INVESTIGATION.CASEID
+     LEFT JOIN T_COM_ISTATUS ON T_COM_INVESTIGATION.STATUSID=T_COM_ISTATUS.ID WHERE T_COM_COMPLAIN.FTEMPSTATUS=1 AND T_COM_INVESTIGATION.PARENTID IS NULL
+	 AND FCUSNAME = #{fcusname,jdbcType=VARCHAR} <include refid="SqlCount"/>)
+	</select>
+	
+	
+	<resultMap type="com.creditease.eas.compliance.bean.CaseType" id="caseTypeResult">
+		<result property="id" column="fid1" jdbcType="VARCHAR"/>
+		<result property="name" column="fname1" jdbcType="VARCHAR"/>
+		<collection property="detailCaseType" javaType="List" ofType="com.creditease.eas.compliance.bean.CaseDetailType">
+			<result property="id" column="fid2" jdbcType="VARCHAR"/>
+			<result property="name" column="fname2" jdbcType="VARCHAR"/>
+		</collection>
+	</resultMap>
+	
+	<select id="selectAllCaseType" resultMap="caseTypeResult">
+	<![CDATA[ 
+		select t1.fid               fid1,
+		       t1.fname             fname1,
+		       t2.fid               fid2,
+		       t2.fname             fname2 from t_com_inicasetype t1,
+		       t_com_detailcasetype t2
+		 where t1.fid = t2.finicasetype(+) and t1.fid>=20 
+		  order by t1.fid,t2.fid
+		 ]]>	
+	</select>
+	
+	
+	<select id="findPersonCompCountExceptSelf" resultType="Integer" parameterType="map">
+		<![CDATA[ 
+		select count(*) as count from t_com_person where fname = #{fname,jdbcType=VARCHAR} and fcomplainid <> #{fid,jdbcType=VARCHAR}
+		 ]]>
+	</select>
+	
+	<select id="findPersonRelComplianExceptSelf" resultType="map" parameterType="map">
+		<![CDATA[
+		select com.fid,com.fnumber from t_com_complain com
+		left join t_com_person p on p.fcomplainid = com.fid
+		where com.ftempstatus = 1 and p.fname = #{fname,jdbcType=VARCHAR} and com.fid<>#{fid,jdbcType=VARCHAR}
+		 ]]>
+	</select>
+	
+	<select id="findCaseFrom" resultMap="BaseDictMap">
+		select fid,fname from t_com_casefrom
+	</select>
+	
+</mapper>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.warn.dao.InterfacePersonMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.warn.bean.InterfacePerson" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="rentnumber" property="rentnumber" jdbcType="VARCHAR" />
+    <result column="orgnumber" property="orgnumber" jdbcType="VARCHAR" />
+    <result column="orgname" property="orgname" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="officeadd" property="officeadd" jdbcType="VARCHAR" />
+    <result column="lastcostcenter" property="lastcostcenter" jdbcType="VARCHAR" />
+    <result column="portmail" property="portmail" jdbcType="VARCHAR" />
+    <result column="isport" property="isport" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="creatortime" property="creatortime" jdbcType="TIMESTAMP" />
+    <result column="lastupdater" property="lastupdater" jdbcType="VARCHAR" />
+    <result column="lastupdatetime" property="lastupdatetime" jdbcType="TIMESTAMP" />
+    <result column="ext1" property="ext1" jdbcType="VARCHAR" />
+    <result column="ext2" property="ext2" jdbcType="VARCHAR" />
+    <result column="ext3" property="ext3" jdbcType="VARCHAR" />
+    <result column="ext4" property="ext4" jdbcType="VARCHAR" />
+    <result column="ext5" property="ext5" jdbcType="VARCHAR" />
+    <result column="ext6" property="ext6" jdbcType="VARCHAR" />
+    <result column="ext7" property="ext7" jdbcType="VARCHAR" />
+    <result column="ext8" property="ext8" jdbcType="VARCHAR" />
+    <result column="ext9" property="ext9" jdbcType="VARCHAR" />
+    <result column="ext10" property="ext10" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    ID,RENTNUMBER, ORGNUMBER, ORGNAME, CITY, OFFICEADD, LASTCOSTCENTER, PORTMAIL, ISPORT, CREATOR, 
+    CREATORTIME, LASTUPDATER, LASTUPDATETIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10
+  </sql>
+
+  <sql id="preview_condition" >
+    <if test="typeid!=null and typeid!=''">
+<!--				typeid==2普惠职能端部门总接口人//typeid==6财富端部门总接口人-->
+<!--				typeid==4普惠职能端总接口人负责人(谢允儿)//typeid==8财富端总接口人负责人(于静)-->
+<!--				typeid==5普惠职能端行政部门负责人（曹莹）//typeid==9财富端行政部门负责人（徐广宁）-->
+<!--						<when test="typeid in (2,6,4,8,5,9)">-->
+		<choose>
+			<when test="typeid==2 or typeid==6 or typeid==4 or typeid==8 or typeid==5 or typeid==9">
+				and orgname in
+				(select p.orgname from t_portinfo p left join t_user u on u.username = p.portmail where 1=1
+				<if test="typeid==2 or typeid==6">
+					and u.email = #{email,jdbcType=VARCHAR} and p.isport = 0 and u.typeid =#{typeid,jdbcType=DECIMAL}
+				</if>
+				<if test="typeid==4"> and p.ext1=1</if>
+				<if test="typeid==8"> and p.ext1=2</if>
+				)
+			</when>
+<!--				typeid==3普惠职能端普通部门接口人//typeid==7财富端普通部门接口人-->
+<!--						<when test="typeid in (3,7)">-->
+			<when test="typeid ==3 or typeid==7">
+				and (orgname ,lastcostcenter ) in 
+				( select p.orgname ,p.lastcostcenter from t_portinfo p left join t_user u on u.username = p.portmail 
+				where u.email = #{email,jdbcType=VARCHAR} and p.isport = 1 and u.typeid =#{typeid,jdbcType=DECIMAL}
+				<if test="typeid==3"> and p.ext1=1</if>
+				<if test="typeid==7"> and p.ext1=2</if>
+				)
+			</when>
+		</choose>					
+	</if>
+	<if test="orgname != null and orgname != '' "> AND ORGNAME like '%${orgname}%'</if>
+	<if test="city != null and city != '' "> AND CITY like '%${city}%'</if>
+	<if test="officeadd != null and officeadd != '' "> AND OFFICEADD like '%${officeadd}%'</if>
+	<if test="lastcostcenter != null and lastcostcenter != '' "> AND LASTCOSTCENTER like '%${lastcostcenter}%'</if>
+	<if test="isport != null and isport != '' "> AND ISPORT = '${isport}'</if>
+  </sql>
+  
+  <select id="allorgmail" resultType="com.creditease.eas.warn.bean.InterfacePerson">
+  		select * from T_PORTINFO where isport = 0 
+  </select>
+  
+   <select id="selectPortByOfficeadd" resultType="int" parameterType="map">
+  		select count(id) from T_PORTINFO where portmail = #{mail,jdbcType=VARCHAR} 
+  		<if test="officeadd != null">
+  			<if test="officeadd !=''">
+  			and  officeadd = #{officeadd,jdbcType=VARCHAR} 
+  			</if>
+  		</if> 
+  </select>
+  
+   <select id="selectPortByOrgname" resultType="int">
+  		select count(id) from T_PORTINFO where orgname is null 
+  </select>
+  
+	 <select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		Select * FROM(
+			Select ROWNUM as ROWNO,ext1,id,rentnumber,orgnumber,orgname,city,officeadd,lastcostcenter,
+			portmail,isport,creator,creatortime,lastupdater,lastupdatetime from T_PORTINFO  
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+				<include refid="preview_condition"/>
+			</where>
+			) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+	<select id="getTotalCounts" resultType="int" parameterType="map">
+	 select count(id) FROM(
+			Select ROWNUM as ROWNO,ext1,id,rentnumber,orgnumber,orgname,city,officeadd,lastcostcenter,
+			portmail,isport,creator,creatortime,lastupdater,lastupdatetime from T_PORTINFO
+			<where> 
+				1=1
+				<include refid="preview_condition"/>
+			</where>
+			)   
+	</select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_portinfo
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_portinfo
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.creditease.eas.warn.bean.InterfacePerson" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   		select PORT_TB_SEQ.NEXTVAL from dual 
+	</selectKey>
+	
+    insert into t_portinfo (id,rentnumber, orgnumber, orgname, 
+      city, officeadd, lastcostcenter, 
+      portmail, isport, creator, 
+      creatortime, lastupdater, lastupdatetime, 
+      ext1, ext2, ext3, ext4, 
+      ext5, ext6, ext7, ext8, 
+      ext9, ext10)
+    values (#{id,jdbcType=INTEGER},#{rentnumber,jdbcType=VARCHAR}, #{orgnumber,jdbcType=VARCHAR}, #{orgname,jdbcType=VARCHAR}, 
+      #{city,jdbcType=VARCHAR}, #{officeadd,jdbcType=VARCHAR}, #{lastcostcenter,jdbcType=VARCHAR}, 
+      #{portmail,jdbcType=VARCHAR}, #{isport,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      #{creatortime,jdbcType=TIMESTAMP}, #{lastupdater,jdbcType=VARCHAR}, #{lastupdatetime,jdbcType=TIMESTAMP}, 
+      #{ext1,jdbcType=VARCHAR}, #{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR}, #{ext4,jdbcType=VARCHAR}, 
+      #{ext5,jdbcType=VARCHAR}, #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, #{ext8,jdbcType=VARCHAR}, 
+      #{ext9,jdbcType=VARCHAR}, #{ext10,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.creditease.eas.warn.bean.InterfacePerson" >
+    update t_portinfo
+    set orgnumber = #{orgnumber,jdbcType=VARCHAR},
+      orgname = #{orgname,jdbcType=VARCHAR},
+       rentnumber = #{rentnumber,jdbcType=VARCHAR},
+      city = #{city,jdbcType=VARCHAR},
+      officeadd = #{officeadd,jdbcType=VARCHAR},
+      lastcostcenter = #{lastcostcenter,jdbcType=VARCHAR},
+      portmail = #{portmail,jdbcType=VARCHAR},
+      isport = #{isport,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      lastupdater = #{lastupdater,jdbcType=VARCHAR},
+      lastupdatetime = sysdate,
+      ext2 = #{ext2,jdbcType=VARCHAR},
+      ext3 = #{ext3,jdbcType=VARCHAR},
+      ext4 = #{ext4,jdbcType=VARCHAR},
+      ext5 = #{ext5,jdbcType=VARCHAR},
+      ext6 = #{ext6,jdbcType=VARCHAR},
+      ext7 = #{ext7,jdbcType=VARCHAR},
+      ext8 = #{ext8,jdbcType=VARCHAR},
+      ext9 = #{ext9,jdbcType=VARCHAR},
+      ext10 = #{ext10,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+<!-- 查询所有的的房租合同信息记录 -->
+  <select id="expire" resultType="map">
+	select rent.orgname, rent.officeadd, rent.city, rent.lastcostcenter, 
+		rent.paymoney, rent.monthmoney, rent.paymentcycle, rent.paytype, rent.paycount,
+		rent.rentstarttime, rent.rentendtime, rent.payfirsttime  
+	from t_rentcontract rent where rent.orgname is not null
+  </select>
+  
+<!-- 根据部门获取收件人邮箱 -->
+  <select id="getEmailByOrgName" parameterType="string" resultType="map">
+	select t.portmail from t_portinfo t 
+	<where>
+		<if test="orgname != null and orgname != '' "> t.orgname = #{orgname,jdbcType=VARCHAR} </if>
+	</where> 
+  </select>
+  
+</mapper>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+        "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+    <package name="emailConfig" extends="json-default" namespace="/admin">
+		<action name="emailConfig" class="emailConfigAction" >
+		
+			<result name="queryPageJson" type="json">
+				 <param name="root">pagination</param>
+			 	<param name="excludeNullProperties">true</param>  
+			</result>
+			
+			<result name="view">/configInfo/configEmailEdit.jsp</result>
+		</action>
+    </package>    
+</struts>

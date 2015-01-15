@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+   <struts>
+		<!-- 映射文件 -->
+	    <include file="config/email/*.xml"/>
+	    <include file="config/warn/*.xml"/>
+	    <include file="config/hr/*.xml"/>
+	    <include file="config/admin/*.xml"/>
+	    <include file="config/port/*.xml"/>
+	    <include file="config/document/*.xml"/>
+	     <!-- smp接口 -->
+	    <include file="config/hrnew/*.xml"/>
+       	<!-- 投诉管理配置 -->
+	    <include file="config/compliance/*.xml"/>
+	    <!-- 向制度平台手动推送数据配置 -->
+	    <include file="config/institutional/*.xml"/>
+		  <!-- 测试用配置 -->
+	    <include file="config/test/*.xml"/>
+	    <!-- 报销提醒功能 -->
+	    <include file="config/accountr/*.xml"/>
+	    <!-- 项目管理模块 -->
+	    <include file="config/projectmanage/*.xml"/>
+	    <!-- 数据字典功能 -->
+	    <include file="config/dictionary/*.xml"/>
+	    <!-- 投三花名册功能 -->
+	    <include file="config/roster/*.xml"/>
+	    <!--行政采购合同预警 -->
+	    <include file="config/adminipurc/*.xml"/>
+	    <!-- 有限合伙 -->
+	    <include file="config/change/*.xml"/>
+	    <!-- 系统公用服务 -->
+	    <include file="config/common/*.xml"/>
+  </struts>
+  

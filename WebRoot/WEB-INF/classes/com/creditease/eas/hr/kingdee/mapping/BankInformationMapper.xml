@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.BankInformationMapper" >
+
+ <select id="getBankInfo" resultType="Map" parameterType="string">
+  <![CDATA[
+  select bankname,fid
+   from (select t.fdisplayname_l2 as bankname,t.fid as fid, rownum as rowno
+           from t_bd_bank t
+          where t.flevel = '1')
+  where rowno > #{fristResult}
+    and rowno <= #{maxResult} 
+
+  ]]> 
+  </select>
+  
+   <select id="getCount" resultType="int">
+   
+      <![CDATA[  
+ 		select count(*) from( select * from t_bd_bank t where t.flevel='1')
+ 		]]> 
+
+  </select>
+  
+  
+  
+  <select id="getBankInfoById" resultType="Map" parameterType="map">
+  <![CDATA[
+   select bankname,fid
+   from (select t.fdisplayname_l2 as bankname,t.fid as fid, rownum as rowno
+           from t_bd_bank t
+          where t.fparentid =#{fid})
+  where rowno > #{fristResult}
+    and rowno <= #{maxResult} 
+
+  ]]> 
+  </select>
+  
+  
+  
+  
+   <select id="getCount2" resultType="int" parameterType="string">
+   
+      <![CDATA[  
+ 	select count(*) from(select * from t_bd_bank t where t.fparentid = #{fid})
+ 		]]> 
+
+  </select>
+  
+</mapper>

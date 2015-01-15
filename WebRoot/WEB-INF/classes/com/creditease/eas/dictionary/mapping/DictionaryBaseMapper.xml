@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.dictionary.dao.IDictionaryBaseMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.dictionary.bean.DictionaryBase" >
+
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="typename" property="typename" jdbcType="VARCHAR" />
+     <result column="typesign" property="typesign" jdbcType="VARCHAR" />
+      <result column="status" property="status" jdbcType="VARCHAR" />
+      <result column="typeid" property="typeid" jdbcType="VARCHAR" />
+    <result column="ext1" property="ext1" jdbcType="VARCHAR" />
+    <result column="ext2" property="ext2" jdbcType="VARCHAR" />
+    <result column="ext3" property="ext3" jdbcType="VARCHAR" />
+    <result column="ext4" property="ext4" jdbcType="VARCHAR" />
+    <result column="ext5" property="ext5" jdbcType="VARCHAR" />
+    <result column="ext6" property="ext6" jdbcType="VARCHAR" />
+    <result column="ext7" property="ext7" jdbcType="VARCHAR" />
+    <result column="ext8" property="ext8" jdbcType="VARCHAR" />
+    <result column="ext9" property="ext9" jdbcType="VARCHAR" />
+    <result column="ext10" property="ext10" jdbcType="VARCHAR" />
+  </resultMap>
+   <!-- sql片段，查询的时候使用 -->
+   <sql id="BaseWhereCondition">
+    <if test="typeid != null and typeid != ''"> and typeid like '%${typeid}%'</if>
+    <if test="typename != null and typename != ''"> and typename like '%${typename}%'</if>
+   </sql>
+ 
+  <sql id="Base_Column_List" >
+    id, typename,status,typesign,typeid,ext1, ext2, ext3, ext4, ext5, ext6, ext7, ext8, ext9, ext10
+  </sql>
+  
+  <!-- 查询总条数 -->
+   <select id="getTotalCountsByParams" resultType="java.lang.Integer" parameterType="map" >
+    select count(*) from t_dictionary_base
+    where status=0
+    <include refid="BaseWhereCondition"/>
+  </select>
+  <!-- 查询信息 -->
+  <select id="queryPageByParams" resultMap="BaseResultMap" parameterType="map">
+	  select * FROM(select ROWNUM as ROWNO,t.* from (Select * from t_dictionary_base where status=0
+      <include refid="BaseWhereCondition"/>
+      ) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER} 
+  </select>
+  <!--根据id查询字典项 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_dictionary_base
+    where status=0 and id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!--根据id删除某条字典信息 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  	update t_dictionary_base set status=1 where id =#{id}
+  </delete>
+  <!--添加数据字典基项 -->
+  <insert id="insertBase" parameterType="com.creditease.eas.dictionary.bean.DictionaryBase" >
+     <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   		select T_DICTIONARY_BASE_SEQ.NEXTVAL from dual
+	 </selectKey>
+    insert into t_dictionary_base (id,typename,typeid,ext1, 
+      ext2, ext3, ext4, ext5, 
+      ext6, ext7, ext8, ext9, 
+      ext10)
+    values (#{id,jdbcType=INTEGER},#{typename,jdbcType=VARCHAR},#{typeid,jdbcType=VARCHAR}, #{ext1,jdbcType=VARCHAR}, 
+      #{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR}, #{ext4,jdbcType=VARCHAR}, #{ext5,jdbcType=VARCHAR}, 
+      #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, #{ext8,jdbcType=VARCHAR}, #{ext9,jdbcType=VARCHAR}, 
+      #{ext10,jdbcType=VARCHAR})
+  </insert>
+  <!-- 保存修改的字典项信息 -->
+  <update id="updateByPrimaryKey" parameterType="com.creditease.eas.dictionary.bean.DictionaryBase" >
+    update t_dictionary_base
+    set 
+      typeid = #{typeid,jdbcType=VARCHAR},
+      typename = #{typename,jdbcType=VARCHAR},
+      ext1 = #{ext1,jdbcType=VARCHAR},
+      ext2 = #{ext2,jdbcType=VARCHAR},
+      ext3 = #{ext3,jdbcType=VARCHAR},
+      ext4 = #{ext4,jdbcType=VARCHAR},
+      ext5 = #{ext5,jdbcType=VARCHAR},
+      ext6 = #{ext6,jdbcType=VARCHAR},
+      ext7 = #{ext7,jdbcType=VARCHAR},
+      ext8 = #{ext8,jdbcType=VARCHAR},
+      ext9 = #{ext9,jdbcType=VARCHAR},
+      ext10 = #{ext10,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+   <!-- 判断数据是否已经存在了 -->
+	<select id="typeidIfExists" resultType="java.lang.Integer" parameterType="map">
+		select count(id) from t_dictionary_base where status=0
+		<if test="typeid != null and typeid != ''">
+		and typeid = '${typeid}'
+		</if>
+	</select>
+	
+	<!--根据typeid获得id值-->
+	<select id="selectidbytypeid" resultType="java.lang.Integer" parameterType="string">
+		select id from t_dictionary_base where status=0 and
+		typeid = #{typeid,jdbcType=VARCHAR}
+		
+	</select>
+</mapper>

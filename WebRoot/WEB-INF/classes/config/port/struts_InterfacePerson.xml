@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd"><struts>
+    <package name="port" extends="json-default" namespace="/port">
+		<!-- 接口人信息模块 -->
+		<action name="portInfo" class="com.creditease.eas.warn.action.InterfacePersonAction">
+		    <result name="add">/portinfo/portAdd.jsp</result>
+			<result name="edit">/portinfo/portEdit.jsp</result>
+			<result name="view">/portinfo/portView.jsp</result>
+			<result name="queryPageJson" type="json">
+				<param name="root">pagination</param>
+				<param name="excludeNullProperties">true</param>      
+			</result>
+		</action>
+    </package>    
+</struts>

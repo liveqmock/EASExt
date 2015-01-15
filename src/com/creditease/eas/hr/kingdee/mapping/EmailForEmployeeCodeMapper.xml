@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.EmailForEmployeeCodeMapper" >
+
+
+  
+ <select id="queryFnumberByEmail" resultType="string" parameterType="string">
+				select per.fnumber
+		  from  t_bd_person per
+		  left join t_hr_personcontactmethod t on t.fpersonid = per.fid
+		 where substr(t.cfmail, 1, INSTR(t.cfmail, '@', 1, 1) - 1) = #{cfmail}
+  </select> 
+  
+</mapper>

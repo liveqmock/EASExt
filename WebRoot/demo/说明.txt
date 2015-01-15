@@ -1,0 +1,17 @@
+1.任务调度的时候 有时候当掉
+
+2.任务调度--jdbc方式,连接内容需要写到配置文件里面
+3.xml code  需要创建一个用户
+4.date类型好还是string类型好?
+
+5.insert的时候，需要插入id
+
+前置触发器
+
+在<table>标签下<property>属性,这样写<property name="modelOnly" value="true"/>
+
+2012年12月30日：
+	1.设置日期格式
+	2.设置读取的typeid，
+	3.导出excel
+	4.ss

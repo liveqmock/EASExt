@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.admin.dao.EmailConfigMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.admin.bean.EmailConfig" >
+    <id column="fid" property="fid" jdbcType="INTEGER" />
+    <result column="fmodule" property="fmodule" jdbcType="VARCHAR" />
+    <result column="frole" property="frole" jdbcType="VARCHAR" />
+    <result column="femail" property="femail" jdbcType="VARCHAR" />
+    <result column="fupdateid" property="fupdateid" jdbcType="INTEGER" />
+    <result column="fupdatetime" property="fupdatetime" jdbcType="VARCHAR" />
+  </resultMap>
+ 
+ <sql id="conditionSQL">
+ 	select * from T_CONFIG_EMAIL
+ </sql>
+  
+ <select id="getTotalCounts" parameterType="map" resultType="int">
+ 	select count(1) from ( <include refid="conditionSQL"/>  )
+ </select>
+  
+ <select id="queryPage" parameterType="map" resultMap="BaseResultMap">
+ 	select fid,
+       fmodule,
+       frole,
+       femail,
+       fupdateid,
+       to_char(fupdatetime, 'yyyy-mm-dd hh24:mi:ss') as fupdatetime
+  from (select rownum rnum, r.*
+          from (<include refid="conditionSQL"/>) r
+         where <![CDATA[ rownum <=  #{endRow,jdbcType=INTEGER} ]]> ) 
+ where <![CDATA[ rnum >= #{startRow,jdbcType=INTEGER}  ]]>
+ </select>
+ 
+ <select id="getEmailConfigByFid" parameterType="int" resultType="com.creditease.eas.admin.bean.EmailConfig">
+ 	select fid,
+       fmodule,
+       frole,
+       femail,
+       fupdateid,
+       to_char(fupdatetime, 'yyyy-mm-dd hh24:mi:ss') as fupdatetime 
+       from T_CONFIG_EMAIL where fid= #{fid,jdbcType=INTEGER}
+ </select>
+ 
+ 
+ <update id="update" parameterType="com.creditease.eas.admin.bean.EmailConfig">
+ 	update T_CONFIG_EMAIL 
+ 	set femail=#{femail,jdbcType=VARCHAR},
+ 		fupdateid=#{fupdateid,jdbcType=INTEGER},
+ 		fupdatetime=sysdate 
+ 		where fid=#{fid,jdbcType=INTEGER}
+ </update>
+ 
+ <resultMap type="map" id="baseMap">
+ 	<id column="fid" property="fid" jdbcType="INTEGER"/>
+ 	<result column="fmodule" property="fmodule" jdbcType="VARCHAR"/>
+ 	<result column="fupdateid" property="fupdateid" jdbcType="VARCHAR"/>
+ </resultMap>
+ 
+ <select id="test" resultMap="baseMap">
+ select t.fid,t.fmodule,t.fupdateid from t_config_email t where fid=2
+ </select>
+ 	
+</mapper>

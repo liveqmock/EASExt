@@ -1,0 +1,857 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.ComplainMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.compliance.bean.Complain" >
+    <id column="FID" property="fid" jdbcType="DECIMAL" />
+    <result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+    <result column="FCOMPLAINANT" property="fcomplainanter" jdbcType="VARCHAR" />
+    <result column="FISCUSTOMER" property="fiscustomer" jdbcType="VARCHAR" />
+    <result column="FCUSNAME" property="fcusName" jdbcType="VARCHAR"/>
+    <result column="FRESPONSIBLENAME" property="fresponsibleName" jdbcType="VARCHAR"/>
+    <result column="FRESPONSIBLEEMAIL" property="fresponsibleEmail" jdbcType="VARCHAR"/>
+    <result column="FIDCARD" property="fidcard" jdbcType="VARCHAR" />
+    <result column="FMOBILE" property="fmobile" jdbcType="VARCHAR" />
+    <result column="FOFFICEPHONE" property="fofficephone" jdbcType="VARCHAR" />
+    <result column="FQQ" property="fqq" jdbcType="VARCHAR" />
+    <result column="FEMAIL" property="femail" jdbcType="VARCHAR" />
+    <result column="FCUSSOURCEID" property="fcussourceid" jdbcType="DECIMAL" />
+    <result column="FSERVICETYPEID" property="fservicetypeid" jdbcType="DECIMAL" />
+    <result column="FINANCIALPLAN" property="financialplan" jdbcType="VARCHAR" />
+    <result column="FSTARTORENDTIME" property="fstartorendtime" jdbcType="VARCHAR" />
+    <result column="FSALESMANNAME" property="fsalesmanname" jdbcType="VARCHAR" />
+    <result column="FSERVICENAME" property="fservicename" jdbcType="VARCHAR" />
+    <result column="FFIRSTTRIAL" property="ffirsttrial" jdbcType="VARCHAR" />
+    <result column="FLASTTRIAL" property="flasttrial" jdbcType="VARCHAR" />
+    <result column="FDENIEDLOANS" property="fdeniedloans" jdbcType="VARCHAR" />
+    <result column="FCONTRACTNUMBER" property="fcontractnumber" jdbcType="VARCHAR" />
+    <result column="FCONTRACTTIME" property="fcontracttime" jdbcType="DATE" />
+    <result column="FLOANTIME" property="floantime" jdbcType="DATE" />
+    <result column="FLOANBREAD" property="floanbread" jdbcType="VARCHAR" />
+    <result column="FREIMBSTRATTIME" property="freimbstrattime" jdbcType="VARCHAR" />
+    <result column="FREIMBENDTIME" property="freimbendtime" jdbcType="VARCHAR" />
+    <result column="FAMOUNT" property="famount" jdbcType="VARCHAR" />
+    <result column="FDEADLINE" property="fdeadline" jdbcType="VARCHAR" />
+    <result column="FISVIOLATE" property="fisviolate" jdbcType="VARCHAR" />
+    <result column="FVIOLATEDAYS" property="fviolatedays" jdbcType="DECIMAL" />
+    <result column="FCOMPCHANNELID" property="fcompchannelid" jdbcType="DECIMAL" />
+    <result column="FCOMPTIME" property="fcomptime" jdbcType="VARCHAR" />
+    <result column="FISEVIDENCE" property="fisevidence" jdbcType="VARCHAR" />
+    <result column="FEVIDENCETYPEID" property="fevidencetypeid" jdbcType="DECIMAL" />
+    <result column="FISINNER" property="fisinner" jdbcType="VARCHAR" />
+    <result column="FBUSPORTID" property="fbusportid" jdbcType="DECIMAL" />
+    <result column="FDETAILDESCRIP" property="fdetaildescrip" jdbcType="VARCHAR" />
+    <result column="FCREATEUSERID" property="fcreateuserid" jdbcType="DECIMAL" />
+    <result column="FCREATETIME" property="fcreatetime" jdbcType="DATE" />
+    <result column="FUPDATEUSERID" property="fupdateuserid" jdbcType="DECIMAL" />
+    <result column="FLASTUPDATETIME" property="flastupdatetime" jdbcType="DATE" />
+    <result column="FTEMPSTATUS" property="ftempstatus" jdbcType="DECIMAL"/>
+    <result column="FCUSSTATUSID" property="fcusstatusid" jdbcType="DECIMAL"/>
+    <result column="FREMARKS" property="fremarks" jdbcType="VARCHAR"/>
+     <result column="FCUSRELATION" property="fcusrelation" jdbcType="VARCHAR" />
+    <result column="FCOMPCONTACTINFO" property="fcompcontactinfo" jdbcType="VARCHAR" />
+    <result column="FCOMPLAINIDCARD" property="fcomplainidcard" jdbcType="VARCHAR" />
+    <result column="FINDEX" property="findex" jdbcType="DECIMAL" />
+    <result column="FISEVIDENCEREMARKS" property="fisevidenceRemarks" jdbcType="VARCHAR" />
+    <result column="FSELFEMAILREMARK" property="fselfEmailRemark" jdbcType="VARCHAR" />
+    <result column="FINICASETYPEREMARK" property="finicasetypeRemark" jdbcType="VARCHAR" />
+    <result column="FVIOLATECOUNTHISTORY" property="fviolateCountHistory" jdbcType="VARCHAR" />
+    <result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+    <result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+    <result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+    <result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+    <result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+    <result column="FEXT6" property="fext6" jdbcType="VARCHAR" />
+    <result column="FEXT7" property="fext7" jdbcType="VARCHAR" />
+    <result column="FEXT8" property="fext8" jdbcType="VARCHAR" />
+    <result column="FEXT9" property="fext9" jdbcType="VARCHAR" />
+    <result column="FEXT10" property="fext10" jdbcType="VARCHAR" />
+    <result column="isCharge" property="isCharge" jdbcType="VARCHAR" />
+    <result column="FRISKLEVEL" property="riskLevel" jdbcType="VARCHAR"/>
+    <result column="FNEWTYPEMARK" property="fnewtypemark" jdbcType="VARCHAR"/>
+    <result column="SRCODE" property="SRCode" jdbcType="VARCHAR"/>
+    
+    <result column="caseComeIntoCode" property="caseComeIntoCode" jdbcType="VARCHAR"/>
+    <result column="caseComeIntoDate" property="caseComeIntoDate" jdbcType="VARCHAR"/>
+    <result column="casefrom" property="casefrom" jdbcType="DECIMAL"/>
+    <result column="salePerson" property="salePerson" jdbcType="VARCHAR"/>
+    <result column="superLeader" property="superLeader" jdbcType="VARCHAR"/>
+    <result column="indirectLeader" property="indirectLeader" jdbcType="VARCHAR"/>
+    <result column="saleDepart" property="saleDepart" jdbcType="VARCHAR"/>
+    <result column="serviceName" property="serviceName" jdbcType="VARCHAR"/>
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    FID,FNUMBER,FCOMPLAINANT, FISCUSTOMER,FCUSNAME,FRESPONSIBLENAME,FRESPONSIBLEEMAIL,FIDCARD,FMOBILE, FOFFICEPHONE, FQQ, FEMAIL, FCUSSOURCEID, 
+    FSERVICETYPEID, FINANCIALPLAN, FSTARTORENDTIME, FSALESMANNAME, FSERVICENAME, FFIRSTTRIAL, 
+    FLASTTRIAL, FDENIEDLOANS, FCONTRACTNUMBER, FCONTRACTTIME, FLOANTIME, FLOANBREAD, 
+    FREIMBSTRATTIME, FREIMBENDTIME, FAMOUNT, FDEADLINE, FISVIOLATE, FVIOLATEDAYS, FCOMPCHANNELID, 
+    to_char(FCOMPTIME,'yyyy-mm-dd hh24:mi:ss') FCOMPTIME, FISEVIDENCE, FEVIDENCETYPEID, FISINNER, FBUSPORTID,FDETAILDESCRIP, 
+    FCREATEUSERID, FCREATETIME, FUPDATEUSERID, FLASTUPDATETIME,FTEMPSTATUS,FCUSSTATUSID,FREMARKS,
+    FCUSRELATION,FCOMPCONTACTINFO,FCOMPLAINIDCARD,FINDEX,FISEVIDENCEREMARKS,FSELFEMAILREMARK,FINICASETYPEREMARK,FVIOLATECOUNTHISTORY,FEXT1, 
+    FEXT2, FEXT3, FEXT4, FEXT5, FEXT6, FEXT7, FEXT8, FEXT9, FEXT10,isCharge,FRISKLEVEL,SRCODE,caseComeIntoCode,caseComeIntoDate,casefrom,
+    salePerson,superLeader,indirectLeader,saleDepart,serviceName
+  </sql>
+  <sql id="preview_condition">
+        <if test="fcompchannelid != null and fcompchannelid!=0"> AND FCOMPCHANNELID='${fcompchannelid}'</if>
+		<if test="startDate != null and startDate != '' "> AND FCOMPTIME &gt;= TO_DATE('${startDate}','yyyy-mm-dd hh24:mi:ss')</if>
+		<if test="endDate!= null and endDate != '' ">AND FCOMPTIME &lt;= TO_DATE('${endDate}','yyyy-mm-dd hh24:mi:ss')</if>
+		<if test="fcomplainant != null and fcomplainant != '' "> AND FCOMPLAINANT like '%${fcomplainant}%'</if>
+		<if test="fcusname !=null and fcusname !='' "> AND FCUSNAME LIKE '%${fcusname}%'</if>
+		<if test="typename!=null and typename!='' ">
+			and T_COM_COMPLAIN.fid in (select distinct m.fid from T_COM_COMPLAIN m 
+            	left join t_com_rel_inicasetype n on m.fid = n.complainid where n.inicasetypeid in (${typename}))
+        </if>
+		<if test="fqq !=null and fqq !='' ">AND T_COM_COMPLAIN.FQQ = '${fqq}' </if>
+		<if test="selectfcusname !=null and selectfcusname !='' "> AND FCUSNAME='${selectfcusname}'</if>
+		<if test="selectfmobile !=null and selectfmobile !='' "> AND T_COM_COMPLAIN.FMOBILE LIKE '%${selectfmobile}%'</if>
+		<if test="fid != null and fid != '' ">AND T_COM_COMPLAIN.FID != '${fid}'</if>
+		<choose>
+			<when test="choocase != null and choocase != '' "> 
+				and T_COM_COMPLAIN.FID not in (select ti.caseid from t_Com_Investigation ti where ti.parentid is null)
+				<if test="fcreateuserid !=null and fcreateuserid!=''">
+					<!--					
+					案件负责人邮箱:
+					AND T_COM_COMPLAIN.FCREATEUSERID ='${fcreateuserid}'-->
+					AND T_COM_COMPLAIN.FRESPONSIBLEEMAIL ='${fcreateuserid}'
+				</if>
+			</when>
+			<otherwise>
+				<if test="fcreateuserid !=null and fcreateuserid!=''">
+					<!--					
+					案件负责人邮箱:
+					AND T_COM_COMPLAIN.FCREATEUSERID ='${fcreateuserid}'-->
+					AND T_COM_COMPLAIN.FRESPONSIBLEEMAIL ='${fcreateuserid}'
+				</if>
+			</otherwise>
+		</choose>
+		<if test="floanbread!=null and floanbread!=''"> AND FLOANBREAD ='${floanbread}'</if>
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    <!--
+      WARNING - @mbggenerated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      This element was generated on Sun Sep 29 19:10:18 CST 2013.
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from T_COM_COMPLAIN
+    where FID = #{fid,jdbcType=DECIMAL}
+  </select>
+	
+	<resultMap id="previewMap" type="map">
+    	<id column="FID" property="fid" jdbcType="DECIMAL" />
+    	<result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+   		<result column="FCOMPTIME" property="fcomptime" jdbcType="VARCHAR" />
+   		<result column="DITCHNAME" property="ditchname" jdbcType="VARCHAR" />
+   		<result column="FCOMPLAINANT" property="fcomplainant" jdbcType="VARCHAR" />
+   		<result column="FCUSNAME" property="fcusname" jdbcType="VARCHAR" />
+   		<result column="FLOANBREAD" property="floanbread" jdbcType="VARCHAR" />
+   		<result column="STATUSNAME" property="statusname" jdbcType="VARCHAR" />
+   		<result column="SERVICENAME" property="servicename" jdbcType="VARCHAR" />
+   		<result column="STATUSVALUE" property="statusvalue" jdbcType="VARCHAR" />
+   		<result column="ditchid" property="ditchid" jdbcType="VARCHAR" />
+   		<collection property="casecadeInicasetypes" column="{fid=FID}" 
+			javaType="arrayList" select="getCasecadeInicasetypes"></collection>
+	</resultMap>
+	<!-- 查询关联的案件初步分类 -->
+	<select id="getCasecadeInicasetypes" resultMap="casecadeInicasetypesMap" parameterType="map">
+		select a.inicasetypeid,b.fname InicasetypeName from T_COM_REL_INICASETYPE a
+    		left join t_com_inicasetype b on a.inicasetypeid = b.fid
+		<where><if test="fid!=null and fid!=''"></if>a.complainid = #{fid}  group by a.inicasetypeid,b.fname  order by a.inicasetypeid</where>
+	</select>
+	<resultMap id="casecadeInicasetypesMap" type="java.util.HashMap" >
+		<result property="id" column="inicasetypeid"/>
+		<result property="inicaseTypeName" column="InicasetypeName"/>
+	</resultMap>
+  <!-- 查询案件信息 -->
+  <select id="queryPageByParamss" parameterType="map" resultMap="previewMap">
+     SELECT * FROM 
+     	(SELECT ROWNUM AS ROWNO,t.* FROM 
+     		(SELECT T_COM_COMPLAIN.FID,T_COM_COMPLAIN.FNUMBER,
+     			TO_CHAR(T_COM_COMPLAIN.FCOMPTIME,'yyyy-mm-dd') AS FCOMPTIME,T_COM_COMPLAIN.FISEVIDENCE,T_COM_DITCH.FNAME DITCHNAME,T_COM_DITCH.Fid ditchid,
+     			T_COM_COMPLAIN.FCOMPLAINANT,T_COM_COMPLAIN.FCUSNAME,T_COM_INVESTIGATION.CASEID,T_COM_COMPLAIN.FLOANBREAD,
+     			T_COM_CUSSTATUS.FNAME STATUSNAME,T_COM_SERVICETYPE.FNAME SERVICENAME,T_COM_ISTATUS.VALUE STATUSVALUE
+   			FROM  T_COM_COMPLAIN 
+   				LEFT JOIN T_COM_DITCH ON T_COM_COMPLAIN.FCOMPCHANNELID=T_COM_DITCH.FID
+     			LEFT JOIN T_COM_CUSSTATUS ON T_COM_COMPLAIN.FCUSSTATUSID=T_COM_CUSSTATUS.FID
+     			LEFT JOIN T_COM_SERVICETYPE ON T_COM_COMPLAIN.FSERVICETYPEID=T_COM_SERVICETYPE.FID 
+		     	LEFT JOIN T_COM_INVESTIGATION ON  T_COM_COMPLAIN.FID=T_COM_INVESTIGATION.CASEID
+		     	LEFT JOIN T_COM_ISTATUS ON T_COM_INVESTIGATION.STATUSID=T_COM_ISTATUS.ID   
+		<where> 
+			1=1 AND T_COM_COMPLAIN.FTEMPSTATUS=1 AND T_COM_INVESTIGATION.PARENTID IS NULL
+			<include refid="preview_condition" /> ORDER BY T_COM_COMPLAIN.FID DESC 
+		</where>
+			) t
+		<where>
+			ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+		</where>	
+			)
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+  </select>
+  <!-- 查询案件信息的数量 -->
+  <select id="getTotalCountsByParams" parameterType="map" resultType="int">
+  		SELECT count(*) FROM (SELECT ROWNUM AS ROWNO,T_COM_COMPLAIN.FNUMBER,T_COM_COMPLAIN.FCOMPTIME,T_COM_COMPLAIN.FISEVIDENCE,
+     T_COM_DITCH.FNAME DITCHNAME,
+     T_COM_CUSSTATUS.FNAME STATUSNAME,T_COM_SERVICETYPE.FNAME SERVICENAME,T_COM_ISTATUS.VALUE STATUSVALUE
+     FROM  T_COM_COMPLAIN LEFT JOIN T_COM_DITCH ON T_COM_COMPLAIN.FCOMPCHANNELID=T_COM_DITCH.FID
+     LEFT JOIN T_COM_CUSSTATUS ON T_COM_COMPLAIN.FCUSSTATUSID=T_COM_CUSSTATUS.FID
+     LEFT JOIN T_COM_SERVICETYPE ON T_COM_COMPLAIN.FSERVICETYPEID=T_COM_SERVICETYPE.FID 
+     LEFT JOIN T_COM_INVESTIGATION ON  T_COM_COMPLAIN.FID=T_COM_INVESTIGATION.CASEID
+     LEFT JOIN T_COM_ISTATUS ON T_COM_INVESTIGATION.STATUSID=T_COM_ISTATUS.ID WHERE T_COM_COMPLAIN.FTEMPSTATUS=1 AND T_COM_INVESTIGATION.PARENTID IS NULL
+  	 <include refid="preview_condition" />)
+  	 </select>
+  	 <!-- 根据id查询案件信息 -->
+  	 <select id="findCase" parameterType="String" resultMap="BaseResultMap">
+  	     SELECT * from t_com_complain WHERE T_COM_COMPLAIN.FTEMPSTATUS=1 and T_COM_COMPLAIN.Fid=#{fid}
+  	 </select>
+  	 
+  	 <select id="findCaseById" parameterType="String" resultType="map">
+  	 SELECT * FROM (SELECT T_COM_COMPLAIN.*,T_COM_DITCH.FNAME DITCHNAME,
+     T_COM_CUSSTATUS.FNAME STATUSNAME,T_COM_SERVICETYPE.FNAME SERVICENAMEREL,
+     t_com_evidencetype.fname evidencetypename,t_Com_Cussource.Fname SOURCENAME ,casefrom.fname CASEFROMPLACE 
+     FROM  T_COM_COMPLAIN
+     LEFT JOIN T_COM_DITCH ON T_COM_COMPLAIN.FCOMPCHANNELID=T_COM_DITCH.FID
+     LEFT JOIN T_COM_CUSSTATUS ON T_COM_COMPLAIN.FCUSSTATUSID=T_COM_CUSSTATUS.FID 
+     LEFT JOIN t_Com_Cussource ON T_COM_COMPLAIN.FCUSSOURCEID= t_Com_Cussource.Fid 
+     LEFT JOIN t_com_evidencetype ON T_COM_COMPLAIN.Fevidencetypeid=t_com_evidencetype.fid 
+     LEFT JOIN T_COM_SERVICETYPE ON T_COM_COMPLAIN.FSERVICETYPEID=T_COM_SERVICETYPE.FID 
+     left join t_com_casefrom casefrom on t_com_complain.casefrom=casefrom.fid 
+     WHERE T_COM_COMPLAIN.FTEMPSTATUS=1 AND T_COM_COMPLAIN.Fid=#{fid})
+  	 </select>
+  	 <!-- 根据案件信息id获得初步分类名称 -->
+  	 <select id="getInicaseTypeName" parameterType="String" resultType="com.creditease.eas.compliance.bean.Inicasetype">
+  	 select t.* from t_com_inicasetype t where t.fid in (select inicasetypeid from t_com_rel_inicasetype where complainid=#{fid})
+  	 </select>
+  <!-- 插入案件信息 -->
+  <insert id="insert" parameterType="com.creditease.eas.compliance.bean.Complain" >
+	<selectKey keyProperty="fid" resultType="int" order="BEFORE">
+			select t_com_complain_seq.nextval from dual
+	</selectKey>
+    insert into T_COM_COMPLAIN (FID,FNUMBER,FCOMPLAINANT, FISCUSTOMER,FCUSNAME, 
+      FRESPONSIBLENAME,FRESPONSIBLEEMAIL,
+      FIDCARD, FMOBILE, FOFFICEPHONE,FQQ, FEMAIL, FCUSSOURCEID, 
+      FSERVICETYPEID, FINANCIALPLAN, FSTARTORENDTIME, 
+      FSALESMANNAME, FSERVICENAME, FFIRSTTRIAL, 
+      FLASTTRIAL, FDENIEDLOANS, FCONTRACTNUMBER, 
+      FCONTRACTTIME, FLOANTIME, FLOANBREAD, 
+      FREIMBSTRATTIME, FREIMBENDTIME, FAMOUNT, 
+      FDEADLINE, FISVIOLATE, FVIOLATEDAYS, 
+      FCOMPCHANNELID, FCOMPTIME, FISEVIDENCE, 
+      FEVIDENCETYPEID, FISINNER, FBUSPORTID, 
+      FDETAILDESCRIP,
+      FCREATEUSERID, FCREATETIME, FUPDATEUSERID, 
+      FLASTUPDATETIME,FTEMPSTATUS,FCUSSTATUSID,FREMARKS,
+      FCUSRELATION,FCOMPCONTACTINFO,FCOMPLAINIDCARD,FINDEX,FISEVIDENCEREMARKS,FSELFEMAILREMARK,FINICASETYPEREMARK,
+      FVIOLATECOUNTHISTORY,FEXT1, FEXT2,FEXT3, FEXT4, FEXT5,FEXT6, FEXT7, FEXT8, 
+      FEXT9, FEXT10,SRCODE,ISCHARGE,FNEWTYPEMARK,FRISKLEVEL,caseComeIntoCode,caseComeIntoDate,casefrom,salePerson,superLeader,indirectLeader,
+      saleDepart,serviceName)
+    values (#{fid,jdbcType=DECIMAL},#{fnumber,jdbcType=VARCHAR},#{fcomplainanter,jdbcType=VARCHAR}, #{fiscustomer,jdbcType=VARCHAR}, 
+     #{fcusName,jdbcType=VARCHAR},#{fresponsibleName,jdbcType=VARCHAR},#{fresponsibleEmail,jdbcType=VARCHAR},
+     #{fidcard,jdbcType=VARCHAR}, #{fmobile,jdbcType=VARCHAR}, #{fofficephone,jdbcType=VARCHAR}, 
+      #{fqq,jdbcType=VARCHAR}, #{femail,jdbcType=VARCHAR}, #{fcussourceid,jdbcType=DECIMAL}, 
+      #{fservicetypeid,jdbcType=DECIMAL}, #{financialplan,jdbcType=VARCHAR}, #{fstartorendtime,jdbcType=VARCHAR}, 
+      #{fsalesmanname,jdbcType=VARCHAR}, #{fservicename,jdbcType=VARCHAR}, #{ffirsttrial,jdbcType=VARCHAR}, 
+      #{flasttrial,jdbcType=VARCHAR}, #{fdeniedloans,jdbcType=VARCHAR}, #{fcontractnumber,jdbcType=VARCHAR}, 
+      #{fcontracttime,jdbcType=DATE}, #{floantime,jdbcType=DATE}, #{floanbread,jdbcType=VARCHAR}, 
+      #{freimbstrattime,jdbcType=VARCHAR}, #{freimbendtime,jdbcType=VARCHAR}, #{famount,jdbcType=VARCHAR}, 
+      #{fdeadline,jdbcType=VARCHAR}, #{fisviolate,jdbcType=VARCHAR}, #{fviolatedays,jdbcType=DECIMAL}, 
+      #{fcompchannelid,jdbcType=DECIMAL}, #{fcomptime,jdbcType=VARCHAR}, #{fisevidence,jdbcType=VARCHAR}, 
+      #{fevidencetypeid,jdbcType=DECIMAL}, #{fisinner,jdbcType=VARCHAR}, #{fbusportid,jdbcType=DECIMAL}, 
+      #{fdetaildescrip,jdbcType=VARCHAR},
+      #{fcreateuserid,jdbcType=DECIMAL}, #{fcreatetime,jdbcType=DATE}, #{fupdateuserid,jdbcType=DECIMAL}, 
+      #{flastupdatetime,jdbcType=DATE},#{ftempstatus,jdbcType=DECIMAL},#{fcusstatusid,jdbcType=VARCHAR},#{fremarks,jdbcType=VARCHAR},
+      #{fcusrelation,jdbcType=VARCHAR},#{fcompcontactinfo,jdbcType=VARCHAR},#{fcomplainidcard,jdbcType=VARCHAR},
+      #{findex,jdbcType=DECIMAL},#{fisevidenceRemarks,jdbcType=VARCHAR},#{fselfEmailRemark,jdbcType=VARCHAR},
+      #{finicasetypeRemark,jdbcType=VARCHAR},#{fviolateCountHistory,jdbcType=VARCHAR},#{fext1,jdbcType=VARCHAR}, #{fext2,jdbcType=VARCHAR}, 
+      #{fext3,jdbcType=VARCHAR}, #{fext4,jdbcType=VARCHAR}, #{fext5,jdbcType=VARCHAR}, 
+      #{fext6,jdbcType=VARCHAR}, #{fext7,jdbcType=VARCHAR}, #{fext8,jdbcType=VARCHAR}, 
+      #{fext9,jdbcType=VARCHAR}, #{fext10,jdbcType=VARCHAR},#{SRCode,jdbcType=VARCHAR},#{isCharge,jdbcType=VARCHAR},
+      #{fnewtypemark,jdbcType=VARCHAR},#{riskLevel,jdbcType=VARCHAR},#{caseComeIntoCode,jdbcType=VARCHAR},#{caseComeIntoDate,jdbcType=VARCHAR},
+      #{casefrom,jdbcType=DECIMAL},#{salePerson,jdbcType=VARCHAR},#{superLeader,jdbcType=VARCHAR},#{indirectLeader,jdbcType=VARCHAR},
+      #{saleDepart,jdbcType=VARCHAR},#{serviceName,jdbcType=VARCHAR})
+  </insert>
+  <!-- 修改案件信息 -->
+   <update id="updateByPrimaryKey" parameterType="com.creditease.eas.compliance.bean.Complain" >
+   update T_COM_COMPLAIN 
+    <set>   
+      <if test="SRCode != null and SRCode!=''" >
+        SRCODE= #{SRCode,jdbcType=VARCHAR},
+      </if> 
+      <if test="fcomplainanter != null" >
+        FCOMPLAINANT = #{fcomplainanter,jdbcType=VARCHAR},
+      </if>
+      <if test="riskLevel !=null">
+      	FRISKLEVEL=#{riskLevel,jdbcType=VARCHAR},	
+      </if>
+      <if test="isCharge!=null">
+      Ischarge=#{isCharge,jdbcType=VARCHAR},	
+      </if>
+      <if test="fiscustomer != null" >
+        FISCUSTOMER = #{fiscustomer,jdbcType=VARCHAR},
+      </if>
+      <if test="fidcard != null" >
+        FIDCARD = #{fidcard,jdbcType=VARCHAR},
+      </if>
+      <if test="fmobile != null" >
+        FMOBILE = #{fmobile,jdbcType=VARCHAR},
+      </if>
+      <if test="fofficephone != null" >
+        FOFFICEPHONE = #{fofficephone,jdbcType=VARCHAR},
+      </if>
+      <if test="fqq != null" >
+        FQQ = #{fqq,jdbcType=VARCHAR},
+      </if>
+      <if test="femail != null" >
+        FEMAIL = #{femail,jdbcType=VARCHAR},
+      </if>
+      <if test="fcussourceid != null" >
+        FCUSSOURCEID = #{fcussourceid,jdbcType=DECIMAL},
+      </if>
+      <if test="fservicetypeid != null" >
+        FSERVICETYPEID = #{fservicetypeid,jdbcType=DECIMAL},
+      </if>
+      <if test="financialplan != null" >
+        FINANCIALPLAN = #{financialplan,jdbcType=VARCHAR},
+      </if>
+      <if test="fstartorendtime != null" >
+        FSTARTORENDTIME = #{fstartorendtime,jdbcType=VARCHAR},
+      </if>
+      <if test="fsalesmanname != null" >
+        FSALESMANNAME = #{fsalesmanname,jdbcType=VARCHAR},
+      </if>
+      <if test="fservicename != null" >
+        FSERVICENAME = #{fservicename,jdbcType=VARCHAR},
+      </if>
+      <if test="ffirsttrial != null" >
+        FFIRSTTRIAL = #{ffirsttrial,jdbcType=VARCHAR},
+      </if>
+      <if test="flasttrial != null" >
+        FLASTTRIAL = #{flasttrial,jdbcType=VARCHAR},
+      </if>
+      <if test="fdeniedloans != null" >
+        FDENIEDLOANS = #{fdeniedloans,jdbcType=VARCHAR},
+      </if>
+      <if test="fcontractnumber != null" >
+        FCONTRACTNUMBER = #{fcontractnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="fcontracttime != null" >
+        FCONTRACTTIME = #{fcontracttime,jdbcType=DATE},
+      </if>
+      <if test="floantime != null" >
+        FLOANTIME = #{floantime,jdbcType=DATE},
+      </if>
+      <if test="floanbread != null" >
+        FLOANBREAD = #{floanbread,jdbcType=VARCHAR},
+      </if>
+      <if test="freimbstrattime != null" >
+        FREIMBSTRATTIME = #{freimbstrattime,jdbcType=VARCHAR},
+      </if>
+      <if test="freimbendtime != null" >
+        FREIMBENDTIME = #{freimbendtime,jdbcType=VARCHAR},
+      </if>
+      <if test="famount != null" >
+        FAMOUNT = #{famount,jdbcType=VARCHAR},
+      </if>
+      <if test="fdeadline != null" >
+        FDEADLINE = #{fdeadline,jdbcType=VARCHAR},
+      </if>
+      <if test="fisviolate != null" >
+        FISVIOLATE = #{fisviolate,jdbcType=VARCHAR},
+      </if>
+      <if test="fviolatedays != null" >
+        FVIOLATEDAYS = #{fviolatedays,jdbcType=DECIMAL},
+      </if>
+      <if test="fcompchannelid != null" >
+        FCOMPCHANNELID = #{fcompchannelid,jdbcType=DECIMAL},
+      </if>
+      <if test="fcomptime != null" >
+        FCOMPTIME = #{fcomptime,jdbcType=VARCHAR},
+      </if>
+      <if test="fisevidence != null" >
+        FISEVIDENCE = #{fisevidence,jdbcType=VARCHAR},
+      </if>
+      <if test="fevidencetypeid != null" >
+        FEVIDENCETYPEID = #{fevidencetypeid,jdbcType=DECIMAL},
+      </if>
+      <if test="fisinner != null" >
+        FISINNER = #{fisinner,jdbcType=VARCHAR},
+      </if>
+      <if test="fbusportid != null" >
+        FBUSPORTID = #{fbusportid,jdbcType=DECIMAL},
+      </if>
+      <if test="fdetaildescrip != null" >
+        FDETAILDESCRIP = #{fdetaildescrip,jdbcType=VARCHAR},
+      </if>
+      <if test="fcreateuserid != null" >
+        FCREATEUSERID = #{fcreateuserid,jdbcType=DECIMAL},
+      </if>
+      <if test="fcreatetime != null" >
+        FCREATETIME = #{fcreatetime,jdbcType=DATE},
+      </if>
+      <if test="fupdateuserid != null" >
+        FUPDATEUSERID = #{fupdateuserid,jdbcType=DECIMAL},
+      </if>
+      <if test="flastupdatetime != null" >
+        FLASTUPDATETIME = #{flastupdatetime,jdbcType=DATE},
+      </if>
+      <if test="fviolateCountHistory != null" >
+        FVIOLATECOUNTHISTORY = #{fviolateCountHistory,jdbcType=VARCHAR},
+      </if>
+      <if test="fext1 != null" >
+        FEXT1 = #{fext1,jdbcType=VARCHAR},
+      </if>
+      <if test="fext2 != null" >
+        FEXT2 = #{fext2,jdbcType=VARCHAR},
+      </if>
+      <if test="fext3 != null" >
+        FEXT3 = #{fext3,jdbcType=VARCHAR},
+      </if>
+      <if test="fext4 != null" >
+        FEXT4 = #{fext4,jdbcType=VARCHAR},
+      </if>
+      <if test="fext5 != null" >
+        FEXT5 = #{fext5,jdbcType=VARCHAR},
+      </if>
+      <if test="fext6 != null" >
+        FEXT6 = #{fext6,jdbcType=VARCHAR},
+      </if>
+      <if test="fext7 != null" >
+        FEXT7 = #{fext7,jdbcType=VARCHAR},
+      </if>
+      <if test="fext8 != null" >
+        FEXT8 = #{fext8,jdbcType=VARCHAR},
+      </if>
+      <if test="fext9 != null" >
+        FEXT9 = #{fext9,jdbcType=VARCHAR},
+      </if>
+      <if test="fext10 != null" >
+        FEXT10 = #{fext10,jdbcType=VARCHAR},
+      </if>
+      <if test="ftempstatus != null" >
+        FTEMPSTATUS = #{ftempstatus,jdbcType=DECIMAL},
+      </if>
+      <if test="fcusstatusid != null" >
+        FCUSSTATUSID = #{fcusstatusid,jdbcType=DECIMAL},
+      </if>
+      <if test="fremarks != null" >
+        FREMARKS = #{fremarks,jdbcType=VARCHAR},
+      </if>
+      <if test="fcusrelation != null" >
+        FCUSRELATION = #{fcusrelation,jdbcType=VARCHAR},
+      </if>
+      <if test="fcompcontactinfo != null" >
+        FCOMPCONTACTINFO = #{fcompcontactinfo,jdbcType=VARCHAR},
+      </if>
+      <if test="fcomplainidcard != null" >
+        FCOMPLAINIDCARD = #{fcomplainidcard,jdbcType=VARCHAR},
+      </if>
+      <if test="fnumber != null" >
+        FNUMBER = #{fnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="findex != null" >
+        FINDEX = #{findex,jdbcType=DECIMAL},
+      </if>
+      <if test="fisevidenceRemarks != null" >
+        FISEVIDENCEREMARKS = #{fisevidenceRemarks,jdbcType=VARCHAR},
+      </if>
+      <if test="fcusName != null" >
+        FCUSNAME = #{fcusName,jdbcType=VARCHAR},
+      </if>
+      <if test="fresponsibleName != null" >
+        FRESPONSIBLENAME = #{fresponsibleName,jdbcType=VARCHAR},
+      </if>
+      <if test="fresponsibleEmail != null" >
+        FRESPONSIBLEEMAIL = #{fresponsibleEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="fselfEmailRemark != null" >
+        FSELFEMAILREMARK = #{fselfEmailRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="fnewtypemark !=null">
+      	FNEWTYPEMARK = #{fnewtypemark,jdbcType=VARCHAR},
+      </if>
+      <if test="finicasetypeRemark != null" >
+        FINICASETYPEREMARK = #{finicasetypeRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="caseComeIntoCode!=null and caseComeIntoCode!=''">
+        caseComeIntoCode=#{caseComeIntoCode,jdbcType=VARCHAR}, 
+      </if>
+      <if test="caseComeIntoDate!=null and caseComeIntoDate!=''">
+        caseComeIntoDate=#{caseComeIntoDate,jdbcType=VARCHAR}, 
+      </if>
+     
+       casefrom =#{casefrom,jdbcType=DECIMAL}, 
+     
+      <if test="salePerson!=null and salePerson!=''">
+        salePerson=#{salePerson,jdbcType=VARCHAR}, 
+      </if>
+      <if test="superLeader!=null and superLeader!=''">
+        superLeader=#{superLeader,jdbcType=VARCHAR}, 
+      </if>
+      <if test="indirectLeader!=null and indirectLeader!=''">
+        indirectLeader=#{indirectLeader,jdbcType=VARCHAR}, 
+      </if>
+      <if test="saleDepart!=null and saleDepart!=''">
+        saleDepart=#{saleDepart,jdbcType=VARCHAR}, 
+      </if>
+      <if test="serviceName!=null and serviceName!=''">
+        serviceName=#{serviceName,jdbcType=VARCHAR} 
+      </if>
+    </set>
+    where FID = #{fid,jdbcType=DECIMAL}
+  </update>
+  
+  
+  
+  
+  
+  
+  
+  
+  	 
+	 <!-- 案件初步违归分类 -->
+	 <resultMap id="complainForExcel" type="com.creditease.eas.compliance.bean.excel.ComplainForExcel">
+	    <id column="FID" property="fid" jdbcType="DECIMAL" />
+	    <result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+	    <result column="fcomptime" property="fcomptime" jdbcType="VARCHAR" />
+	    <result column="channelname" property="channelname" jdbcType="VARCHAR" />
+	    <result column="fcomplainant" property="fcomplainanter" jdbcType="VARCHAR" />
+	    <result column="fcusname" property="fcusName" jdbcType="VARCHAR" />
+	    <result column="fidcard" property="fidcard" jdbcType="VARCHAR" />
+	    <result column="fresponsiblename" property="fresponsibleName" jdbcType="VARCHAR" />
+	    <result column="fdetaildescrip" property="fdetaildescrip" jdbcType="VARCHAR" />
+	    <result column="status" property="status" jdbcType="VARCHAR" />
+	    <result column="fdeniedloans" property="fdeniedloans" jdbcType="VARCHAR" />
+	    
+	    <result column="floanbread" property="floanbread" jdbcType="VARCHAR"/>
+	    <result column="fcontractnumber" property="fcontractnumber" jdbcType="VARCHAR"/>
+	    <result column="famount" property="famount" jdbcType="VARCHAR"/>
+	    <result column="fdeadline" property="fdeadline" jdbcType="VARCHAR"/>
+	    <result column="fviolatedays" property="fviolatedays" jdbcType="VARCHAR"/>
+	    <result column="fviolatecounthistory" property="fviolateCountHistory" jdbcType="VARCHAR"/>
+	    <result column="floantime" property="floantime" jdbcType="VARCHAR"/>
+	    <result column="freimbstrattime" property="freimbstrattime" jdbcType="VARCHAR"/>
+	    <result column="freimbendtime" property="freimbendtime" jdbcType="VARCHAR"/>
+	    
+	    <collection property="iniCaseDetailTypeList" ofType="com.creditease.eas.compliance.bean.excel.CaseDetailTypeForExcel">
+	    	<id property="id" column="detailcasetypeid" jdbcType="VARCHAR"/>
+	    	<result property="name" column="detailname" jdbcType="VARCHAR"/>
+    		<result property="breakLevelName" column="breaklevelname" jdbcType="VARCHAR"/>
+    		<result property="baseTypeName" column="basename" jdbcType="VARCHAR"/>
+	    	<result property="caseTypeId" column="inicasetypeid" jdbcType="VARCHAR"/>
+	    	<result property="caseTypeName" column="ininame" jdbcType="VARCHAR"/>
+	    </collection>
+	  </resultMap>
+	  
+	<sql id="excel_condition" >
+		select * from t_com_complain where ftempstatus=1  
+		<if test="fcompchannelid != null and fcompchannelid!=0"> AND FCOMPCHANNELID='${fcompchannelid}'</if>
+		<if test="startDate != null and startDate != '' "> AND FCOMPTIME &gt;= TO_DATE('${startDate}','yyyy-mm-dd hh24:mi:ss')</if>
+		<if test="endDate!= null and endDate != '' ">AND FCOMPTIME &lt;= TO_DATE('${endDate}','yyyy-mm-dd hh24:mi:ss')</if>
+		<if test="fcomplainant != null and fcomplainant != '' "> AND FCOMPLAINANT like '%${fcomplainant}%'</if>
+		<if test="fcusname !=null and fcusname !='' "> AND FCUSNAME LIKE '%${fcusname}%'</if>
+		<if test="typename!=null and typename!='' ">
+			and fid in (select distinct m.fid from T_COM_COMPLAIN m 
+				left join t_com_rel_inicasetype n on m.fid = n.complainid where n.inicasetypeid in (${typename}))
+		</if>
+		<if test="fcreateuserid !=null and fcreateuserid!=''">
+			AND T_COM_COMPLAIN.FRESPONSIBLEEMAIL ='${fcreateuserid}'
+		</if>
+		<if test="floanbread!=null and floanbread!=''"> AND FLOANBREAD ='${floanbread}'</if>
+  	</sql>
+	 
+	 
+	 <select id="getIniNewCaseType" parameterType="map" resultMap="complainForExcel">
+		 
+			select c.fid,c.fnumber,
+				   c.fcomptime,
+			       di.fname channelname,
+			       c.fcomplainant,
+			       c.fcusname,
+			       c.fidcard,
+			       c.fresponsiblename,
+			       c.fdetaildescrip,
+			       ss.fname as status,
+			       c.fdeniedloans,
+			       r.inicasetypeid,
+			       i.fname as ininame,
+			       r.detailcasetypeid,
+			       d.fname detailname,
+			       b.fname breaklevelname,
+			       base.fname basename,
+			       c.floanbread,
+			       c.fcontractnumber,
+			       c.famount,
+			       c.fdeadline,
+			       c.fviolatedays,
+			       c.fviolatecounthistory,
+			       c.floantime,
+			       c.freimbstrattime,
+			       c.freimbendtime
+			  from (
+			  	<include refid="excel_condition"/>
+			  ) c
+			  <![CDATA[
+			  left join (select * from t_com_rel_inicasetype where inicasetypeid >= 20) r on c.fid =
+			                                                                                 r.complainid
+			  left join t_com_inicasetype i on r.inicasetypeid = i.fid
+			  left join t_com_detailcasetype d on r.detailcasetypeid = d.fid
+			  left join t_com_breaklevel b on d.fbreaklevel = b.fid
+			  left join t_com_basetype base on d.fbasetype = base.fid
+			  left join t_com_ditch di on c.fcompchannelid = di.fid
+			  left join t_com_cusstatus ss on c.fcusstatusid=ss.fid
+			 order by c.fid, i.fid, d.fid
+		 ]]>	
+	 </select>
+	
+	
+	 <!-- 案件申请结案违归分类 -->
+	  <resultMap id="complainApplymentForExcel" type="com.creditease.eas.compliance.bean.excel.ComplainForExcel">
+	    <id column="complainid" property="fid" jdbcType="DECIMAL" />
+	    <collection property="endCaseDetailTypeList" ofType="com.creditease.eas.compliance.bean.excel.CaseDetailTypeForExcel">
+	    	<id property="id" column="detailcasetypeid" jdbcType="VARCHAR"/>
+	    	<result property="name" column="detailname" jdbcType="VARCHAR"/>
+    		<result property="breakLevelName" column="breaklevelname" jdbcType="VARCHAR"/>
+    		<result property="baseTypeName" column="basename" jdbcType="VARCHAR"/>
+	    	<result property="caseTypeId" column="inicasetypeid" jdbcType="VARCHAR"/>
+	    	<result property="caseTypeName" column="ininame" jdbcType="VARCHAR"/>
+	    </collection>
+	    
+	  </resultMap>
+	
+	<select id="getEndNewCaseType" parameterType="map" resultMap="complainApplymentForExcel">
+		
+			select c.complainid,
+		       r.inicasetypeid,
+		       i.fname as ininame,
+		       r.detailcasetypeid,
+		       d.fname detailname,
+		       b.fname breaklevelname,
+		       base.fname basename
+		  from (select complainid, max(applymentid) applymentid
+		          from (select tab1.complainid, tab2.id applymentid
+		                  from (select c.fid complainid, v.id investigationid
+		                          from (
+		                          <include refid="excel_condition"/>
+		                          ) c
+		 <![CDATA[ 
+		                          left join (select *
+		                                      from t_com_investigation o
+		                                     where o.parentid is null) v on c.fid =
+		                                                                    v.caseid) tab1
+		                  left join t_com_applysettlement tab2 on tab1.investigationid =
+		                                                          tab2.investigationid)
+		         group by complainid) c
+		  left join (select * from t_com_rel_inicasetype where inicasetypeid >= 20) r on c.applymentid = r.applysettlementid
+		  left join t_com_inicasetype i on r.inicasetypeid = i.fid
+		  left join t_com_detailcasetype d on r.detailcasetypeid = d.fid
+		  left join t_com_breaklevel b on d.fbreaklevel = b.fid
+		  left join t_com_basetype base on d.fbasetype = base.fid 
+		  order by c.complainid, i.fid, d.fid
+		]]>
+	</select>
+	
+	<resultMap id="complainDepartForExcel" type="com.creditease.eas.compliance.bean.excel.ComplainForExcel">
+	    <id column="complainid" property="fid" jdbcType="DECIMAL" />
+	    <collection property="departForExcels" ofType="com.creditease.eas.compliance.bean.excel.DepartForExcel">
+	    	<id property="fid" column="departid" jdbcType="VARCHAR"/>
+	    	<result property="fdeptname" column="fdeptname" jdbcType="VARCHAR"/>
+	    	<result property="fcityname" column="fcityname" jdbcType="VARCHAR"/>
+	    	<result property="fsaledepart" column="fsaledepart" jdbcType="VARCHAR"/>
+	    </collection>
+	  </resultMap>
+	
+	<!-- 部门 -->
+	<select id="getComplainDepartForExcels" parameterType="map" resultMap="complainDepartForExcel">
+			select c.fid complainid,d.fid departid, d.fdeptname,d.fcityname,d.fsaledepart
+			  from (
+			  <include refid="excel_condition"/>
+			       ) c
+			  left join t_com_deptinfo d on c.fid = d.fcomplainid
+			 order by c.fid, d.fid
+	</select>
+	
+	<select id="getComplainDepartMaxForExcel" parameterType="map" resultType="int">
+		select nvl(max(cc),1)
+		  from (select c.fid, count(1) cc
+		          from (
+		          <include refid="excel_condition"/>
+		          ) c
+		          left join t_com_deptinfo d on c.fid = d.fcomplainid
+		         group by c.fid)
+	</select>
+	
+	<!-- 内部人员 -->
+	<resultMap id="complainPersonForExcel" type="com.creditease.eas.compliance.bean.excel.ComplainForExcel">
+	    <id column="complainid" property="fid" jdbcType="DECIMAL" />
+	    <collection property="personForExcelList" ofType="com.creditease.eas.compliance.bean.excel.PersonForExcel">
+	    	<id property="fid" column="personid" jdbcType="DECIMAL"/>
+	    	<result property="fname" column="personname" jdbcType="VARCHAR"/>
+	    </collection>
+	  </resultMap>
+	<select id="getComplainInnerPersonForExcels" parameterType="map" resultMap="complainPersonForExcel">
+		select c.fid complainid, p.fid personid, p.fname personname
+		  from (
+		  	<include refid="excel_condition"/>
+		  ) c
+		  left join (select s.* from t_com_person s where s.fisinner = 1) p on c.fid = p.fcomplainid
+		 order by c.fid, p.fid
+	</select>
+	
+	<select id="getComplainInnerPersonMaxForExcel" parameterType="map" resultType="int">
+		select nvl(max(cc),1)
+		  from (select c.fid, count(1) cc
+		          from (
+		          	<include refid="excel_condition"/>
+		          ) c
+		          left join (select s.* from t_com_person s where s.fisinner = 1) d on c.fid =
+		                                                                               d.fcomplainid
+		         group by c.fid)
+	</select>
+	
+	
+	<!-- 收费 -->
+	<resultMap id="complainChargeForExcel" type="com.creditease.eas.compliance.bean.excel.ComplainForExcel">
+	    <id column="complainid" property="fid" jdbcType="DECIMAL" />
+	    <collection property="chargeInfoForExcelList" ofType="com.creditease.eas.compliance.bean.excel.ChargeInfoForExcel">
+	    	<id property="fid" column="chargeid" jdbcType="DECIMAL"/>
+	    	<result property="freceiveType" column="freceivetype" jdbcType="VARCHAR"/>
+	    	<result property="ftype" column="ftype" jdbcType="VARCHAR"/>
+	    	<result property="fmode" column="fmode" jdbcType="VARCHAR"/>
+	    	<result property="famount" column="famount" jdbcType="VARCHAR"/>
+	    </collection>
+	</resultMap>
+	  
+	<select id="getComplainChargeForExcels" parameterType="map" resultMap="complainChargeForExcel">
+		select c.fid complainid, p.fid chargeid,p.freceivetype,p.ftype,p.fmode,p.famount 
+		  from (
+		  	<include refid="excel_condition"/>
+		  ) c
+		  left join (select charge.fcomplainid,charge.fid,charge.freceivetype,charge.ftype,charge.fmode,charge.famount from t_com_chargeinfo charge) p 
+		  on c.fid = p.fcomplainid
+		 order by c.fid, p.fid
+	</select>
+	
+	<select id="getComplainChargeMaxForExcel" parameterType="map" resultType="int">
+		select nvl(max(cc),1)
+		  from (select c.fid, count(1) cc
+		          from (
+		          <include refid="excel_condition"/>
+		          ) c
+		          left join (select s.* from t_com_chargeinfo s) d on c.fid =
+		                                                              d.fcomplainid
+		         group by c.fid)
+	</select>
+	
+	
+	<!--初步调查  -->
+	<resultMap id="complainInvestigationForExcel" type="com.creditease.eas.compliance.bean.excel.ComplainForExcel">
+	    <id column="fid" property="fid" jdbcType="DECIMAL" />
+	    <result property="statusname" column="statusname" jdbcType="VARCHAR"/>
+	    <result property="endtime" column="endtime" jdbcType="VARCHAR"/>
+	    <result property="outoflinename" column="outoflinename" jdbcType="VARCHAR"/>
+	    <result property="outooflinelevelname" column="outooflinelevelname" jdbcType="VARCHAR"/>
+	    <result property="reason" column="reason" jdbcType="VARCHAR"/>
+	    <result property="complainantSolution" column="complainantSolution" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<select id="getComplainInvestigationForExcels" resultMap="complainInvestigationForExcel" parameterType="map">
+		select c.fid,
+		       s.value statusname,
+		       tab3.createtime endtime,
+		       o.value outoflinename,
+		       l.value outooflinelevelname,
+		       tab2.reason,
+		       tab2.complainantSolution
+		  from (select c.fid, max(n.id) investigationid
+		          from (
+		          <include refid="excel_condition"/>
+		          ) c
+		          left join (select *
+		                      from t_com_investigation n
+		                     where n.parentid is null) n on c.fid = n.caseid
+		         group by c.fid) c1
+		  left join t_com_complain c on c1.fid = c.fid
+		  left join t_com_investigation tab1 on c1.investigationid = tab1.id
+		  left join t_com_istatus s on tab1.statusid = s.id
+		  left join (select t.id investid, a.*
+		               from t_com_applysettlement a
+		               join (select v.id, max(a.id) applymentid
+		                      from t_com_investigation v
+		                      join t_com_applysettlement a on v.id =
+		                                                      a.investigationid
+		                     group by v.id) t on a.id = t.applymentid) tab2 on tab1.id =
+		                                                                       tab2.investid
+		  left join (select tab1.createtime, tab1.investigationid
+		               from t_com_auditresult tab1,
+		                    (select v.investigationid, max(v.id) maxId
+		                       from t_com_auditresult v, t_com_investigation t
+		                      where t.statusid = 17
+		                        and t.id = v.investigationid
+		                      group by v.investigationid) tab2
+		              where tab1.id = tab2.maxId) tab3 on tab1.id =
+		                                                  tab3.investigationid
+		  left join t_com_outofline o on tab2.outoflineid = o.id
+		  left join t_com_outoflinelevel l on tab2.Outoflinelevelid = l.id
+		 order by c.fid
+	</select>
+  
+  <insert id="saveComplainToCompliance" parameterType="map" >
+  	<selectKey keyProperty="fid" resultType="int" order="BEFORE">
+			select t_com_complain_seq.nextval from dual
+	</selectKey>
+  	insert into t_com_complain
+	  (fid,
+	   casecomeintocode,
+	   fcusname,
+	   fidcard,
+	   SALEPERSON,
+	   SALEDEPART,
+	   fcomplainant,
+	   fext2,
+	   fcomptime,
+	   FDETAILDESCRIP,
+	   CASEFROM,
+	   fofficephone,FCREATETIME,FNUMBER,ftempstatus,findex,NOWDATE) values 
+	   (#{fid,jdbcType=DECIMAL},#{transportId,jdbcType=VARCHAR},#{MORTGAGOR_NAME,jdbcType=VARCHAR},
+	   #{ID_NUMBER,jdbcType=VARCHAR},#{SELL_USER_NAME,jdbcType=VARCHAR},#{SUBMIT_DEPT_NAME,jdbcType=VARCHAR},
+	   #{REPORTER_NAME,jdbcType=VARCHAR}
+	   ,#{REPORTER_TEL,jdbcType=VARCHAR},to_date(#{SUBMIT_TIME},'yyyy-mm-dd') ,#{fdetaildescrip,jdbcType=VARCHAR},
+	   #{REPORTED_PARTY,jdbcType=VARCHAR}
+	   ,#{COMPLAINT_TEL,jdbcType=VARCHAR},sysdate,#{fnumber,jdbcType=VARCHAR},1,#{fnumber,jdbcType=VARCHAR},#{nowdate,jdbcType=VARCHAR})
+  </insert>
+  
+  
+  <insert id="batchSaveLoanAnti" parameterType="java.util.List">
+  	insert into t_com_loan_anti(fid,code,name,idcard,saledepart,saleperson,createdate,COMPLAINID) 
+  	  select loan_anti_seq.nextval,
+		       	 code,
+		         name,
+		         idcard,
+		         saledepart,
+		         saleperson,
+		         createtime,
+		         complainId
+		    from (
+		    	<foreach collection="list" item="item" index="index" separator="UNION ALL">
+		    		select 
+		    		  #{item.code,jdbcType=VARCHAR} as code,
+                   	  #{item.name,jdbcType=VARCHAR} as name,
+                      #{item.idcard,jdbcType=VARCHAR} as idcard,
+                      #{item.saledepart,jdbcType=VARCHAR} as saledepart,
+                      #{item.saleperson,jdbcType=DECIMAL} as saleperson,
+	                  sysdate as createtime,
+	                  #{item.complainId,jdbcType=DECIMAL} as complainId
+	            from dual 
+		    	</foreach>
+	 		)
+  	
+  </insert>
+  
+  
+  <select id="getComplainCountByComeIntoCount" parameterType="String" resultType="int">
+  	select count(1) from t_com_complain c where  c.ftempstatus=1 and c.casecomeintocode=#{code,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

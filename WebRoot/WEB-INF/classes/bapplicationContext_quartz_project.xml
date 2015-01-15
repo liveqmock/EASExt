@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>   
+		<!--
+			Quartz中时间表达式的设置  时间格式:  s m h d m w(?) y(?) ,   分别对应: 秒>分>小时>日>月>周>年, 
+			推送可能需要提供三个定时任务的接口
+			需要设置一个推送的时间点吗？			
+		 -->
+	<!-- 项目管理预警功能 -->
+      <bean id="projectJob" class="com.creditease.eas.projectmanage.service.imp.ProjectServiceImpl"/>
+    <!-- 行政采购预警功能 -->
+      <bean id="adminiPurcMailJob" class="com.creditease.eas.adminipurc.service.impl.AdminiPurcMailServiceImpl"/>
+      
+	<!--声明发送报告邮件任务目标方法 -->
+      <bean id="sendReportEmailJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="projectJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>sendReportEmail</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+      <!--声明发送预警邮件任务目标方法 -->
+      <bean id="sendEmailJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="projectJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>sendWarnEmail</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+      
+      <!--行政采购预警提前一个月发送给接口人声明发送预警邮件任务目标方法 -->
+      <bean id="sendadminiPurcMailJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="adminiPurcMailJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>purcPortMailInfo</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+      
+       <!--行政采购预警周四汇总邮件给采购组声明发送预警邮件任务目标方法 -->
+      <bean id="sendadminitotalPurcMailJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="adminiPurcMailJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>totalPurcPortMailInfo</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+      
+      <!--行政采购预警周四给总接口人汇总本部门预警声明发送预警邮件任务目标方法 -->
+      <bean id="sendorgTotalMailToPortJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="adminiPurcMailJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>orgTotalMailToPort</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+      
+        <!--行政采购预警周一预警邮件声明发送预警邮件任务目标方法 -->
+      <bean id="sendadminimondayPurcMailJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+      	<property name="targetObject">
+      		<ref bean="adminiPurcMailJob"/>
+      	</property>
+      	<property name="targetMethod">
+      		<value>purcMondayMailInfo</value>
+      	</property>
+      	<property name="concurrent" value="false"/>
+      </bean>
+      
+      
+	<!--声明发送预警邮件任务定时器08 -->
+	<bean id="doProjectForsendEmailJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="sendEmailJob"/>
+      	</property>
+      	<property name="cronExpression">
+      		<value>00 00 08 * * ?</value>
+      	</property>
+      </bean>
+	<!--声明发送报告邮件任务定时器 -->
+	<bean id="doProjectForsendReportEmailJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="sendReportEmailJob"/>
+      	</property>
+      	<property name="cronExpression">
+      		<value>00 30 20 * * ?</value>
+      	</property>
+      </bean>
+     
+     <!--行政采购提前一个月发给接口人预警声明发送报告邮件任务定时器 -->
+	<bean id="doadminipurcForsendEmailJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="sendadminiPurcMailJob"/>
+      	</property>
+      	<property name="cronExpression">
+      	<value>00 20 20 * * ?</value>
+      	</property>
+      </bean>
+      
+       <!--行政采购周四汇总邮件给采购组预警声明发送报告邮件任务定时器 -->
+	<bean id="doadminitotalpurcForsendEmailJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="sendadminitotalPurcMailJob"/>
+      	</property>
+      	<property name="cronExpression">
+      	
+      	<value>00 00 22 ? * 5</value>
+      	<!--
+      	测试
+      	<value>00 41 16 ? * 3</value>
+      	-->
+      	</property>
+      </bean>
+      
+       <!--行政采购周四给总接口人汇总本部门邮件预警声明发送报告邮件任务定时器 -->
+	<bean id="doorgTotalMailToPortJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="sendorgTotalMailToPortJob"/>
+      	</property>
+      	<property name="cronExpression">
+      	
+      	<value>00 10 22 ? * 5</value>
+      		
+      	<!--
+      	测试
+      	<value>00 37 16 ? * 3</value>
+      	--></property>
+      </bean>
+        
+       <!--行政采购周一邮件预警声明发送报告邮件任务定时器 -->
+	<bean id="doadminimondaypurcForsendEmailJob" class="org.springframework.scheduling.quartz.CronTriggerBean">
+      	<property name="jobDetail">
+      		<ref bean="sendadminimondayPurcMailJob"/>
+      	</property>
+      	<property name="cronExpression">
+      		<value>00 20 08 ? * 2</value>
+      	</property>
+      </bean>
+      
+     <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+        <bean id="startQuertz_project" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+            <property name="triggers">
+                <list>
+               		
+                    <ref bean="doProjectForsendEmailJob"/>
+                     <ref bean="doProjectForsendReportEmailJob"/>
+                    
+                    <!-- 行政采购 周一发提醒邮件 -->
+                    <ref bean="doadminimondaypurcForsendEmailJob"/>
+                   	<!--行政采购  提前一个月发提醒邮件 -->
+                    <ref bean="doadminipurcForsendEmailJob"/> 
+                   	<!--行政采购  周四汇总这一周邮件发给采购组  -->
+                    <ref bean="doadminitotalpurcForsendEmailJob"/>
+                    
+                    <!-- 行政采购 周四给总接口人汇总本部门邮件提醒 -->
+                    <ref bean="doorgTotalMailToPortJob"/>
+              
+               </list>
+            </property>
+        </bean>
+
+</beans>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.admin.dao.RoleMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.admin.bean.Role" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="rolename" property="rolename" jdbcType="VARCHAR" />
+    <result column="stutas" property="stutas" jdbcType="INTEGER" />
+    <result column="FCREATOR" property="fcreator" jdbcType="DECIMAL" />
+    <result column="FLASTUPDATOR" property="flastupdator" jdbcType="DECIMAL" />
+    <result column="FCREATEDATE" property="fcreatedate" jdbcType="TIMESTAMP" />
+    <result column="FLASTUPDATETIME" property="flastupdatetime" jdbcType="TIMESTAMP" />
+  </resultMap>
+ 
+  <sql id="Base_Column_List" >
+    id, rolename, stutas,fcreator,flastupdator,fcreatedate,flastupdatetime
+  </sql>
+ <!-- 根据角色id查找角色对象 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_role
+    where id = #{id,jdbcType=INTEGER} and stutas=0
+  </select>
+  
+  <!-- 判断角色名称是否已经存在 -->
+  <select id="selectedIfRoleExists" resultType="int" parameterType="string" >
+	select count(id) from t_role where rolename=#{rolename,jdbcType=VARCHAR} and stutas=0
+  </select>
+   <!-- 根据角色名称查询角色id -->
+   <select id="selectRoleIdByName" resultType="int" parameterType="string" >
+	select id from t_role where rolename=#{rolename,jdbcType=VARCHAR} and stutas=0
+  </select>
+  <!--查询角色的id和name  -->
+  <select id="seleroleidname"  resultMap="BaseResultMap" >
+	select id, rolename from t_role where stutas=0
+  </select>
+  <!-- 根据用户名查询人员的角色信息 
+  		人员能看到自己创建的
+  -->
+<select id="seleroleidnameByUserid"  resultMap="BaseResultMap" parameterType="java.lang.Long" >
+	select id, rolename from t_role  r
+	where r.FCREATOR = #{fcreator,jdbcType=VARCHAR} and r.stutas = 0
+  </select>
+   <!-- 根据用户名查询人员的角色信息 
+  		人员能看到自己创建的，或者自己下级角色创建的角色信息
+  -->
+  <select id="seleroleidnameByUserids"  resultMap="BaseResultMap" parameterType="ArrayList" >
+	select id, rolename from t_role  r
+	where  r.stutas = 0 and
+		<foreach collection="list" index="index" item="tag" open="" separator="or" close="">
+			      r.FCREATOR like '%'||#{tag}||'%'
+		</foreach>
+  </select>
+  <!-- 删除时更改status状态为1 -->
+  <update id="updateStatus" parameterType="java.lang.Integer">
+     update t_role
+     set stutas = 1
+      where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_role
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <!-- 添加角色，stutas默认为零，id自增长 -->
+  <insert id="insertRole" parameterType="com.creditease.eas.admin.bean.Role" >
+     <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   		select T_ROLE_SEQ.NEXTVAL from dual
+	  </selectKey>
+   insert into T_ROLE (ID, ROLENAME, STUTAS, 
+      FCREATOR, FLASTUPDATOR, FCREATEDATE, 
+      FLASTUPDATETIME)
+    values (#{id,jdbcType=INTEGER}, #{rolename,jdbcType=VARCHAR}, #{stutas,jdbcType=DECIMAL}, 
+      #{fcreator,jdbcType=DECIMAL}, #{flastupdator,jdbcType=DECIMAL}, #{fcreatedate,jdbcType=TIMESTAMP}, 
+      #{flastupdatetime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.creditease.eas.admin.bean.Role" >
+    insert into T_ROLE
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="rolename != null" >
+        ROLENAME,
+      </if>
+      <if test="stutas != null" >
+        STUTAS,
+      </if>
+      <if test="fcreator != null" >
+        FCREATOR,
+      </if>
+      <if test="flastupdator != null" >
+        FLASTUPDATOR,
+      </if>
+      <if test="fcreatedate != null" >
+        FCREATEDATE,
+      </if>
+      <if test="flastupdatetime != null" >
+        FLASTUPDATETIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=DECIMAL},
+      </if>
+      <if test="rolename != null" >
+        #{rolename,jdbcType=VARCHAR},
+      </if>
+      <if test="stutas != null" >
+        #{stutas,jdbcType=DECIMAL},
+      </if>
+      <if test="fcreator != null" >
+        #{fcreator,jdbcType=DECIMAL},
+      </if>
+      <if test="flastupdator != null" >
+        #{flastupdator,jdbcType=DECIMAL},
+      </if>
+      <if test="fcreatedate != null" >
+        #{fcreatedate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="flastupdatetime != null" >
+        #{flastupdatetime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.creditease.eas.admin.bean.Role" >
+     update T_ROLE
+    <set >
+      <if test="rolename != null" >
+        ROLENAME = #{rolename,jdbcType=VARCHAR},
+      </if>
+      <if test="stutas != null" >
+        STUTAS = #{stutas,jdbcType=DECIMAL},
+      </if>
+      <if test="fcreator != null" >
+        FCREATOR = #{fcreator,jdbcType=DECIMAL},
+      </if>
+      <if test="flastupdator != null" >
+        FLASTUPDATOR = #{flastupdator,jdbcType=DECIMAL},
+      </if>
+      <if test="fcreatedate != null" >
+        FCREATEDATE = #{fcreatedate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="flastupdatetime != null" >
+        FLASTUPDATETIME = #{flastupdatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 修改角色名称 -->
+  <update id="updateByPrimaryKey" parameterType="com.creditease.eas.admin.bean.Role" >
+     update T_ROLE
+    set ROLENAME = #{rolename,jdbcType=VARCHAR},
+      STUTAS = #{stutas,jdbcType=DECIMAL},
+      FLASTUPDATOR = #{flastupdator,jdbcType=DECIMAL},
+      FLASTUPDATETIME = #{flastupdatetime,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 查询正常数据总数目 -->
+	<select id="getTotalCounts" resultType="int">
+	 select count(id) from t_role where stutas = 0
+	</select>
+	<!-- 返回数据集合 -->
+	 <select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+		Select * FROM(Select ROWNUM as ROWNO,t.* from(Select * from t_role where stutas=0
+      order by ID desc) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 根据角色id查找角色对象 -->
+  <select id="selectRoleByName" resultMap="BaseResultMap" parameterType="string" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_role
+    where rolename=#{rolename,jdbcType=VARCHAR} and stutas=0
+  </select>
+</mapper>

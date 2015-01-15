@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	这个版本去掉了实习人员的查询,并且增加了对主职的过滤
+ -->
+<mapper namespace="com.creditease.eas.warn.kingdee.dao.PersonMapper">
+    	<resultMap type="com.creditease.eas.warn.bean.Person" id="PersonResult">  
+            <id column="FID" property="fid"/>  
+            <result column="FNAME_L2" property="fname"/>  
+            <result column="FGENDER " property="fgender"/>  
+            <result column="FBIRTHDAY" property="fbirthday"/>  
+             <result column="FCELL" property="fcell"/>  
+            <result column="FNAME_L3" property="faddress"/>  
+		 </resultMap> 
+       <select id="findAll" resultMap="PersonResult">
+		SELECT b.FNAME_L2,b.FGENDER,b.FBIRTHDAY,b.FCELL,b.FNAME_L3 FROM T_BD_Person b
+		</select>
+       <select id="getTotalCounts" resultType="int">  
+            select count(*) from T_BD_Person 
+        </select>
+		<select id="queryPage" resultMap="PersonResult" parameterType="map">
+			Select FID,FNAME_L2,FGENDER,FBIRTHDAY,FCELL,FNAME_L3 FROM(Select ROWNUM as ROWNO,FID,FNAME_L2,FGENDER,FBIRTHDAY,FCELL,FNAME_L3 from T_BD_Person
+			<where> 
+			<![CDATA[ROWNUM <= #{endRow,jdbcType=INTEGER}]]> 
+			</where>
+			) 
+			<where>
+			<![CDATA[ROWNO > #{startRow,jdbcType=INTEGER}]]> 
+			</where>
+		</select>
+		<!-- 查询将要被转正的人员职位id  还需要过滤下T_ORG_PositionMember（是否是主要职位:FIsPrimary
+			根据公司过滤
+			    select Pm.FPositionID as position
+        	 from (select t1.*,t2.fenterdate as fenterdate,t2.fformaldate as fformaldate from (select * from t_bd_person p where p.femployeetypeid in('rlgAAAAAExyinoWz','00000000-0000-0000-0000-000000000002A29E85B3') and p.FDeletedStatus = 1) t1
+			 inner join (select t.fpersonid as fpersonid,t.fenterdate as fenterdate,t.fformaldate as fformaldate from t_hr_personposition t where add_months(t.fenterdate,6) &lt; sysdate or to_char(add_months(t.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM')) t2
+			 on t1.fid = t2.fpersonid) P
+	         join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+			 join T_ORG_Position Po  on Po.fid = Pm.FPositionID
+			 join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+			  where A.flongnumber like 'CE!07%'
+       		 group by  Pm.FPositionID
+		-->
+		<select id="selectPositions" resultType="map">
+		     select Pm.FPositionID as position
+        	 	 from (select t1.*,t2.fenterdate as fenterdate,t2.fformaldate as fformaldate from (select * from t_bd_person p where p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1) t1
+			 inner join (select t.fpersonid as fpersonid,t.fenterdate as fenterdate,t.fformaldate as fformaldate from t_hr_personposition t where add_months(t.fenterdate,6) &lt; sysdate or to_char(add_months(t.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM')) t2
+			 on t1.fid = t2.fpersonid) P
+	         join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+			 join T_ORG_Position Po  on Po.fid = Pm.FPositionID
+			 join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+       		 group by  Pm.FPositionID
+		</select>
+		<!-- 查询要转正的人员的相关信息（过滤了非主职的情况）
+			 查询合同要到期的人员的上级的信息:查询出来的信息还需要再过滤 
+		 	注意：T_HR_PersonContactMethod里面的 Femail和t_bd_person的p.femail字段对应的值是一样的
+		 	这里查询人员信息的时候使用的是T_HR_PersonContactMethod表里的m.cfmail(企业邮箱)
+		 	和p.femail里的个人邮箱。
+		 	如果取T_HR_PersonContactMethod里的cfmail（企业邮箱)和femail里面的个人邮箱也没有什么问题
+	 		任职资格
+			select ppq.fname from T_HR_PosiQualification pqf left join T_HR_PosiPosiQual ppq on ppq.fposiqualid = pqf.fid left join
+			T_ORG_Position po on ppq.fpositionid = po.fid
+	 	-->
+		<select id="selectPersonInfoByPositionIdc1" resultType="map" parameterType="string">
+		  	select A.flevel as flevel,P.fid as  personId,
+	         P.FNAME_L2 as personname,
+	         P.Fnumber  as personcode,
+	         A.FID as deptId,
+	         A.Fname_L2 as deptname,
+	         A.Fnumber as deptcode,
+	         A.fdisplayname_l2 as fdisplayname,
+	         Po.fid  as positionid,
+	         Po.Fname_L2 as positionname,
+	         P.fenterdate  as fenterdate,
+	         add_months(P.fenterdate,6) as probzz,
+	         P.fformaldate  as formaldate,
+	         ct.fname_l2 as city,
+           	 ctr.FName_l2 as pqfname,
+	         ctr.FNumber as pqfnumber,
+             et.fname_l2 as emptype
+	      	 from (select t1.*,t2.fenterdate as fenterdate,t2.fformaldate as fformaldate from (select * from t_bd_person p where p.femployeetypeid ='00000000-0000-0000-0000-000000000002A29E85B3' and p.FDeletedStatus = 1) t1
+			 inner join (select t.fpersonid as fpersonid,t.fenterdate as fenterdate,t.fformaldate as fformaldate from t_hr_personposition t where add_months(t.fenterdate,6) &lt; sysdate or to_char(add_months(t.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM')) t2
+			 on t1.fid = t2.fpersonid) P
+		     left T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID and Pm.Fisprimary=1
+		     left T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fid =#{positionId,jdbcType=VARCHAR})
+		     left t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	         left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	         left join T_HR_BDEmployeeType et on et.fid = P.femployeetypeid
+	         left join  CT_HR_RZZG ctr on p.cfrzzgid = ctr.fid
+	 </select>
+ 	<!-- 查询要转正的人员的相关信息(第一个版本信息)：这里没有过滤是否主职
+		 查询合同要到期的人员的上级的信息:查询出来的信息还需要再过滤 
+	 	注意：T_HR_PersonContactMethod里面的 Femail和t_bd_person的p.femail字段对应的值是一样的
+	 	这里查询人员信息的时候使用的是T_HR_PersonContactMethod表里的m.cfmail(企业邮箱)
+	 	和p.femail里的个人邮箱。
+	 	如果取T_HR_PersonContactMethod里的cfmail（企业邮箱)和femail里面的个人邮箱也没有什么问题
+ 	-->
+	<select id="selectPersonInfoByPositionId" resultType="map" parameterType="string">
+	  select A.flevel as flevel,P.fid as  personId,
+         P.FNAME_L2 as personname,
+         P.Fnumber  as personcode,
+         A.FID as deptId,
+         A.Fname_L2 as deptname,
+         A.Fnumber as deptcode,
+         A.fdisplayname_l2 as fdisplayname,
+         Po.fid     as positionid,
+         Po.Fname_L2 as positionname,
+         P.fenterdate  as fenterdate,
+         P.fformaldate  as formaldate,
+         ct.fname_l2 as city
+      	 from (select t1.*,t2.fenterdate as fenterdate,t2.fformaldate as fformaldate from (select * from t_bd_person p where p.femployeetypeid in('rlgAAAAAExyinoWz','00000000-0000-0000-0000-000000000002A29E85B3') and p.FDeletedStatus = 1) t1
+		 inner join (select t.fpersonid as fpersonid,t.fenterdate as fenterdate,t.fformaldate as fformaldate from t_hr_personposition t where add_months(t.fenterdate,6) &lt; sysdate or to_char(add_months(t.fenterdate,5),'yyyy-MM') =  to_char(sysdate,'yyyy-MM')) t2
+		 on t1.fid = t2.fpersonid) P
+	     join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+	     join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.Fid =#{positionId,jdbcType=VARCHAR})
+	     join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	     left join CT_HR_Ygszd ct on ct.Fid = P.CFYGSZDID
+	 </select>
+	<!-- 下面的语句为测试信息 -->
+	<!-- 查询所有的人员对应的岗位 -->
+	<select id="selectPositionsAll" resultType="map">
+		select po.fid position
+	        from t_bd_person P
+	        join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+	        join T_ORG_Position Po  on (Po.fid = Pm.FPositionID and Po.FDeletedStatus='1')
+	        group by Po.Fid
+	</select>
+	<!-- 查询所有的要转正人员的相关的信息 -->
+	<select id="selectHighLeverPersonByPositionIdAll" resultType="map" parameterType="string">
+		select p.fid as personId,
+	    p.fname_l2 personname,
+	    p.femail as email,
+	    Po.Fid as positionId,   
+	    Po.Fname_L2 as positionname
+		from t_bd_person P 
+		 inner join T_ORG_PositionMember Pm  on P.fid = Pm.FPersonID
+		 join T_ORG_Position Po  on Po.fid = Pm.FPositionID
+		 where Po.Fid = (
+		 	select Ph.Fparentid  from  T_ORG_PositionHierarchy Ph where Ph.FChildID = #{positionId,jdbcType=VARCHAR}
+		 )
+	</select>
+	<select id="queryPositionNameById" resultType="string" parameterType="string">
+		select t.fname_l2 as positionname from T_ORG_Position t where t.fid = #{positionId,jdbcType=VARCHAR}
+	</select>
+	<select id="querytest" resultType="map">
+		 select t.FResponPositionID,Po.Fname_L2,p.fname_l2 from t_org_admin t 
+	     left join T_ORG_Position Po  on Po.fid = t.FResponPositionID
+	     left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid
+	     left join t_bd_person p on p.fid = Pm.Fpersonid
+	     where t.flevel = 3 and t.fisleaf =0 and t.fisousealup = 0
+	</select>
+	<select id="querytest2" resultType="map">
+		select A.Fname_L2  deptName,Po.Fname_L2 positionName,p.fname_l2 fuzeren from t_org_admin t 
+		left join T_ORG_Position Po  on Po.fid = t.FResponPositionID
+		left  join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+		left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid
+		left join t_bd_person p on p.fid = Pm.Fpersonid
+		where t.flevel = 3 and t.fisleaf =0 and t.fisousealup = 0
+	</select>
+	<select id="querytest3" resultType="map">
+	  select t.flevel,A.Fname_L2  deptName,Po.Fname_L2 positionName,p.fname_l2 fuzeren,m.cfmail as cfmail from t_org_admin t 
+	    left join T_ORG_Position Po  on Po.fid = t.FResponPositionID
+	    left  join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	    left join T_ORG_PositionMember Pm  on Pm.Fpositionid= Po.fid
+	    left join t_bd_person p on p.fid = Pm.Fpersonid
+	    left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+	    where t.flevel = 3 and t.fisleaf =0 and t.fisousealup = 0
+	    and t.fname_l2 =(select substr(fdisplayname_l2,instr(fdisplayname_l2,'_',1,2)+1,instr(fdisplayname_l2,'_',1,3)-instr(fdisplayname_l2,'_',1,2)-1)　from t_org_admin t
+        inner join t_org_position po on Po.Fadminorgunitid = t.Fid 
+        where po.fid = #{positionId,jdbcType=VARCHAR})  
+	</select>
+</mapper>

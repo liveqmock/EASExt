@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.recruitment.kingdee.dao.RecruitmentMapper" >
+	<!--查询组织的信息-->
+    <select id="selectOrgAdminInfo" resultType="com.creditease.eas.recruitment.bean.RecOrgAdmin" parameterType="map">
+	 select * FROM (select ROWNUM as ROWNO,t.* from (select ad.fid deptid,ad.fname_l2 deptname,
+	  DECODE(adp.FID,'rlgAAAAABbXM567U', '00000000-0000-0000-0000-000000000000CCE7AED4', adp.fid) parent_deptid,ad.FIndex,AD.FLEVEL,ad.fcreatetime from t_org_admin ad
+		left join t_org_admin adp on adp.fid = ad.FParentID
+		where ad.fnumber not like '%.%' and ad.FIsSealUp  = 0 and ad.fid != 'rlgAAAAABbXM567U'
+      order by AD.FLEVEL,AD.fcreatetime) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER}  
+	</select>
+	<!--查询职位的信息-->
+    <select id="selectOrgPositionInfo" resultType="com.creditease.eas.recruitment.bean.RecOrgPosition" parameterType="map">
+		  select * FROM (select  ROWNUM as ROWNO,t.* from (
+		select eas.posid,
+       eas.posname,
+       eas.orgid,
+       eas.CFPositioncplb as ext1,
+       ext2,ext3,ext4
+       from (select distinct a.fbaseduty_l2 as basedutyname,  t3.fname_l2    as zcname,  t4.fname_l2    as oneAdmin, po.Fname_l2    as positionname,
+		  po.fid  posID,  po.fname_l2 posName,a.fid orgID,zl.fnumber ext2,zl.fname_l2 ext3,po.fnumber, Po.fcreatetime
+		  ,t5.fname_l2 CFPositioncplb,case when to_char(po.CFJobDisplayName)  = '管理序列' then to_char(po.CFJobDisplayName) 
+                  when to_char(po.cfjobdisplayname) like '专业序列-销售子序列%' then '专业序列-销售'
+                  else '专业序列-非销售'
+               END ext4
+          from T_ORG_Position Po
+          left join t_Org_Admin A
+            on A.Fid = Po.Fadminorgunitid
+          left join CT_HR_Zc t3
+            on t3.fid = po.cfzcid
+          left join T_BD_PositionType zl on zl.fid = po.fpositiontypeid
+          left join v_org_split_new t4
+            on t4.rootnum = a.fnumber
+     	  <!-- 增加测评 -->
+     	  left join CT_HR_Positioncplb t5 on t5.fid = po.CFPositioncplbID
+         where Po.Fdeletedstatus = 1 and po.fnumber not like '%.%'
+           and A.fisousealup = 0
+           and a.fnumber not like '%.%'
+           and t4.FTERRITORY = 'D' and po.cfjobdisplayname is not null
+         order by Po.fcreatetime asc) eas
+		) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER}  
+	</select>
+	<!-- 查询人员的信息
+		更改记录：
+			2013年12月5日：
+				1.只查询在职人员的信息
+			2013年12月16日：
+				1.更改了username字段的值:如果有企业邮箱，传递企业邮箱，如果没有企业邮箱，则传递员工编码
+				2.nvl(pcm.cfmail,2) 这句是为了防止过滤掉空的语句，是优化过的sql
+	 -->
+	<select id="selectPersonInfo" resultType="com.creditease.eas.recruitment.bean.RecPersonInfo" parameterType="map">
+		 select * FROM (select ROWNUM as ROWNO,t.* from (select p.fnumber userID,p.fname_l2 realName,
+		  case when pcm.cfmail is null then p.fnumber
+	       when (po.fname_l2 like '%理财经理%' or po.fname_l2 like '%客户经理%') 
+	       and a.fdisplayname_l2 like '%销售创新中心%' then p.fnumber
+	       when po.fname_l2 like '%客户经理%' and a.fdisplayname_l2 like '%个贷营销中心%' then p.fnumber
+	       else substr(Pcm.Cfmail,0,instr(Pcm.Cfmail,'@',1)-1) end userName,pcm.cfmail email
+	      from t_bd_person p
+	      inner join T_HR_PersonContactMethod Pcm on Pcm.Fpersonid = P.Fid
+	      left join T_HR_BDEmployeeType et on et.fid = P.femployeetypeid
+	      left join T_ORG_HRO ho on ho.fid = p.FHROrgUnitID
+	      left join T_ORG_PositionMember Pm on p.fid = Pm.FPersonID and Pm.Fisprimary=1
+	      left join T_ORG_Position Po on Po.fid = Pm.FPositionID and Po.Fdeletedstatus = 1
+	      left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	    where P.Fdeletedstatus = 1 and et.finservice = 1 and ho.fnumber not like '%.%' 
+	    and nvl(pcm.cfmail,2) not in (select pcm.cfmail from T_HR_PersonContactMethod pcm
+	    group by pcm.cfmail
+	    having count(pcm.cfmail)>1)
+		order by p.fnumber) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER}  
+	</select>
+</mapper>

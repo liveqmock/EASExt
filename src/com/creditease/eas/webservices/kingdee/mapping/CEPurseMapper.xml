@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.webservices.kingdee.dao.CEPurseMapper">
+<select id="validateEmployeeQuery" resultType="Map" parameterType="Map">
+select person.fname_l2 as empname, lxfs.cfmail as email
+  from t_bd_person person
+ inner join T_ORG_PositionMember positionmember
+    on person.fid = positionmember.fpersonid
+  left join t_hr_personcontactmethod lxfs
+    on lxfs.fpersonid = person.fid
+<if test="idCardNo != null and idCardNo != ''">
+where person.fidcardno = #{idCardNo}
+</if>
+</select>
+</mapper>

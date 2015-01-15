@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.MicropayMapper">
+ 	 <!--提供员工信息
+ 	 -->
+ 	<select id="queryEmployeeInfo" resultType="map" parameterType="map">
+	  	select t1.fnumber fnumber,t1.fname_l2 fname,t1.fcell mobile,t2.FinService personStatus,t3.FIsPrimary,t6.fdisplayname_l2 deptName
+		from t_bd_person t1 
+		left join T_HR_BDEmployeeType t2 on t1.FEmployeeTypeID=t2.fid
+		left join t_org_positionMember t3 on t1.fid=t3.FPersonID
+		left join t_org_position t4 on t3.FPositionID=t4.fid
+		left join t_bd_positionType t5 on t4.FPositionTypeID=t5.fid
+		left join t_org_admin t6 on t4.FAdminOrgUnitID=t6.fid
+		where t5.fname_l2='销售类' 
+		and t6.FIsSealUp = 0 <!-- 封存组织  -->
+		and t6.fnumber not like '%.%' <!-- 过滤测试数据  -->
+		and (t6.fdisplayname_l2 like '%小微企业信贷服务中心%'
+		or t6.fdisplayname_l2 like '%个贷营销中心%'
+		or t6.fdisplayname_l2 like '%销售创新中心%'
+		or t6.fdisplayname_l2 like '%农贷综合管理部%'
+		or t6.fdisplayname_l2 like '%企业合作部%')
+		and t2.finservice=1
+		and t1.fnumber = #{fnumber}
+		union
+			select t1.fnumber fnumber,t1.fname_l2 fname,t1.fcell mobile,t2.FinService personStatus,t3.FIsPrimary,t6.fdisplayname_l2 deptName
+		from t_bd_person t1 
+		left join T_HR_BDEmployeeType t2 on t1.FEmployeeTypeID=t2.fid
+		left join t_org_positionMember t3 on t1.fid=t3.FPersonID
+		left join t_org_position t4 on t3.FPositionID=t4.fid
+		left join t_bd_positionType t5 on t4.FPositionTypeID=t5.fid
+		left join t_org_admin t6 on t4.FAdminOrgUnitID=t6.fid
+		where  t6.FIsSealUp = 0
+		and t6.fnumber not like '%.%'
+		and t6.fdisplayname_l2 like '%小微企业增值服务中心%'
+		and t2.finservice=1 and t1.fnumber = #{fnumber}
+   </select>
+</mapper>

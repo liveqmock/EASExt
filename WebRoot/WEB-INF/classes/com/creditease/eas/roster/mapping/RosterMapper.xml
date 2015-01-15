@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.roster.dao.IRosterMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.roster.bean.Roster" >
+    <id column="fid" property="fid" jdbcType="INTEGER" />
+    <result column="fnumber" property="fnumber" jdbcType="VARCHAR" />
+    <result column="longfnumber" property="longfnumber" jdbcType="VARCHAR" />
+    <result column="fname" property="fname" jdbcType="VARCHAR" />
+    <result column="fgender" property="fgender" jdbcType="VARCHAR" />
+    <result column="fgender" property="fgender" jdbcType="VARCHAR" />
+    
+    <result column="fage" property="fage" jdbcType="VARCHAR" />
+    <result column="fcardnum" property="fcardnum" jdbcType="VARCHAR" />
+    <result column="femail" property="femail" jdbcType="VARCHAR" />
+    <result column="fpersonstatus" property="fpersonstatus" jdbcType="VARCHAR" />
+    <result column="fcity" property="fcity" jdbcType="VARCHAR" />
+    <result column="fthreeunit" property="fthreeunit" jdbcType="VARCHAR" />
+    <result column="ffourunit" property="ffourunit" jdbcType="VARCHAR" />
+    <result column="foldfourunit" property="foldfourunit" jdbcType="VARCHAR" />
+    <result column="ffiveunit" property="ffiveunit" jdbcType="VARCHAR" />
+    <result column="fsixunit" property="fsixunit" jdbcType="VARCHAR" />
+    <result column="fteam" property="fteam" jdbcType="VARCHAR" />
+    <result column="fpositiontype" property="fpositiontype" jdbcType="VARCHAR" />
+    <result column="fposition" property="fposition" jdbcType="VARCHAR" />
+    <result column="fpositionlevel" property="fpositionlevel" jdbcType="VARCHAR" />
+    <result column="fparentlevelname" property="fparentlevelname" jdbcType="VARCHAR" />
+    <result column="fentrydate" property="fentrydate" jdbcType="DATE" />
+    <result column="fconfirmdate" property="fconfirmdate" jdbcType="DATE" />
+    <result column="fleavedate" property="fleavedate" jdbcType="DATE" />
+    <result column="fteamleaderdate" property="fteamleaderdate" jdbcType="DATE" />
+    <result column="fmobdate" property="fmobdate" jdbcType="DATE" />
+    <result column="fishopeperson" property="fishopeperson" jdbcType="VARCHAR" />
+    <result column="frecruitmentchannels" property="frecruitmentchannels" jdbcType="VARCHAR" />
+    <result column="frecommendname" property="frecommendname" jdbcType="VARCHAR" />
+    <result column="fremarks" property="fremarks" jdbcType="VARCHAR" />
+    <result column="fadminfid" property="fadminfid" jdbcType="VARCHAR" />
+    <result column="datapower" property="datapower" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    
+     <result column="fgendername" property="fgendername" jdbcType="VARCHAR" />
+      <result column="fpersonstatusname" property="fpersonstatusname" jdbcType="VARCHAR" />
+       <result column="fcityname" property="fcityname" jdbcType="VARCHAR" />
+        <result column="fthreeunitname" property="fthreeunitname" jdbcType="VARCHAR" />
+         <result column="ffourunitname" property="ffourunitname" jdbcType="VARCHAR" />
+          <result column="foldfourunitname" property="foldfourunitname" jdbcType="VARCHAR" />
+           <result column="ffiveunitname" property="ffiveunitname" jdbcType="VARCHAR" />
+            <result column="fsixunitname" property="fsixunitname" jdbcType="VARCHAR" />
+             <result column="fpositiontypename" property="fpositiontypename" jdbcType="VARCHAR" />
+              <result column="fpositionname" property="fpositionname" jdbcType="VARCHAR" />
+               <result column="fpositionlevelname" property="fpositionlevelname" jdbcType="VARCHAR" />
+                <result column="fishopepersonname" property="fishopepersonname" jdbcType="VARCHAR" />
+                 <result column="frecruitmentchannelsname" property="frecruitmentchannelsname" jdbcType="VARCHAR" />
+                  <result column="insurancecertname" property="insurancecertname" jdbcType="VARCHAR" />
+                   <result column="fundcertname" property="fundcertname" jdbcType="VARCHAR" />
+                 
+                 
+    <result column="ext1" property="ext1" jdbcType="VARCHAR" />
+    <result column="ext2" property="ext2" jdbcType="VARCHAR" />
+    <result column="ext3" property="ext3" jdbcType="VARCHAR" />
+    <result column="ext4" property="ext4" jdbcType="VARCHAR" />
+    <result column="ext5" property="ext5" jdbcType="VARCHAR" />
+    <result column="ext6" property="ext6" jdbcType="VARCHAR" />
+    <result column="ext7" property="ext7" jdbcType="VARCHAR" />
+    <result column="ext8" property="ext8" jdbcType="VARCHAR" />
+    <result column="ext9" property="ext9" jdbcType="VARCHAR" />
+    <result column="ext10" property="ext10" jdbcType="VARCHAR" />
+    
+    <result column="parentteammanager" property="parentteammanager" jdbcType="VARCHAR" />
+    <result column="parentbigteammanager" property="parentbigteammanager" jdbcType="VARCHAR" />
+    <result column="parentsalemanager" property="parentsalemanager" jdbcType="VARCHAR" />
+    <result column="insurancecert" property="insurancecert" jdbcType="VARCHAR" />
+    <result column="fundcert" property="fundcert" jdbcType="VARCHAR" />
+    <result column="financialpalncert" property="financialpalncert" jdbcType="VARCHAR" />
+     <result column="financialpalncerttext" property="financialpalncerttext" jdbcType="VARCHAR" />
+    
+  </resultMap>
+   <!-- sql片段，查询的时候使用 -->
+   <sql id="BaseWhereCondition">
+    <if test="fname != null and fname != ''"> and fname like '%${fname}%'</if>
+    <if test="fnumber != null and fnumber != ''"> and fnumber='${fnumber}'</if>
+    <if test="longfnumber != null and longfnumber != ''"> and longfnumber='${longfnumber}'</if>
+    <if test="fentrydate != null and fentrydate != ''"> and fentrydate &gt;= TO_DATE('${fentrydate}','yyyy-MM-dd')</if>
+     <if test="fentrydate2 != null and fentrydate2 != ''"> and fentrydate &lt;= TO_DATE('${fentrydate2}','yyyy-MM-dd')</if>
+    <if test="fpersonstatus != null and fpersonstatus != ''"> and fpersonstatus in (${fpersonstatus})</if>
+    <if test="foldfourunitpage != null and foldfourunitpage != ''"> and foldfourunit in (${foldfourunitpage})</if>
+    <if test="fourunitpage != null and fourunitpage != ''"> and ffourunit in (${fourunitpage})</if>
+    <if test="fteam != null and fteam != ''"> and fteam='${fteam}'</if>
+    <if test="fposition != null and fposition != ''"> and fposition in (${fposition})</if>
+    <if test="fleavedate != null and fleavedate != ''"> and fleavedate &gt;= TO_DATE('${fleavedate}','yyyy-MM-dd')</if>
+    <if test="fleavedate2 != null and fleavedate2 != ''"> and fleavedate &lt;= TO_DATE('${fleavedate2}','yyyy-MM-dd')</if>
+    <if test="foldfourunit != null and foldfourunit != ''"> and foldfourunit in (${foldfourunit})</if>
+    <if test="datatype != null and datatype !='' and datatype == 0">and fleavedate is null</if><!-- 0是在职 -->
+	<if test="datatype != null and datatype !='' and datatype == 1">and  fleavedate is not null</if><!-- 1是离职 -->
+   </sql>
+ 
+  <sql id="Base_Column_List" >
+    fid, fnumber,longfnumber, fname, fgender, fage, fcardnum, femail, fpersonstatus, 
+    fcity, fthreeunit, ffourunit, foldfourunit, ffiveunit, fsixunit, fteam, fpositiontype, 
+    fposition, fpositionlevel, fparentlevelname, fentrydate, fconfirmdate, fleavedate, 
+    fteamleaderdate, fmobdate, fishopeperson, frecruitmentchannels, frecommendname, fremarks, 
+    fadminfid, datapower, ext1, ext2, ext3, ext4, ext5, ext6, ext7, ext8, ext9, ext10,
+    parentteammanager,parentbigteammanager,parentsalemanager,insurancecert,fundcert,financialpalncert,financialpalncerttext,
+    (select itemname from t_dictionary_item where id=fgender) as fgendername,
+    (select itemname from t_dictionary_item where id=fpersonstatus) as fpersonstatusname,
+    (select itemname from t_dictionary_item where id=fcity) as fcityname,
+    (select itemname from t_dictionary_item where id=fthreeunit) as fthreeunitname,
+    (select itemname from t_dictionary_item where id=ffourunit) as ffourunitname,
+    (select itemname from t_dictionary_item where id=foldfourunit) as foldfourunitname,
+    (select itemname from t_dictionary_item where id=ffiveunit) as ffiveunitname,
+    (select itemname from t_dictionary_item where id=fsixunit) as fsixunitname,
+    (select itemname from t_dictionary_item where id=fpositiontype) as fpositiontypename,
+    (select itemname from t_dictionary_item where id=fposition) as fpositionname,
+    (select itemname from t_dictionary_item where id=fpositionlevel) as fpositionlevelname,
+    (select itemname from t_dictionary_item where id=fishopeperson) as fishopepersonname,
+    (select itemname from t_dictionary_item where id=frecruitmentchannels) as frecruitmentchannelsname,
+    (select itemname from t_dictionary_item where id=insurancecert) as insurancecertname,
+    (select itemname from t_dictionary_item where id=fundcert) as fundcertname
+    
+   
+  </sql>
+   
+  <!-- 查询总条数 -->
+   <select id="getTotalCountsByParams" resultType="java.lang.Integer" parameterType="map" >
+   select count(t.fid) from ( select <include refid="Base_Column_List" /> from t_roster_info
+    where status='0' )t where 1=1
+    <include refid="BaseWhereCondition"/>
+  </select>
+  
+   <!-- 查询批量修改总条数 -->
+   <select id="getTotalManyEditInfo" resultType="java.lang.Integer" parameterType="map" >
+   select count(t.fid) from ( select <include refid="Base_Column_List" /> from t_roster_info
+    where status='0' )t where 1=1
+    <if test="fids != null and fids != ''"> and t.fid in (${fids})</if>
+    <if test="foldfourunit != null and foldfourunit != ''"> and foldfourunit in (${foldfourunit})</if>
+  </select>
+  
+  <!-- 查询信息 -->
+  <select id="queryPageByParams" resultMap="BaseResultMap" parameterType="map">
+	  select * FROM(select ROWNUM as ROWNO,t.* from (Select 
+	  <include refid="Base_Column_List" />
+	  from t_roster_info where status='0'
+      <include refid="BaseWhereCondition"/> )t
+       where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER} 
+  </select>
+  
+   <!-- 查询批量修改数据信息 -->
+  <select id="queryPageManyEditInfo" resultMap="BaseResultMap" parameterType="map">
+	  select * FROM(select ROWNUM as ROWNO,t.* from (Select 
+	  <include refid="Base_Column_List" />
+	  from t_roster_info where status='0'
+	   <if test="fids != null and fids != ''"> and fid in (${fids})</if>
+	   <if test="foldfourunit != null and foldfourunit != ''"> and foldfourunit in (${foldfourunit})</if>
+      )t
+       where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER} 
+  </select>
+  
+   <!-- 导出时查询出的数据 -->
+  <select id="expQuery" resultMap="BaseResultMap" parameterType="map">
+	 Select <include refid="Base_Column_List" /> from t_roster_info where status='0'
+      <include refid="BaseWhereCondition"/>
+  </select>
+  
+  <!-- 查询某条数据的具体信息 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_roster_info
+    where status='0' and fid = #{fid,jdbcType=INTEGER} 
+  </select>
+  
+  <!-- 根据邮箱查询某条数据的具体信息 -->
+  <select id="selectRosterByEmail" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_roster_info
+    where status='0' and femail = #{femail,jdbcType=INTEGER} 
+  </select>
+  
+  
+  <!-- 根据条件查询具体信息 -->
+  <select id="selectDatabyParm" resultType="map" parameterType="map" >
+    select FID from t_roster_info
+    where status='0' 
+    <if test="longfnumber!=null and longfnumber!='' ">
+     and longfnumber = #{longfnumber,jdbcType=VARCHAR}
+    </if>
+   
+  </select>
+  
+  
+  <!-- 删除某条数据信息 -->
+  <update id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+   
+    update t_roster_info
+    set status='1'
+    where fid = #{fid,jdbcType=INTEGER}
+  </update>
+  <!--插入花名册信息  -->
+  <insert id="insert" parameterType="com.creditease.eas.roster.bean.Roster" >
+  	<selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   		select T_ROSTER_SEQ.NEXTVAL from dual
+	 </selectKey>
+    insert into t_roster_info (fid, fnumber, longfnumber, 
+      fname, fgender, fage, 
+      fcardnum, femail, fpersonstatus, 
+      fcity, fthreeunit, ffourunit, 
+      foldfourunit, ffiveunit, fsixunit, 
+      fteam, fpositiontype, fposition, 
+      fpositionlevel, fparentlevelname, fentrydate, 
+      fconfirmdate, fleavedate, fteamleaderdate, 
+      fmobdate, fishopeperson, frecruitmentchannels, 
+      frecommendname, fremarks, fadminfid, 
+      datapower, ext1, 
+      ext2, ext3, ext4, ext5, 
+      ext6, ext7, ext8, ext9, 
+      ext10,
+      parentteammanager,parentbigteammanager,parentsalemanager,insurancecert,fundcert,financialpalncert,financialpalncerttext
+      )
+    values (#{fid,jdbcType=INTEGER}, #{fnumber,jdbcType=VARCHAR}, #{longfnumber,jdbcType=VARCHAR}, 
+      #{fname,jdbcType=VARCHAR}, #{fgender,jdbcType=VARCHAR}, #{fage,jdbcType=VARCHAR}, 
+      #{fcardnum,jdbcType=VARCHAR}, #{femail,jdbcType=VARCHAR}, #{fpersonstatus,jdbcType=VARCHAR}, 
+      #{fcity,jdbcType=VARCHAR}, #{fthreeunit,jdbcType=VARCHAR}, #{ffourunit,jdbcType=VARCHAR}, 
+      #{foldfourunit,jdbcType=VARCHAR}, #{ffiveunit,jdbcType=VARCHAR}, #{fsixunit,jdbcType=VARCHAR}, 
+      #{fteam,jdbcType=VARCHAR}, #{fpositiontype,jdbcType=VARCHAR}, #{fposition,jdbcType=VARCHAR}, 
+      #{fpositionlevel,jdbcType=VARCHAR}, #{fparentlevelname,jdbcType=VARCHAR}, #{fentrydate,jdbcType=DATE}, 
+      #{fconfirmdate,jdbcType=DATE}, #{fleavedate,jdbcType=DATE}, #{fteamleaderdate,jdbcType=DATE}, 
+      #{fmobdate,jdbcType=DATE}, #{fishopeperson,jdbcType=VARCHAR}, #{frecruitmentchannels,jdbcType=VARCHAR}, 
+      #{frecommendname,jdbcType=VARCHAR}, #{fremarks,jdbcType=VARCHAR}, #{fadminfid,jdbcType=VARCHAR}, 
+      #{datapower,jdbcType=VARCHAR}, #{ext1,jdbcType=VARCHAR}, 
+      #{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR}, #{ext4,jdbcType=VARCHAR}, #{ext5,jdbcType=VARCHAR}, 
+      #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, #{ext8,jdbcType=VARCHAR}, #{ext9,jdbcType=VARCHAR}, 
+      #{ext10,jdbcType=VARCHAR}, #{parentteammanager,jdbcType=VARCHAR},#{parentbigteammanager,jdbcType=VARCHAR}, #{parentsalemanager,jdbcType=VARCHAR},
+       #{insurancecert,jdbcType=VARCHAR}, #{fundcert,jdbcType=VARCHAR}, #{financialpalncert,jdbcType=VARCHAR}, #{financialpalncerttext,jdbcType=VARCHAR})
+  </insert>
+  
+  
+  <!--批量插入花名册信息  -->
+  <insert id="InsertAll" parameterType="ArrayList" useGeneratedKeys="true"> 
+  	<selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   		select T_ROSTER_SEQ.NEXTVAL from dual
+	 </selectKey>
+    insert into t_roster_info (fid, fnumber, longfnumber, 
+      fname, fgender, fage, 
+      fcardnum, femail, fpersonstatus, 
+      fcity, fthreeunit, ffourunit, 
+      foldfourunit, ffiveunit, fsixunit, 
+      fteam, fpositiontype, fposition, 
+      fpositionlevel, fparentlevelname, fentrydate, 
+      fconfirmdate, fleavedate, fteamleaderdate, 
+      fmobdate, fishopeperson, frecruitmentchannels, 
+      frecommendname, fremarks, fadminfid, 
+      datapower, ext1, 
+      ext2, ext3, ext4, ext5, 
+      ext6, ext7, ext8, ext9, 
+      ext10,
+      parentteammanager,parentbigteammanager,parentsalemanager,insurancecert,fundcert,financialpalncert,financialpalncerttext
+      )
+      SELECT T_ROSTER_SEQ.NEXTVAL,A.* from(
+       <foreach collection="list" item="item" index="index" separator="union">   
+    SELECT #{item.fnumber,jdbcType=VARCHAR}, #{item.longfnumber,jdbcType=VARCHAR}, 
+      #{item.fname,jdbcType=VARCHAR}, #{item.fgender,jdbcType=VARCHAR}, #{item.fage,jdbcType=VARCHAR}, 
+      #{item.fcardnum,jdbcType=VARCHAR}, #{item.femail,jdbcType=VARCHAR}, #{item.fpersonstatus,jdbcType=VARCHAR}, 
+      #{item.fcity,jdbcType=VARCHAR}, #{item.fthreeunit,jdbcType=VARCHAR}, #{item.ffourunit,jdbcType=VARCHAR}, 
+      #{item.foldfourunit,jdbcType=VARCHAR}, #{item.ffiveunit,jdbcType=VARCHAR}, #{item.fsixunit,jdbcType=VARCHAR}, 
+      #{item.fteam,jdbcType=VARCHAR}, #{item.fpositiontype,jdbcType=VARCHAR}, #{item.fposition,jdbcType=VARCHAR}, 
+      #{item.fpositionlevel,jdbcType=VARCHAR}, #{item.fparentlevelname,jdbcType=VARCHAR}, #{item.fentrydate,jdbcType=DATE}, 
+      #{item.fconfirmdate,jdbcType=DATE}, #{item.fleavedate,jdbcType=DATE}, #{item.fteamleaderdate,jdbcType=DATE}, 
+      #{item.fmobdate,jdbcType=DATE}, #{item.fishopeperson,jdbcType=VARCHAR}, #{item.frecruitmentchannels,jdbcType=VARCHAR}, 
+      #{item.frecommendname,jdbcType=VARCHAR}, #{item.fremarks,jdbcType=VARCHAR}, #{item.fadminfid,jdbcType=VARCHAR}, 
+      #{item.datapower,jdbcType=VARCHAR}, #{item.ext1,jdbcType=VARCHAR}, 
+      #{item.ext2,jdbcType=VARCHAR}, #{item.ext3,jdbcType=VARCHAR}, #{item.ext4,jdbcType=VARCHAR}, #{item.ext5,jdbcType=VARCHAR}, 
+      #{item.ext6,jdbcType=VARCHAR}, #{item.ext7,jdbcType=VARCHAR}, #{item.ext8,jdbcType=VARCHAR}, #{item.ext9,jdbcType=VARCHAR}, 
+      #{item.ext10,jdbcType=VARCHAR}, #{item.parentteammanager,jdbcType=VARCHAR}, #{item.parentbigteammanager,jdbcType=VARCHAR}, #{item.parentsalemanager,jdbcType=VARCHAR},
+       #{item.insurancecert,jdbcType=VARCHAR}, #{item.fundcert,jdbcType=VARCHAR}, #{item.financialpalncert,jdbcType=VARCHAR},#{item.financialpalncerttext,jdbcType=VARCHAR}
+      FROM DUAL
+          </foreach> ) A 
+  </insert>
+  
+  
+  <!--更新花名册信息 -->
+  <update id="updateByPrimaryKey" parameterType="com.creditease.eas.roster.bean.Roster" >
+    update t_roster_info
+    set fnumber = #{fnumber,jdbcType=VARCHAR},
+      longfnumber = #{longfnumber,jdbcType=VARCHAR},
+      fname = #{fname,jdbcType=VARCHAR},
+      fgender = #{fgender,jdbcType=VARCHAR},
+      fage = #{fage,jdbcType=VARCHAR},
+      fcardnum = #{fcardnum,jdbcType=VARCHAR},
+      femail = #{femail,jdbcType=VARCHAR},
+      fpersonstatus = #{fpersonstatus,jdbcType=VARCHAR},
+      fcity = #{fcity,jdbcType=VARCHAR},
+      fthreeunit = #{fthreeunit,jdbcType=VARCHAR},
+      ffourunit = #{ffourunit,jdbcType=VARCHAR},
+      foldfourunit = #{foldfourunit,jdbcType=VARCHAR},
+      ffiveunit = #{ffiveunit,jdbcType=VARCHAR},
+      fsixunit = #{fsixunit,jdbcType=VARCHAR},
+      fteam = #{fteam,jdbcType=VARCHAR},
+      fpositiontype = #{fpositiontype,jdbcType=VARCHAR},
+      fposition = #{fposition,jdbcType=VARCHAR},
+      fpositionlevel = #{fpositionlevel,jdbcType=VARCHAR},
+      fparentlevelname = #{fparentlevelname,jdbcType=VARCHAR},
+      fentrydate = #{fentrydate,jdbcType=DATE},
+      fconfirmdate = #{fconfirmdate,jdbcType=DATE},
+      fleavedate = #{fleavedate,jdbcType=DATE},
+      fteamleaderdate = #{fteamleaderdate,jdbcType=DATE},
+      fmobdate = #{fmobdate,jdbcType=DATE},
+      fishopeperson = #{fishopeperson,jdbcType=VARCHAR},
+      frecruitmentchannels = #{frecruitmentchannels,jdbcType=VARCHAR},
+      frecommendname = #{frecommendname,jdbcType=VARCHAR},
+      fremarks = #{fremarks,jdbcType=VARCHAR},
+      fadminfid = #{fadminfid,jdbcType=VARCHAR},
+      datapower = #{datapower,jdbcType=VARCHAR},
+      ext1 = #{ext1,jdbcType=VARCHAR},
+      ext2 = #{ext2,jdbcType=VARCHAR},
+      ext3 = #{ext3,jdbcType=VARCHAR},
+      ext4 = #{ext4,jdbcType=VARCHAR},
+      ext5 = #{ext5,jdbcType=VARCHAR},
+      ext6 = #{ext6,jdbcType=VARCHAR},
+      ext7 = #{ext7,jdbcType=VARCHAR},
+      ext8 = #{ext8,jdbcType=VARCHAR},
+      ext9 = #{ext9,jdbcType=VARCHAR},
+      ext10 = #{ext10,jdbcType=VARCHAR},
+      parentteammanager = #{parentteammanager,jdbcType=VARCHAR},
+      parentbigteammanager = #{parentbigteammanager,jdbcType=VARCHAR},
+      parentsalemanager = #{parentsalemanager,jdbcType=VARCHAR},
+      insurancecert = #{insurancecert,jdbcType=VARCHAR},
+      fundcert = #{fundcert,jdbcType=VARCHAR},
+      financialpalncert = #{financialpalncert,jdbcType=VARCHAR},
+      financialpalncerttext = #{financialpalncerttext,jdbcType=VARCHAR}
+    where fid = #{fid,jdbcType=INTEGER}
+  </update>
+  
+   <!--批量更新花名册信息 -->
+  <update id="updateManyEditData" parameterType="java.util.Map" >
+   	update t_roster_info
+    <set> 
+     <if test="fpersonstatus != null and fpersonstatus != ''"> fpersonstatus= '${fpersonstatus}',</if>
+     <if test="fposition != null and fposition != ''"> fposition= '${fposition}',</if>
+     <if test="fourunit != null and fourunit != ''"> ffourunit= '${fourunit}',</if>
+     <if test="foldfourunitpage != null and foldfourunitpage != ''"> foldfourunit= '${foldfourunitpage}',</if>
+     <if test="fiveunit != null and fiveunit != ''"> ffiveunit= '${fiveunit}'</if>
+     
+    </set>
+    where fid in (${fids})
+  </update>
+  
+   <!--导入时员工编号重复更新花名册信息 -->
+  <update id="updateforimport" parameterType="com.creditease.eas.roster.bean.Roster" >
+    update t_roster_info
+    set fnumber = #{fnumber,jdbcType=VARCHAR},
+      longfnumber = #{longfnumber,jdbcType=VARCHAR},
+      fname = #{fname,jdbcType=VARCHAR},
+      fgender = #{fgender,jdbcType=VARCHAR},
+      fage = #{fage,jdbcType=VARCHAR},
+      fcardnum = #{fcardnum,jdbcType=VARCHAR},
+      femail = #{femail,jdbcType=VARCHAR},
+      fpersonstatus = #{fpersonstatus,jdbcType=VARCHAR},
+      fcity = #{fcity,jdbcType=VARCHAR},
+      fthreeunit = #{fthreeunit,jdbcType=VARCHAR},
+      ffourunit = #{ffourunit,jdbcType=VARCHAR},
+      foldfourunit = #{foldfourunit,jdbcType=VARCHAR},
+      ffiveunit = #{ffiveunit,jdbcType=VARCHAR},
+      fsixunit = #{fsixunit,jdbcType=VARCHAR},
+      fteam = #{fteam,jdbcType=VARCHAR},
+      fpositiontype = #{fpositiontype,jdbcType=VARCHAR},
+      fposition = #{fposition,jdbcType=VARCHAR},
+      fpositionlevel = #{fpositionlevel,jdbcType=VARCHAR},
+      fparentlevelname = #{fparentlevelname,jdbcType=VARCHAR},
+      fentrydate = #{fentrydate,jdbcType=DATE},
+      fconfirmdate = #{fconfirmdate,jdbcType=DATE},
+      fleavedate = #{fleavedate,jdbcType=DATE},
+      fteamleaderdate = #{fteamleaderdate,jdbcType=DATE},
+      fmobdate = #{fmobdate,jdbcType=DATE},
+      fishopeperson = #{fishopeperson,jdbcType=VARCHAR},
+      frecruitmentchannels = #{frecruitmentchannels,jdbcType=VARCHAR},
+      frecommendname = #{frecommendname,jdbcType=VARCHAR},
+      fremarks = #{fremarks,jdbcType=VARCHAR},
+      fadminfid = #{fadminfid,jdbcType=VARCHAR},
+      ext1 = #{ext1,jdbcType=VARCHAR},
+      ext2 = #{ext2,jdbcType=VARCHAR},
+      ext3 = #{ext3,jdbcType=VARCHAR},
+      ext4 = #{ext4,jdbcType=VARCHAR},
+      ext5 = #{ext5,jdbcType=VARCHAR},
+      ext6 = #{ext6,jdbcType=VARCHAR},
+      ext7 = #{ext7,jdbcType=VARCHAR},
+      ext8 = #{ext8,jdbcType=VARCHAR},
+      ext9 = #{ext9,jdbcType=VARCHAR},
+      ext10 = #{ext10,jdbcType=VARCHAR},
+      parentteammanager = #{parentteammanager,jdbcType=VARCHAR},
+      parentbigteammanager = #{parentbigteammanager,jdbcType=VARCHAR},
+      parentsalemanager = #{parentsalemanager,jdbcType=VARCHAR},
+      insurancecert = #{insurancecert,jdbcType=VARCHAR},
+      fundcert = #{fundcert,jdbcType=VARCHAR},
+      financialpalncert = #{financialpalncert,jdbcType=VARCHAR},
+      financialpalncerttext = #{financialpalncerttext,jdbcType=VARCHAR}
+    where fid = #{fid,jdbcType=INTEGER}
+  </update>
+  
+  	<!-- 查询记录是否已经存在 -->
+	<select id="findNumExists" parameterType="map" resultType="int">
+		SELECT COUNT(${columnName}) FROM ${tableName} WHERE ${columnName} = #{columnValue} and status='0'
+	</select>
+  
+  
+</mapper>

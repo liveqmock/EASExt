@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.warn.dao.OrgManagerMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.warn.bean.OrgManager" >
+  
+    <id column="FID" property="fid" jdbcType="DECIMAL" />
+    <result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+    <result column="MANAGERNAME" property="managername" jdbcType="VARCHAR" />
+    <result column="MANAGERMAIL" property="managermail" jdbcType="VARCHAR" />
+    <result column="ORGNAME" property="orgname" jdbcType="VARCHAR" />
+    <result column="HRBPNAME" property="hrbpname" jdbcType="VARCHAR" />
+    <result column="HRBPMAIL" property="hrbpmail" jdbcType="VARCHAR" />
+ 
+  </resultMap> 
+  
+   <!-- sql片段，查询的时候使用 -->
+   <sql id="BaseWhereCondition">
+    <if test="fnumber != null and fnumber != ''"> and fnumber= '${fnumber}'</if>
+    <if test="copypeoplename != null and copypeoplename != ''"> and FPERSONNAME like '%${copypeoplename}%'</if>
+    <if test="copypeoplemail != null and copypeoplemail != ''"> and FPERSONEMAIL like '%${copypeoplemail}%'</if>
+   </sql>
+   
+   <select id="getHomologousByFnumber" resultType="map" parameterType="string">
+     select fnumber,managername,managermail,orgname,hrbpname,hrbpmail from 
+      (
+      select fnumber ,
+    (select fpersonname from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 2 ) as managername, 
+    (select fpersonemail from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 2 ) as managermail, 
+    (select fdepartmentname from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ( ftype = 2 or ftype = 3) and rownum =1) orgname,
+    (select fpersonname from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 3 ) as hrbpname,  
+    (select fpersonemail from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 3 ) as hrbpmail 
+    from T_HR_HOMOLOGOUS t where t.ftype =2 or t.ftype =3 
+    group by fnumber 
+    order by fnumber  
+    ) tt where fnumber = #{fnumber,jdbcType=VARCHAR}  
+  </select>
+  <!-- 是否存在 -->
+  <select id="selectCount" resultType="int" parameterType="string">
+  	select count(t.fid) from T_HR_HOMOLOGOUS t where (t.ftype =2 or t.ftype =3) and t.fnumber = #{fnumber,jdbcType=VARCHAR}  
+  </select>
+  
+   <!--查询抄送人信息总行数 -->
+  <select id="selectCopyPeoCounts" resultType="int" parameterType="map">
+  	select count(t.fid) from T_HR_HOMOLOGOUS t where t.ftype ='5'
+	<include refid="BaseWhereCondition"/>  	
+  </select>
+  <!-- 查询抄送人信息 -->
+    <select id="queryCopyPeoPage" resultType="map" parameterType="map">
+	 select * FROM(select ROWNUM as ROWNO,t.* from (Select 
+	  FID,FPERSONNAME,FPERSONEMAIL from T_HR_HOMOLOGOUS where ftype='5'
+      <include refid="BaseWhereCondition"/>
+      ) t where <![CDATA[ ROWNUM <= #{endRow,jdbcType=INTEGER}]]>)
+      where ROWNO>= #{startRow,jdbcType=INTEGER} 
+   </select>
+  <!--根据fid删除抄送人信息-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+   delete from T_HR_HOMOLOGOUS where fid =#{fid}
+  </delete>
+  
+   <!-- 根据fid查询抄送人信息 -->
+   <select id="selectInfobyFid" resultType="map" parameterType="int">
+	 Select 
+	  FID,FPERSONNAME,FPERSONEMAIL from T_HR_HOMOLOGOUS where ftype='5' and FID = #{fid}
+   </select>
+   
+   <!-- 获取下一个序列值 -->
+   <select id="nextSeq" resultType="int">
+	 select T_DICTIONARY_ITEM_SEQ.NEXTVAL from dual
+   </select>
+  
+  <!--保存修改的抄送人信息 -->
+  <update id="updateCopyPeo" parameterType="map">
+    update T_HR_HOMOLOGOUS
+    set 
+      FPERSONNAME = #{FPERSONNAME},
+      FPERSONEMAIL = #{FPERSONEMAIL}
+    where FID = #{FID}
+  </update>
+  
+  <!--保存添加的抄送人信息 -->
+  <insert id="insertCopyPeo" parameterType="map" >
+    insert into T_HR_HOMOLOGOUS (FID, FPERSONNAME,FPERSONEMAIL, FNUMBER,FTYPE
+      )
+    values (#{FID,jdbcType=INTEGER}, #{FPERSONNAME,jdbcType=VARCHAR}, #{FPERSONEMAIL,jdbcType=VARCHAR},
+      #{FNUMBER,jdbcType=VARCHAR},#{FTYPE,jdbcType=VARCHAR}
+      )
+  </insert>
+  
+  <!-- 查询抄送人是否已经存在 -->
+	<select id="findEmailExists" parameterType="map" resultType="int">
+		SELECT COUNT(${columnName}) FROM ${tableName} WHERE ${columnName} = #{columnValue} and FNUMBER = #{fnumber} and FTYPE='5'
+	</select>
+  
+  
+  <select id="allHomologousByType" resultType="map">
+     select t.fnumber as fnumber,t.fdepartmentname as orgname, t.fpersonname as pname,t.fpersonemail as mail,t.ftype as ftype  
+     from T_HR_HOMOLOGOUS t where ftype = 3 
+  </select>
+  
+   <select id="getTotalCounts" resultType="int">
+  		select count (fnumber) from 
+		  (
+		  	select fnumber ,
+			(select fpersonname from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 2 ) as managername, 
+			(select fpersonemail from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 2 ) as managermail, 
+			(select fdepartmentname from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ( ftype = 2 or ftype = 3) and rownum =1) orgname,
+			(select fpersonname from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 3 ) as hrbpname,  
+			(select fpersonemail from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 3 ) as hrbpmail 
+			from T_HR_HOMOLOGOUS t where t.ftype =2 or t.ftype =3 
+			group by fnumber 
+			order by fnumber  
+		) tt      
+  </select>
+  
+    <select id="queryPage" resultMap="BaseResultMap" parameterType="map">
+	Select * FROM(	select ROWNUM as ROWNO,fnumber,managername,managermail,orgname,hrbpname,hrbpmail from 
+		  (
+		  select fnumber ,
+		(select fpersonname from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 2 ) as managername, 
+		(select fpersonemail from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 2 ) as managermail, 
+		(select fdepartmentname from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ( ftype = 2 or ftype = 3) and rownum =1) orgname,
+		(select fpersonname from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 3 ) as hrbpname,  
+		(select fpersonemail from T_HR_HOMOLOGOUS where fnumber = t.fnumber and ftype = 3 ) as hrbpmail 
+		from T_HR_HOMOLOGOUS t where t.ftype =2 or t.ftype =3 
+		group by fnumber 
+		order by fnumber  
+		) tt 
+		<where> 
+		<![CDATA[ROWNUM <= #{endRow,jdbcType=INTEGER}]]> 
+		</where>
+		) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+  	
+  	<select id="getHoms" resultType="map" parameterType="string">
+  		 select fid as fid, t.fdepartmentname as orgname, t.fpersonname as pname,t.fpersonemail as mail, t.fnumber as fnumber,t.ftype as ftype  
+     	 from T_HR_HOMOLOGOUS t where ftype = 2 and t.fnumber = #{fnumber,jdbcType=VARCHAR} 
+  	</select>
+	
+	<select id="getHomsBp" resultType="map" parameterType="string">
+  		 select fid as fid, t.fdepartmentname as orgname, t.fpersonname as pname,t.fpersonemail as mail, t.fnumber as fnumber,t.ftype as ftype  
+     	 from T_HR_HOMOLOGOUS t where ftype = 3 and t.fnumber = #{fnumber,jdbcType=VARCHAR} 
+  	</select>
+  	
+ 	<insert id="insertHoms" parameterType="com.creditease.eas.warn.bean.Homologous" >
+	    <selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+	   		select vari_TB_SEQ.NEXTVAL from dual
+		</selectKey>
+	    insert into T_HR_HOMOLOGOUS (FID, fdepartmentname, fpersonname,fpersonemail, fnumber,ftype )
+	    values (#{fid,jdbcType=DECIMAL}, #{fdepartmentname,jdbcType=VARCHAR}, #{fpersonname,jdbcType=VARCHAR},
+	     #{fpersonemail,jdbcType=VARCHAR}, #{fnumber,jdbcType=VARCHAR}, #{ftype,jdbcType=INTEGER}
+	      )
+  </insert>
+  
+    <update id="updateHoms" parameterType="com.creditease.eas.warn.bean.Homologous" >
+	    update T_HR_HOMOLOGOUS 
+	    set fdepartmentname = #{fdepartmentname,jdbcType=VARCHAR},
+	      fpersonname = #{fpersonname,jdbcType=VARCHAR},
+	      fpersonemail = #{fpersonemail,jdbcType=VARCHAR},
+	      ftype = #{ftype,jdbcType=INTEGER},
+	      fnumber = #{fnumber,jdbcType=VARCHAR} 
+	    where fid = #{fid,jdbcType=DECIMAL} 
+  </update>
+  	
+</mapper>

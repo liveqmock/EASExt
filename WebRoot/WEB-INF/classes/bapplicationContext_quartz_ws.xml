@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>   
+				<!--
+			Quartz中时间表达式的设置  时间格式:  s m h d m w(?) y(?) ,   分别对应: 秒>分>小时>日>月>周>年, 
+			推送可能需要提供三个定时任务的接口
+			需要设置一个推送的时间点吗？			
+		 -->
+        <!-- 要调用的工作类 -->
+      <!-- 要调用的工作类 -->
+        <bean id="oaquartzJob" class="com.creditease.eas.quartz.ws.OAWebServiceQuartzJob"></bean>
+        <bean id="smpquartzJob" class="com.creditease.eas.hrnew.service.impl.WSSMPPersonMapperServiceImpl"></bean>
+          <!-- 定义调用对象和调用对象的方法 -->
+        <bean id="jobtaskOrganization" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="oaquartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>queryOrganizationChangeFromHRToOA</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+         <bean id="jobtaskPosition" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="oaquartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>queryPositionInfoChangeFromHRToOA</value>
+            </property>
+            <property name="concurrent" value="false"/>
+        </bean>
+         <bean id="jobtaskEmp" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="oaquartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>queryEmpInfoChangeFromHRToSMPAndOA</value>
+            </property>
+             <!-- 是否允许任务并发执行。当值为false时，表示必须等到前一个线程处理完毕后才再启一个新的线程-->
+            <property name="concurrent" value="false"/>
+        </bean>
+        <!-- 定义触发时间 -->
+        <bean id="doTimeOrganization" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtaskOrganization"/>
+            </property>
+			<!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 5 * * * ?</value>
+            </property>
+        </bean>
+         <!-- 定义触发时间 -->
+        <bean id="doTimePosition" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtaskPosition"/>
+            </property>
+			<!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 15 * * * ?</value>
+            </property>
+        </bean>
+         <bean id="doTimeEmp" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="jobtaskEmp"/>
+            </property>
+			<!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 35 * * * ?</value>
+            </property>
+        </bean>
+        <!-- 异动 -->
+         <bean id="smpquartzFluctuation" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="smpquartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>queryFluctuation</value>
+            </property>
+        </bean>
+         <!-- 职员 -->
+         <bean id="smpquartzPerson" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="smpquartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>queryPerson</value>
+            </property>
+        </bean>
+         <!-- 组织 -->
+         <bean id="smpquartzOrgAdmin" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="smpquartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>orgAdminQuery</value>
+            </property>
+        </bean>
+         <!-- 职位 -->
+         <bean id="smpquartzOrgPosition" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+            <property name="targetObject">
+                <ref bean="smpquartzJob"/>
+            </property>
+            <!-- 调用类中的方法 -->
+            <property name="targetMethod">
+                <value>orgPositionQuery</value>
+            </property>
+        </bean>
+          <!-- 组织 -->
+        <bean id="doTimeOrgAdmin" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="smpquartzOrgAdmin"/>
+            </property>
+			<!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 10 * * * ?</value>
+            </property>
+        </bean>
+        <!-- 职位 -->
+        <bean id="doTimeOrgPosition" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="smpquartzOrgPosition"/>
+            </property>
+			<!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 20 * * * ?</value>
+            </property>
+        </bean>
+        
+        
+         <!-- 职员 -->
+        <bean id="doTimePerson" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="smpquartzPerson"/>
+            </property>
+			<!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 40 * * * ?</value>
+            </property>
+        </bean>
+        
+         <!-- 异动 -->
+        <bean id="doTimeFluctuation" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail">
+                <ref bean="smpquartzFluctuation"/>
+            </property>
+			<!-- 0 0 10 * * ? 表示每天10点运行 -->
+            <property name="cronExpression">
+                <value>0 45 * * * ?</value>
+            </property>
+        </bean>
+      
+         <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+        <bean id="startQuertz1" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+            <property name="triggers">
+                <list>
+                    <ref bean="doTimeOrganization"/>
+                    <ref bean="doTimePosition"/>
+                    <ref bean="doTimeEmp"/>
+                    <ref bean="doTimeFluctuation"/>
+                    <ref bean="doTimePerson"/>
+                    <ref bean="doTimeOrgAdmin"/>
+                    <ref bean="doTimeOrgPosition"/>
+                </list>
+            </property>
+        </bean>
+        <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+<!--        <bean id="startQuertz1" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+<!--            <property name="triggers">-->
+<!--                <list>-->
+<!--                    <ref bean="doTimeSendAll"/>-->
+<!--                    <ref bean="doTimeFluctuation"/>-->
+<!--                    <ref bean="doTimePerson"/>-->
+<!--                    <ref bean="doTimeOrgAdmin"/>-->
+<!--                    <ref bean="doTimeOrgPosition"/>-->
+<!--                </list>-->
+<!--            </property>-->
+<!--        </bean>-->
+</beans>

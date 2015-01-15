@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.compliance.dao.InvestigationMapper" >
+	<resultMap id="BaseResultMap" type="com.creditease.eas.compliance.bean.Investigation" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="CASEID" property="caseId" jdbcType="INTEGER" />
+		<result column="COMMUNICATETIME" property="communicateTime" jdbcType="VARCHAR" />
+		<result column="NEXTCOMMUNICATETIME" property="nextCommunicateTime" jdbcType="VARCHAR" />
+		<result column="COMMUNICATEPERSON" property="communicatePerson" jdbcType="VARCHAR" />
+		<result column="CPRELATIONWACCUSED" property="cpRelationWAccused" jdbcType="VARCHAR" />
+		<result column="CONTENT" property="content" jdbcType="VARCHAR" />
+		<result column="TYPEID" property="typeId" jdbcType="INTEGER" />
+		<result column="NEXTSCHEMEID" property="nextSchemeId" jdbcType="INTEGER" />
+		<result column="PARENTID" property="parentId" jdbcType="INTEGER" />
+		<result column="OUTREASON" property="outReason" jdbcType="VARCHAR" />
+		<result column="PREPLANITIME" property="preplanITime" jdbcType="DATE" />
+		<result column="BBMSDDCFS" property="bbmsddcfs" jdbcType="VARCHAR" />
+		<result column="STATUSID" property="statusId" jdbcType="INTEGER" />
+		<result column="CREATERID" property="createrId" jdbcType="INTEGER" />
+		<result column="CREATETIME" property="createTime" jdbcType="DATE" />
+		<result column="LASTUPDATERID" property="lastUpdaterId" jdbcType="INTEGER" />
+		<result column="LASTUPDATETIME" property="lastUpdateTime" jdbcType="DATE" />
+		<result column="SRCode" property="SRCODE" jdbcType="VARCHAR" />
+		
+		<result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+		<result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+		<result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+		<result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+		<result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+		<result column="EXT6" property="ext6" jdbcType="VARCHAR" />
+		<result column="EXT7" property="ext7" jdbcType="VARCHAR" />
+		<result column="EXT8" property="ext8" jdbcType="VARCHAR" />
+		<result column="EXT9" property="ext9" jdbcType="VARCHAR" />
+		<result column="EXT10" property="ext10" jdbcType="VARCHAR" />
+		
+	</resultMap>
+	
+	<resultMap id="basetype" type="com.creditease.eas.compliance.bean.BaseType" >
+  		 <id column="base_fid" property="basetypeId" jdbcType="DECIMAL" />
+  		  <result column="base_fname" property="basetypeName" jdbcType="VARCHAR"/>
+  		  <result column="detail_fid" property="detailId" jdbcType="DECIMAL"/>
+  		  <result column="detail_fname" property="detailName" jdbcType="VARCHAR"/>
+  	</resultMap>
+	
+  	<resultMap id="previewMap" type="map" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="complainid" property="complainId" jdbcType="INTEGER" /><!--  案件ID	-->
+		<result column="CASECODE" property="caseCode" jdbcType="VARCHAR" /><!--  案件编号	-->
+		<result column="COMPTIME" property="compTime" jdbcType="VARCHAR" /><!--   投诉时间	-->
+		<result column="COMPLAINANTER" property="complainanter" jdbcType="VARCHAR" /><!--  投诉人 	-->
+		<result column="FCUSNAME" property="fcusname" jdbcType="VARCHAR" /><!--  平台客户 	-->
+		<result column="STATUSID" property="statusId" jdbcType="INTEGER" /><!--  案件状态ID	-->
+		<result column="STATUSNAME" property="statusName" jdbcType="VARCHAR" /><!--  案件状态	-->
+		<result column="NEXTSCHEMEID" property="nextSchemeId" jdbcType="INTEGER" /><!--  下一步方案	-->
+		<result column="NEXTSCHEMENAME" property="nextSchemeName" jdbcType="VARCHAR" /><!--  下一步方案	-->
+		<result column="NEXTCOMMUNICATETIME" property="nextCommunicateTime" jdbcType="VARCHAR" /><!-- 下一次沟通时间 	-->
+		<result column="NEWNEXTSCHEMEID" property="newNextSchemeId" jdbcType="INTEGER" /><!--  下一步方案(最新下一步方案id)	-->
+		<!--  下一步方案(最新下一步方案Name)	-->
+		<result column="NEWNEXTSCHEMENAME" property="newNextSchemeName" jdbcType="VARCHAR" />
+		<!--下一次沟通时间(最新下一次沟通时间)-->
+		<result column="NEWNEXTCOMMUNICATETIME" property="newNextCommunicateTime" jdbcType="VARCHAR" />
+		<result column="RESPONSIBLENAME" property="responsibleName" jdbcType="VARCHAR" /><!--  案件负责人	-->
+		<result column="SPECIALENDCASE" property="specialEndCase" jdbcType="INTEGER" /><!-- 是否特殊结案（0：否；1：是）	-->
+		<!--  申请结案操作的上一步流程1：转部门调查处理反馈结果后申请2：实地调查后直接申请结案
+			3：再次协助落实后申请4初步调查时直接申请/或者没有申请结案记录-->
+		<result column="APPLYLASTSTEP" property="applyLastStep" jdbcType="INTEGER" />
+		<!--结案时间  -->
+		<result column="endcaseTime" property="endcaseTime" jdbcType="VARCHAR" />
+		<result column="fcompchannelid" property="fcompchannelid" jdbcType="VARCHAR"/>	
+		<result column="fcompchannelname" property="fcompchannelname" jdbcType="VARCHAR"/>	
+		<!-- 最近沟通时间 -->
+		<result column="lastcommunicatetime" property="lastcommunicatetime" jdbcType="VARCHAR" />
+		<!-- 案件初步分类 -->
+		<collection property="casecadeInicasetypes" column="{complainId=COMPLAINID}" 
+			javaType="arrayList" select="getCasecadeInicasetypes"></collection>
+	</resultMap>
+	
+	<resultMap id="casecadeInicasetypesMap" type="java.util.HashMap" >
+		<result property="id" column="inicasetypeid"/>
+		<result property="inicaseTypeName" column="InicasetypeName"/>
+	</resultMap>
+	<resultMap id="BaseResultInvestFile" type="com.creditease.eas.compliance.bean.InvestFile" >
+		<id column="ID" property="id" jdbcType="INTEGER"/>
+		<result column="CREATERID" property="createrid" jdbcType="INTEGER" />
+		<result column="CREATETIME" property="createtime" jdbcType="DATE" />
+		<result column="LASTUPDATERID" property="lastupdaterid" jdbcType="INTEGER" />
+		<result column="FASTUPDATETIME" property="fastupdatetime" jdbcType="DATE" />
+		
+		<result column="EXT1" property="ext1" jdbcType="VARCHAR" />
+		<result column="EXT2" property="ext2" jdbcType="VARCHAR" />
+		<result column="EXT3" property="ext3" jdbcType="VARCHAR" />
+		<result column="EXT4" property="ext4" jdbcType="VARCHAR" />
+		<result column="EXT5" property="ext5" jdbcType="VARCHAR" />
+		<result column="EXT6" property="ext6" jdbcType="VARCHAR" />
+		<result column="EXT7" property="ext7" jdbcType="VARCHAR" />
+		<result column="EXT8" property="ext8" jdbcType="VARCHAR" />
+		<result column="EXT9" property="ext9" jdbcType="VARCHAR" />
+		<result column="EXT10" property="ext10" jdbcType="VARCHAR" />
+		
+		<result column="INVESTIGATIONID" property="investigationid" jdbcType="INTEGER" />
+		<result column="FILENAME" property="filename" jdbcType="VARCHAR" />
+		<result column="FILEPHYSICSPATH" property="filephysicspath" jdbcType="VARCHAR" />
+		<result column="CREATERNAME" property="creatername" jdbcType="VARCHAR" />
+	</resultMap>
+	
+   	<resultMap id="BaseResultComplain" type="com.creditease.eas.compliance.bean.Complain" >
+	    <id column="FID" property="fid" jdbcType="DECIMAL" />
+	    <result column="FNUMBER" property="fnumber" jdbcType="VARCHAR" />
+	    <result column="FCOMPLAINANT" property="fcomplainanter" jdbcType="VARCHAR" />
+	    <result column="FISCUSTOMER" property="fiscustomer" jdbcType="VARCHAR" />
+	    <result column="FCUSNAME" property="fcusName" jdbcType="VARCHAR"/>
+	    <result column="FRESPONSIBLENAME" property="fresponsibleName" jdbcType="VARCHAR"/>
+	    <result column="FRESPONSIBLEEMAIL" property="fresponsibleEmail" jdbcType="VARCHAR"/>
+	    <result column="FIDCARD" property="fidcard" jdbcType="VARCHAR" />
+	    <result column="FMOBILE" property="fmobile" jdbcType="VARCHAR" />
+	    <result column="FOFFICEPHONE" property="fofficephone" jdbcType="VARCHAR" />
+	    <result column="FQQ" property="fqq" jdbcType="VARCHAR" />
+	    <result column="FEMAIL" property="femail" jdbcType="VARCHAR" />
+	    <result column="FCUSSOURCEID" property="fcussourceid" jdbcType="DECIMAL" />
+	    <result column="FSERVICETYPEID" property="fservicetypeid" jdbcType="DECIMAL" />
+	    <result column="FINANCIALPLAN" property="financialplan" jdbcType="VARCHAR" />
+	    <result column="FSTARTORENDTIME" property="fstartorendtime" jdbcType="VARCHAR" />
+	    <result column="FSALESMANNAME" property="fsalesmanname" jdbcType="VARCHAR" />
+	    <result column="FSERVICENAME" property="fservicename" jdbcType="VARCHAR" />
+	    <result column="FFIRSTTRIAL" property="ffirsttrial" jdbcType="VARCHAR" />
+	    <result column="FLASTTRIAL" property="flasttrial" jdbcType="VARCHAR" />
+	    <result column="FDENIEDLOANS" property="fdeniedloans" jdbcType="VARCHAR" />
+	    <result column="FCONTRACTNUMBER" property="fcontractnumber" jdbcType="VARCHAR" />
+	    <result column="FCONTRACTTIME" property="fcontracttime" jdbcType="DATE" />
+	    <result column="FLOANTIME" property="floantime" jdbcType="DATE" />
+	    <result column="FLOANBREAD" property="floanbread" jdbcType="VARCHAR" />
+	    <result column="FREIMBSTRATTIME" property="freimbstrattime" jdbcType="VARCHAR" />
+	    <result column="FREIMBENDTIME" property="freimbendtime" jdbcType="VARCHAR" />
+	    <result column="FAMOUNT" property="famount" jdbcType="VARCHAR" />
+	    <result column="FDEADLINE" property="fdeadline" jdbcType="VARCHAR" />
+	    <result column="FISVIOLATE" property="fisviolate" jdbcType="VARCHAR" />
+	    <result column="FVIOLATEDAYS" property="fviolatedays" jdbcType="DECIMAL" />
+	    <result column="FCOMPCHANNELID" property="fcompchannelid" jdbcType="DECIMAL" />
+	    <result column="FCOMPTIME" property="fcomptime" jdbcType="VARCHAR" />
+	    <result column="FISEVIDENCE" property="fisevidence" jdbcType="VARCHAR" />
+	    <result column="FEVIDENCETYPEID" property="fevidencetypeid" jdbcType="DECIMAL" />
+	    <result column="FISINNER" property="fisinner" jdbcType="VARCHAR" />
+	    <result column="FBUSPORTID" property="fbusportid" jdbcType="DECIMAL" />
+	    <result column="FDETAILDESCRIP" property="fdetaildescrip" jdbcType="VARCHAR" />
+	    <result column="FCREATEUSERID" property="fcreateuserid" jdbcType="DECIMAL" />
+	    <result column="FCREATETIME" property="fcreatetime" jdbcType="DATE" />
+	    <result column="FUPDATEUSERID" property="fupdateuserid" jdbcType="DECIMAL" />
+	    <result column="FLASTUPDATETIME" property="flastupdatetime" jdbcType="DATE" />
+	    <result column="FTEMPSTATUS" property="ftempstatus" jdbcType="DECIMAL"/>
+	    <result column="FCUSSTATUSID" property="fcusstatusid" jdbcType="DECIMAL"/>
+	    <result column="FREMARKS" property="fremarks" jdbcType="VARCHAR"/>
+	     <result column="FCUSRELATION" property="fcusrelation" jdbcType="VARCHAR" />
+	    <result column="FCOMPCONTACTINFO" property="fcompcontactinfo" jdbcType="VARCHAR" />
+	    <result column="FCOMPLAINIDCARD" property="fcomplainidcard" jdbcType="VARCHAR" />
+	    <result column="FINDEX" property="findex" jdbcType="DECIMAL" />
+	    <result column="FISEVIDENCEREMARKS" property="fisevidenceRemarks" jdbcType="VARCHAR" />
+	    <result column="FSELFEMAILREMARK" property="fselfEmailRemark" jdbcType="VARCHAR" />
+	    <result column="FINICASETYPEREMARK" property="finicasetypeRemark" jdbcType="VARCHAR" />
+	    <result column="FVIOLATECOUNTHISTORY" property="fviolateCountHistory" jdbcType="VARCHAR" />
+	    <result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+	    <result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+	    <result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+	    <result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+	    <result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+	    <result column="FEXT6" property="fext6" jdbcType="VARCHAR" />
+	    <result column="FEXT7" property="fext7" jdbcType="VARCHAR" />
+	    <result column="FEXT8" property="fext8" jdbcType="VARCHAR" />
+	    <result column="FEXT9" property="fext9" jdbcType="VARCHAR" />
+	    <result column="FEXT10" property="fext10" jdbcType="VARCHAR" />
+	    <result column="isCharge" property="isCharge" jdbcType="VARCHAR" />
+   	    <result column="FRISKLEVEL" property="riskLevel" jdbcType="VARCHAR"/>
+   	    
+   	    <result column="caseComeIntoCode" property="caseComeIntoCode" jdbcType="VARCHAR"/>
+	    <result column="caseComeIntoDate" property="caseComeIntoDate" jdbcType="VARCHAR"/>
+	    <result column="casefrom" property="casefrom" jdbcType="DECIMAL"/>
+	    <result column="casefromPlace" property="casefromPlace" jdbcType="VARCHAR"/>
+	    <result column="salePerson" property="salePerson" jdbcType="VARCHAR"/>
+	    <result column="superLeader" property="superLeader" jdbcType="VARCHAR"/>
+	    <result column="indirectLeader" property="indirectLeader" jdbcType="VARCHAR"/>
+	    <result column="saleDepart" property="saleDepart" jdbcType="VARCHAR"/>
+	    <result column="serviceName" property="serviceName" jdbcType="VARCHAR"/>
+   	    
+	    
+  	</resultMap>
+	<!-- 查询关联的案件初步分类 -->
+	<select id="getCasecadeInicasetypes" resultMap="casecadeInicasetypesMap" parameterType="map">
+		select a.inicasetypeid,b.fname InicasetypeName from T_COM_REL_INICASETYPE a
+    		left join t_com_inicasetype b on a.inicasetypeid = b.fid
+		<where><if test="complainId!=null and complainId!=''"></if>a.complainid = #{complainId} group by a.inicasetypeid,b.fname order by a.inicasetypeid</where>
+	</select>
+	
+	<sql id="Base_Column_List" >
+		ID, CASEID, COMMUNICATETIME,NEXTCOMMUNICATETIME, COMMUNICATEPERSON, CPRELATIONWACCUSED, CONTENT, 
+		TYPEID,NEXTSCHEMEID,PARENTID, OUTREASON, PREPLANITIME, BBMSDDCFS, STATUSID, CREATERID, CREATETIME,
+		LASTUPDATERID, LASTUPDATETIME,EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10
+	</sql>
+  
+	<!--  列表复合查询记录的条件	-->
+  	<sql id="preview_condition" >
+		<choose>
+			<!--调查列表-->
+			<when test="type==1">
+				AND a.PARENTID IS NULL
+				
+				<if test="roleId!=3 and email!=heguiAdmin">
+					and b.fresponsibleemail ='${email}'
+				</if>
+				<!-- 
+					<if test="email!=finalAudit and email!=heguiAdmin">
+						and b.fresponsibleemail ='${email}'
+					</if>
+				 -->
+			</when>
+			<!--待办列表-->
+			<when test="type==2"> 
+				AND a.PARENTID IS NULL 
+				<choose>
+					<!-- 
+					<when test="email == firstAuditPhjr"> 
+						AND a.STATUSID IN(3,8,13,16) and (b.FSERVICETYPEID in(0,1) or b.FSERVICETYPEID is null)
+					</when>
+					<when test="email == firstAuditCfglzn"> 
+						AND a.STATUSID IN(3,8,13,16) and b.FSERVICETYPEID in(2,3)
+					</when>
+					<when test="email == finalAudit"> AND a.STATUSID = 15</when>
+					 -->
+					 
+					<when test="roleId == 1"> 
+						AND a.STATUSID IN(3,8,13,16) and (b.FSERVICETYPEID in(0,1) or b.FSERVICETYPEID is null) 
+					</when>
+					<when test="roleId == 2"> 
+						AND a.STATUSID IN(3,8,13,16) and b.FSERVICETYPEID in(2,3) 
+					</when>
+					<when test="roleId == 3"> AND a.STATUSID = 15 </when>
+					
+					<otherwise>
+						AND a.STATUSID IN(6,11) AND (x.email = '${email}' or y.email = '${email}')
+					</otherwise>
+				</choose>
+			</when>
+			<!--已办列表-->
+			<when test="type==3">
+				AND a.PARENTID IS NULL 
+				<choose>
+				<!-- 
+					<when test="email == firstAuditPhjr">
+						 AND a.STATUSID IN(4,5,9,10,14,15) and (b.FSERVICETYPEID in(0,1) or b.FSERVICETYPEID is null)
+				 	</when>
+					<when test="email == firstAuditCfglzn">
+					 AND a.STATUSID IN(4,5,9,10,14,15) and b.FSERVICETYPEID in(2,3)
+				 	</when>
+					<when test="email == finalAudit"> AND a.STATUSID IN(16,17)</when>
+					<otherwise>
+						AND a.STATUSID IN(7,12) AND (x.email = '${email}' or y.email = '${email}')
+					</otherwise>
+				-->
+					<when test="roleId == 1">
+						 AND a.STATUSID IN(4,5,9,10,14,15) and (b.FSERVICETYPEID in(0,1) or b.FSERVICETYPEID is null)
+				 	</when>
+					<when test="roleId == 2">
+					 	AND a.STATUSID IN(4,5,9,10,14,15) and b.FSERVICETYPEID in(2,3)
+				 	</when>
+					<when test="roleId == 3"> AND a.STATUSID IN(16,17)</when>
+					<otherwise>
+						AND a.STATUSID IN(7,12) AND (x.email = '${email}' or y.email = '${email}')
+					</otherwise>
+				</choose>
+			</when>
+		</choose>
+		<if test="compStartTime!=null and compStartTime!=''"> AND b.fCOMPTIME &gt;= TO_DATE('${compStartTime}','yyyy-mm-dd hh24:mi:ss')</if>
+		<if test="compEndTime!=null and compEndTime!=''"> AND b.fCOMPTIME &lt;= TO_DATE('${compEndTime}','yyyy-mm-dd hh24:mi:ss')</if>
+		<if test="complainanter!=null and complainanter!=''"> AND b.fCOMPLAINANT like '%${complainanter}%'</if>
+		<if test="customerName!=null and customerName!=''"> AND b.FCUSNAME like '%${customerName}%'</if>
+		<if test="iniCaseTypeId!=null and iniCaseTypeId!='' ">
+			and b.fid in (select distinct m.fid from T_COM_COMPLAIN m 
+            	left join t_com_rel_inicasetype n on m.fid = n.complainid where n.inicasetypeid = ${iniCaseTypeId})
+        </if>
+		<if test="responsibleName!=null and responsibleName!=''"> AND b.FRESPONSIBLENAME like '%${responsibleName}%'</if>
+		<if test="cusSourceId!=null and cusSourceId!=''"> AND b.FCUSSOURCEID = ${cusSourceId}</if>
+		<if test="loanBread!=null and loanBread!=''"> AND b.FLOANBREAD = '${loanBread}'</if>	
+		<if test="state!=null and state!=''">  and a.statusid = ${state}</if>
+		<if test="fcompchannelid!=null and fcompchannelid!=''">  and b.fcompchannelid = ${fcompchannelid}</if>
+		<if test="findex!=null and findex!=''">  and b.fNUMBER = ${findex}</if>
+		
+		<if test="communicateStartTime!=null and communicateStartTime!=''"> AND tt1.lastcommunicatetime &gt;= TO_DATE('${communicateStartTime}','yyyy-mm-dd hh24:mi:ss')</if>
+		<if test="communicateEndTime!=null and communicateEndTime!=''"> AND tt1.lastcommunicatetime &lt;= TO_DATE('${communicateEndTime}','yyyy-mm-dd hh24:mi:ss')</if>
+		
+  	</sql>
+  	
+	<!--  列表复合查询记录sql	-->
+  	<sql id="preview_data" >
+		SELECT ROWNUM as ROWNO, a.ID,nvl(b.fid,0) complainid,b.fNUMBER as caseCode,b.fcusname,to_char(b.fCOMPTIME,'yyyy-mm-dd') as COMPTIME, 
+			b.fCOMPLAINANT as COMPLAINANTER, 
+			a.STATUSID,d.value as STATUSNAME, a.nextschemeid,
+			e.value as NEXTSCHEMENAME,to_char(a.nextCOMMUNICATETIME,'yyyy-mm-dd') nextCOMMUNICATETIME,
+			h.nextschemeid newnextschemeid,h.value newNEXTSCHEMENAME ,
+			to_char(h.nextCOMMUNICATETIME,'yyyy-mm-dd') newnextCOMMUNICATETIME,b.fRESPONSIBLENAME RESPONSIBLENAME,
+			case when z.FEEDBACKRESULTID is not null then 1 when z.FIELDSURVEYID is not null then 2 
+            	when z.ZCXZLSID is not null then 3 else 4 end as applylaststep,z.specialEndCase,to_char(tab.createtime,'yyyy-mm-dd') endcaseTime,
+            	b.fcompchannelid as fcompchannelid,ditch.fname as fcompchannelname ,
+            	to_char(tt1.lastcommunicatetime, 'yyyy-mm-dd hh24:mi:ss') lastcommunicatetime
+      	FROM T_COM_INVESTIGATION a 
+	       	left join T_COM_COMPLAIN b on a.CASEID = b.fid
+	       	left join t_com_istatus d on a.statusid = d.id
+	   	 	left join t_com_inextscheme e on a.NEXTSCHEMEID = e.id
+	       	left join (select g.*,i.value from T_COM_INVESTIGATION g
+		       	left join t_com_inextscheme i on i.id = g.nextschemeid
+		       	where g.id in (select id from (select max(f.id) as id,f.parentid 
+		        from T_COM_INVESTIGATION f where f.PARENTID IS not NULL group by f.parentid))) h on h.parentid = a.id
+       	   left join (select xa.* from t_com_ifeedbackrequired xa 
+                where xa.id in (select max(xb.id) from t_com_ifeedbackrequired xb group by xb.investigationid)) 
+                x on x.investigationid = a.id
+           left join (select ya.* from t_com_fieldsurvey ya 
+                where ya.id in (select max(yb.id) from t_com_fieldsurvey yb group by yb.investigationid)) 
+                y on y.investigationid = a.id
+       	   left join (select aa.* from t_com_applysettlement aa 
+             	where aa.id in (select max(ab.id) from t_com_applysettlement ab group by ab.investigationid)) 
+             	z on z.investigationid = a.id left join (
+             	select tab1.createtime, tab1.investigationid
+			    from t_com_auditresult tab1,
+			       (select v.investigationid, max(v.id) maxId
+			          from t_com_auditresult v, t_com_investigation t
+			         where t.statusid = 17
+			           and t.id = v.investigationid
+			         group by v.investigationid) tab2
+			   where tab1.id = tab2.maxId
+			   )tab on a.id=tab.investigationid  
+		   left join t_com_ditch ditch on ditch.fid=b.fcompchannelid
+		   left join (select v.caseid, max(v.nextcommunicatetime) lastcommunicatetime
+		                from t_com_investigation v
+		               group by v.caseid) tt1 on a.caseid = tt1.caseid 
+  	</sql>
+  	<select id="getTotalCountsForEmail" resultType="int"  parameterType="map">
+		SELECT COUNT(*) FROM (<include refid="preview_data" />
+ 		<where> 1=1 <include refid="preview_condition" />and a.statusid=6</where>)
+	</select>
+	
+	<select id="queryDataForEmail" resultMap="previewMap" parameterType="map">
+		SELECT * FROM ( <include refid="preview_data" />    
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+				<include refid="preview_condition" />and a.statusid=6
+				order by a.lastupdatetime desc,a.createtime desc,a.id desc
+			</where> ) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+		
+	</select>
+  	
+  		<!--  <update id="Byinvestigation" parameterType="com.creditease.eas.compliance.bean.IFeedbackRequired">
+  			UPDATE T_COM_IFEEDBACKREQUIRED SET 
+		    ASSISTEDPERSON = #{assistedPerson,jdbcType=VARCHAR},
+		    EMAIL = #{email,jdbcType=VARCHAR},
+		    LASTUPDATETIME = SYSDATE		    
+	  	WHERE INVESTIGATIONID = #{investigationId,jdbcType=INTEGER}
+  	</update>-->
+  	
+  	<update id="updateByinvestigation" parameterType="com.creditease.eas.compliance.bean.IFeedbackRequired">
+  			UPDATE T_COM_IFEEDBACKREQUIRED SET 
+		    ASSISTEDPERSON = #{assistedPerson,jdbcType=VARCHAR},
+		    EMAIL = #{email,jdbcType=VARCHAR},
+		    LASTUPDATETIME = SYSDATE		    
+	  	WHERE INVESTIGATIONID = #{investigationId,jdbcType=INTEGER}
+  	</update>
+  
+ 	<select id="getTotalCounts" resultType="int"  parameterType="map">
+		SELECT COUNT(*) FROM (<include refid="preview_data" />
+ 		<where> 1=1 <include refid="preview_condition" /> </where>)  
+	</select>
+	
+	<select id="queryData" resultMap="previewMap" parameterType="map">
+		SELECT * FROM (
+			select rownum as rnum,tab.* from (
+		 	<include refid="preview_data" /> 
+			<where> 
+				<include refid="preview_condition" /> 
+				
+				order by a.lastupdatetime desc,a.createtime desc,a.id desc
+				 
+				<!--  
+				order by a.createtime b.fcomptime desc
+				order by a.lastupdatetime desc,a.createtime desc,a.id desc
+				-->
+				)tab 
+			</where> 
+			<where>
+					ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+			</where>
+			) 
+		<where>
+		<![CDATA[rnum >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT <include refid="Base_Column_List" /> FROM T_COM_INVESTIGATION WHERE ID = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+		DELETE FROM T_COM_INVESTIGATION WHERE ID = #{id,jdbcType=INTEGER}
+	</delete>
+  
+	<insert id="insert" parameterType="com.creditease.eas.compliance.bean.Investigation" >
+	    <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   			SELECT T_COM_INVESTIGATION_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+			INSERT INTO T_COM_INVESTIGATION (ID, CASEID, COMMUNICATETIME,NEXTCOMMUNICATETIME, COMMUNICATEPERSON, 
+			CPRELATIONWACCUSED, CONTENT, TYPEID,NEXTSCHEMEID,PARENTID, OUTREASON, PREPLANITIME,BBMSDDCFS, STATUSID, 
+			CREATERID,CREATETIME,LASTUPDATERID,LASTUPDATETIME, EXT1, EXT2, EXT3, EXT4, EXT5, EXT6, EXT7, EXT8, EXT9, EXT10)
+			values (#{id,jdbcType=INTEGER}, #{caseId,jdbcType=INTEGER},
+				#{communicateTime,jdbcType=VARCHAR},#{nextCommunicateTime,jdbcType=VARCHAR},
+				#{communicatePerson,jdbcType=VARCHAR}, #{cpRelationWAccused,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
+				#{typeId,jdbcType=INTEGER}, #{nextSchemeId,jdbcType=INTEGER},#{parentId,jdbcType=INTEGER}, 
+				#{outReason,jdbcType=VARCHAR}, #{preplanITime,jdbcType=VARCHAR}, 
+				#{bbmsddcfs,jdbcType=VARCHAR},#{statusId,jdbcType=INTEGER}, #{createrId,jdbcType=INTEGER},
+				SYSDATE, #{lastUpdaterId,jdbcType=INTEGER}, SYSDATE,
+				#{ext1,jdbcType=VARCHAR}, #{ext2,jdbcType=VARCHAR}, #{ext3,jdbcType=VARCHAR}, 
+			  	#{ext4,jdbcType=VARCHAR}, #{ext5,jdbcType=VARCHAR}, #{ext6,jdbcType=VARCHAR}, #{ext7,jdbcType=VARCHAR}, 
+			  	#{ext8,jdbcType=VARCHAR}, #{ext9,jdbcType=VARCHAR}, #{ext10,jdbcType=VARCHAR})
+  	</insert>
+
+	<update id="updateByPrimaryKey" parameterType="com.creditease.eas.compliance.bean.Investigation" >
+  		UPDATE T_COM_INVESTIGATION SET 
+		    CASEID = #{caseId,jdbcType=INTEGER},
+		    NEXTCOMMUNICATETIME = #{nextCommunicateTime,jdbcType=VARCHAR},
+		    COMMUNICATEPERSON = #{communicatePerson,jdbcType=VARCHAR},
+		    CPRELATIONWACCUSED = #{cpRelationWAccused,jdbcType=VARCHAR},
+		    CONTENT = #{content,jdbcType=VARCHAR},
+		    TYPEID = #{typeId,jdbcType=INTEGER},
+		    <if test="nextSchemeId!=null and nextSchemeId!=''">
+			    NEXTSCHEMEID = #{nextSchemeId,jdbcType=INTEGER},
+		    </if>
+		    PARENTID = #{parentId,jdbcType=INTEGER},
+		    OUTREASON = #{outReason,jdbcType=VARCHAR},
+		    PREPLANITIME = #{preplanITime,jdbcType=DATE},
+		    BBMSDDCFS = #{bbmsddcfs,jdbcType=VARCHAR},
+		    STATUSID = #{statusId,jdbcType=INTEGER},
+		    LASTUPDATERID = #{lastUpdaterId,jdbcType=INTEGER},
+		    LASTUPDATETIME = SYSDATE,
+		    EXT1 = #{ext1,jdbcType=VARCHAR},
+		    EXT2 = #{ext2,jdbcType=VARCHAR},
+		    EXT3 = #{ext3,jdbcType=VARCHAR},
+		    EXT4 = #{ext4,jdbcType=VARCHAR},
+		    EXT5 = #{ext5,jdbcType=VARCHAR},
+		    EXT6 = #{ext6,jdbcType=VARCHAR},
+		    EXT7 = #{ext7,jdbcType=VARCHAR},
+		    EXT8 = #{ext8,jdbcType=VARCHAR},
+		    EXT9 = #{ext9,jdbcType=VARCHAR},
+		    EXT10 = #{ext10,jdbcType=VARCHAR}
+	  	WHERE ID = #{id,jdbcType=INTEGER}
+	</update>
+	<!--查找所有的调查方式下拉列表集合-->
+	<select id="getTypeIds" resultType="map">
+		SELECT ID, VALUE FROM T_COM_ITYPE
+	</select>
+	<!--查找所有的下一步方案下拉列表集合-->
+	<select id="getNextSchemeIds" resultType="map">
+		SELECT ID, VALUE FROM T_COM_INEXTSCHEME
+	</select>
+	<!--查找案件初步分类下拉列表集合-->
+	<select id="getIniCaseTypes" resultType="map">
+	<![CDATA[ 
+		SELECT FID AS ID, FNAME AS VALUE FROM T_COM_INICASETYPE where fid>=20 or fid<=7 order by fid
+		]]>	
+	</select>
+	<!--客户来源下拉列表集合-->
+	<select id="getCusSources" resultType="map">
+		SELECT FID AS ID, FNAME AS VALUE FROM T_COM_CUSSOURCE
+	</select>
+	<!--根据父ID查询所有的子调查记录-->
+	<select id="getChildInvestigations" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+		SELECT <include refid="Base_Column_List" /> FROM T_COM_INVESTIGATION 
+		WHERE PARENTID = #{parentId,jdbcType=INTEGER} OR ID = #{parentId,jdbcType=INTEGER}
+		order by CREATETIME
+	</select>
+	<!--根据ID更新案件状态外键ID-->
+	<update id="updateStatus" parameterType="map">
+  		UPDATE T_COM_INVESTIGATION 
+  			SET STATUSID = #{statusId,jdbcType=INTEGER} ,
+  			LASTUPDATETIME = SYSDATE
+  		WHERE ID = #{id,jdbcType=INTEGER}
+	</update>
+	<!--根据调查id获取关联的案件	-->
+	<select id="getComplainByInvestigationId" resultMap="BaseResultComplain" parameterType="java.lang.Integer">
+		SELECT a.*, t.fname as casefromPlace from T_COM_COMPLAIN a 
+			left join t_com_investigation b on a.fid = b.caseid 
+			left join t_com_casefrom t on a.casefrom = t.fid 
+		where b.id = #{investigationId,jdbcType=INTEGER}
+	</select>
+	<resultMap id="ComplainTypesMap" type="map" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="INICASETYPEID" property="iniCaseTypeId" jdbcType="INTEGER" />
+		<result column="DETAILCASETYPEID" property="detailCaseTypeId" jdbcType="INTEGER" />
+	</resultMap>
+	<!--根据调查id获取关联的案件的初步分类和详细分类结果集合	-->
+	<select id="getComplainTypesByInvestigationId" resultMap="ComplainTypesMap" parameterType="java.lang.Integer">
+		select t.id,t.inicasetypeid,t.detailcasetypeid from T_COM_REL_INICASETYPE t
+			left join t_com_complain a on a.fid = t.complainid
+			left join t_com_investigation b on a.fid = b.caseid 
+		where b.id = #{investigationId,jdbcType=INTEGER} and b.parentid is null
+	</select>
+	<!--根据调查id获取关联的案件的多个被投诉人记录集合	-->
+	<select id="getCompalinPersonsByInvestigationId" 
+		resultMap="com.creditease.eas.compliance.dao.PersonMapper.BaseResultMap" parameterType="java.lang.Integer">
+		select t.* from T_COM_PERSON t
+			left join t_com_complain a on t.fcomplainid = a.fid
+			left join t_com_investigation b on a.fid = b.caseid 
+		where b.id = #{investigationId,jdbcType=INTEGER} and b.parentid is null
+	</select>
+	<!--根据调查id获取关联的案件的多个被投诉人记录集合	-->
+	<select id="getDeptinfosByInvestigationId" 
+		resultMap="com.creditease.eas.compliance.dao.DEPTINFOMapper.BaseResultMap" parameterType="java.lang.Integer">
+		select t.* from t_Com_Deptinfo t
+      		left join t_com_complain a on t.fcomplainid = a.fid
+      		left join t_com_investigation b on a.fid = b.caseid 
+		where b.id = #{investigationId,jdbcType=INTEGER} and b.parentid is null
+	</select>
+	<!--根据调查id获取关联的转部门反馈要求记录	-->
+	<select id="getFeedbackRequiredByInvestigationId" 
+		resultType="com.creditease.eas.compliance.bean.IFeedbackRequired" parameterType="java.lang.Integer">
+		SELECT a.* from T_com_ifeedbackrequired a where a.investigationid = #{investigationId,jdbcType=INTEGER}
+		order by a.CREATETIME desc
+	</select>
+	<!--根据调查id获取反馈结果-->
+	<select id="getFeedbackByInvestigationId" 
+		resultType="com.creditease.eas.compliance.bean.IFeedback" parameterType="java.lang.Integer">
+		SELECT a.* from t_Com_Ifeedback a where a.feedbackrequiredid in 
+	   		(select aa.id from t_com_ifeedbackrequired aa 
+	   			left join t_com_investigation ab on aa.investigationid = ab.id where ab.id = #{investigationId,jdbcType=INTEGER})
+   		or a.fieldsurveyid in 
+	   		(select ba.id from t_com_fieldsurvey ba 
+	   			left join t_com_investigation bb on ba.investigationid = bb.id where bb.id = #{investigationId,jdbcType=INTEGER})
+		order by a.CREATETIME desc
+	</select>
+	<!--根据调查id获取反馈结果-->
+	<select id="getFeedbackResultByInvestigationId" 
+		resultType="com.creditease.eas.compliance.bean.IFeedbackResult" parameterType="java.lang.Integer">
+		SELECT a.* from T_com_ifeedbackresult a where a.feedbackid in 
+		(SELECT b.id from t_Com_Ifeedback b 
+       		where b.feedbackrequiredid in 
+     				(select aa.id from t_com_ifeedbackrequired aa left join t_com_investigation ab on aa.investigationid = ab.id
+     					where ab.id = #{investigationId,jdbcType=INTEGER}))
+		order by a.CREATETIME desc
+	</select>
+	<!--根据调查id获取关联的实地调查记录-->
+	<select id="getFieldsurveyByInvestigationId" 
+		resultType="com.creditease.eas.compliance.bean.Fieldsurvey" parameterType="java.lang.Integer">
+		SELECT a.* from T_com_Fieldsurvey a where a.investigationid = #{investigationId,jdbcType=INTEGER}
+		order by a.CREATETIME desc
+	</select>
+	<!--根据调查id获取关联的再次协助落实结果记录-->
+	<select id="getZcxzlsfbResultByInvestigationId" 
+		resultType="com.creditease.eas.compliance.bean.ZcxzlsResult" parameterType="java.lang.Integer">
+		SELECT a.* from T_com_zcxzlsfbresult a where a.feedbackid in 
+			(SELECT b.id from t_Com_Ifeedback b 
+        		where b.fieldsurveyid in 
+      				(select aa.id from t_com_fieldsurvey aa left join t_com_investigation ab on aa.investigationid = ab.id
+     					where ab.id = #{investigationId,jdbcType=INTEGER}))
+		order by a.CREATETIME desc
+	</select>
+	<!--根据调查id获取关联的申请结案记录-->
+	<select id="getApplysettlementByInvestigationId" 
+		resultType="com.creditease.eas.compliance.bean.Applysettlement" parameterType="java.lang.Integer">
+		SELECT a.* from T_com_applysettlement a where a.investigationid = #{investigationId,jdbcType=INTEGER}
+		order by a.CREATETIME desc
+	</select>
+	
+	<resultMap type="com.creditease.eas.compliance.bean.AuditResult" id="auditResultMap">
+		<id column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="ISAGREE" property="isAgree" jdbcType="DECIMAL"/>
+		<result column="OPINION" property="opinion" jdbcType="VARCHAR"/>
+		<result column="CREATERID" property="createrId" jdbcType="DECIMAL"/>
+		<result column="CREATETIME" property="createTime" jdbcType="DATE"/>
+		<result column="LASTUPDATERID" property="lastUpdaterId" jdbcType="DECIMAL"/>
+		<result column="LASTUPDATETIME" property="lastUpdateTime" jdbcType="DATE"/>
+		<result column="EXT1" property="ext1" jdbcType="VARCHAR"/>
+		<result column="EXT2" property="ext2" jdbcType="VARCHAR"/>
+		<result column="EXT3" property="ext3" jdbcType="VARCHAR"/>
+		<result column="EXT4" property="ext4" jdbcType="VARCHAR"/>
+		<result column="EXT5" property="ext5" jdbcType="VARCHAR"/>
+		<result column="EXT6" property="ext6" jdbcType="VARCHAR"/>
+		<result column="EXT7" property="ext7" jdbcType="VARCHAR"/>
+		<result column="EXT8" property="ext8" jdbcType="VARCHAR"/>
+		<result column="EXT9" property="ext9" jdbcType="VARCHAR"/>
+		<result column="EXT10" property="ext10" jdbcType="VARCHAR"/>
+		<result column="AUDITTYPEID" property="auditTypeId" jdbcType="DECIMAL"/>
+		<result column="APPLYSETTLEMENTID" property="applysettlementId" jdbcType="DECIMAL"/>
+		<result column="INVESTIGATIONID" property="investigationId" jdbcType="DECIMAL"/>
+		<association property="user" column="createrId" jdbcType="DECIMAL" javaType="com.creditease.eas.admin.bean.User">
+			<id column="T_ID" property="id" jdbcType="DECIMAL" />
+			<result column="T_USERNAME" property="username" jdbcType="VARCHAR"/>
+			<result column="T_EMAIL" property="email" jdbcType="VARCHAR"/>
+		</association>
+	</resultMap>
+	
+	<!--根据调查id获取关联的审核记录集合-->
+	<select id="getAuditResultsByInvestigationId" 
+		resultMap="auditResultMap" parameterType="java.lang.Integer">
+		SELECT a.*,t.id T_ID, t.username T_USERNAME, t.email T_EMAIL from T_com_AuditResult a, t_user t where a.investigationid = #{investigationId,jdbcType=INTEGER}
+			and a.createrid = t.id 
+		order by a.CREATETIME desc
+	</select>
+	<!-- 保存文件信息 -->
+	<insert id="addInvestFile" parameterType="com.creditease.eas.compliance.bean.InvestFile">
+	     <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   			SELECT T_COM_REL_INVESTFILE_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+	   INSERT INTO T_COM_REL_INVESTFILE(ID,CREATETIME,CREATERID,INVESTIGATIONID,FILENAME,FILEPHYSICSPATH,EXT1,EXT2,EXT3,EXT4,EXT5,EXT6,EXT7,EXT8,EXT9,EXT10,CREATERNAME) 
+	   VALUES(#{id,JDBCTYPE=INTEGER},SYSDATE,#{createrid,JDBCTYPE=INTEGER},#{investigationid,JDBCTYPE=INTEGER},#{filename,jdbcType=VARCHAR},
+	   #{filephysicspath,jdbcType=VARCHAR},#{ext1,jdbcType=VARCHAR},#{ext2,jdbcType=VARCHAR},#{ext3,jdbcType=VARCHAR},#{ext4,jdbcType=VARCHAR},#{ext5,jdbcType=VARCHAR},
+	   #{ext6,jdbcType=VARCHAR},#{ext7,jdbcType=VARCHAR},#{ext8,jdbcType=VARCHAR},#{ext9,jdbcType=VARCHAR},#{ext10,jdbcType=VARCHAR},#{creatername,jdbcType=VARCHAR})
+	</insert>
+	
+	<sql id="SqlInvestFile">
+	    <if test="INVESTIGATIONID!=null and INVESTIGATIONID!=0"> AND INVESTIGATIONID='${investigationid}'</if>
+	    <if test="filename!=null and filename!=''"> AND FILENAME LIKE '%${filename}%'</if>
+	    <if test="startDate != null and startDate != '' "> AND CREATETIME &gt;= TO_DATE('${startDate}','yyyy-mm-dd hh24:mi:ss')</if>
+		<if test="endDate!= null and endDate != '' ">AND CREATETIME &lt;= TO_DATE('${endDate}','yyyy-mm-dd hh24:mi:ss')</if>
+		<if test="creatername!=null and creatername != ''"> AND CREATERNAME LIKE '%${creatername}%'</if>
+	</sql>
+	<!--查询总数量 -->
+	<select id="getInvestFileCounts" resultType="int" parameterType="map">
+	SELECT COUNT(*) FROM T_COM_REL_INVESTFILE WHERE 1=1 AND INVESTIGATIONID='${fid}'
+	<include refid="SqlInvestFile"/>
+	</select>
+	<!--查询文件信息 -->
+	<select id="queryInvestFile" resultType="com.creditease.eas.compliance.bean.InvestFile" parameterType="map">
+	   SELECT * FROM (SELECT ROWNUM AS ROWNO,ID,CREATERID,CREATERNAME,CREATETIME,FILENAME,FILEPHYSICSPATH FROM T_COM_REL_INVESTFILE
+	  <where>
+	   ROWNUM &lt;= #{endRow,jdbcType=INTEGER}  AND INVESTIGATIONID='${fid}' 
+	   <include refid="SqlInvestFile"/>
+	  </where>)
+	<where>
+	<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+	</where>
+	</select>
+	
+	<select id="findFileName" parameterType="int" resultType="com.creditease.eas.compliance.bean.InvestFile">
+	SELECT * FROM T_COM_REL_INVESTFILE WHERE 1=1 and id=#{id}
+	</select>
+	
+	
+		<select id="selectBaseTypeByInvestigationId" parameterType="int" resultMap="basetype">
+		<![CDATA[
+		select tb2.fid   base_fid,
+		       tb2.fname base_fname,
+		       tb3.fid   detail_fid,
+		       tb3.fname detail_fname
+		  from (select t1.inicasetypeid, t1.detailcasetypeid
+		          from t_com_rel_inicasetype t1, t_com_investigation t2
+		         where t2.id = #{id}
+		           and t1.complainid = t2.caseid and t1.inicasetypeid<=7) tb1,
+		       t_com_inicasetype tb2,
+		       t_com_detailcasetype tb3
+		 where tb2.fid(+) = tb1.inicasetypeid
+		   and tb3.fid(+) = tb1.detailcasetypeid
+		   ]]>
+	</select>
+	
+	<select id="selectInvestigationState" resultType="map">
+		SELECT ID, VALUE FROM t_com_istatus
+	</select>
+	
+	<select id="getTotalCountForCallBack" parameterType="map" resultType="int">
+		SELECT COUNT(*) FROM (<include refid="preview_data" />
+ 		<where> 1=1 <include refid="preview_condition" />  and a.statusid=17 and b.srcode is not null </where>)  
+	</select>
+	
+	<select id="queryDataForCallBack" parameterType="map" resultMap="previewMap">
+		SELECT * FROM ( <include refid="preview_data" />    
+			<where> 
+				ROWNUM &lt;= #{endRow,jdbcType=INTEGER} 
+				<include refid="preview_condition" /> and a.statusid=17 and b.srcode is not null 
+				order by a.lastupdatetime desc,a.createtime desc,a.id desc
+			</where> ) 
+		<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	
+	<select id="querySingleCallBackContent" parameterType="int" resultType="com.creditease.eas.compliance.bean.Investigation">
+		select to_char(tab1.createtime,'yyyy-mm-dd') endcaseTime, tab1.investigationid id, tab4.srcode srcode
+		  from t_com_auditresult tab1,
+		       (select max(v.id) maxid
+		          from t_com_auditresult v
+		         where v.investigationid = #{id,jdbcType=INTEGER}) tab2,
+		       t_com_investigation tab3,
+		       t_com_complain tab4
+		 where tab1.id = tab2.maxid
+		   and tab1.investigationid = tab3.id
+		   and tab3.caseid = tab4.fid
+	</select>
+	<!-- 新分类 -->
+	<resultMap id="casetype" type="com.creditease.eas.compliance.bean.CaseType" >
+  		 <id column="id" property="id" jdbcType="VARCHAR" />
+  		 <result column="name" property="name" jdbcType="VARCHAR"/>
+  		 <result column="detailcasetypeid" property="detailcasetypeid" jdbcType="VARCHAR"/>
+  		 <result column="detailcasetypename" property="detailcasetypename" jdbcType="VARCHAR"/>
+  	</resultMap>
+	
+	<!-- 详细
+	<resultMap id="caseDetailType" type="com.creditease.eas.compliance.bean.CaseDetailType" >
+  		 <id column="fid" property="id" jdbcType="VARCHAR" />
+  		  <result column="fname" property="name" jdbcType="VARCHAR"/>
+  	</resultMap>
+  	 -->
+	
+	<select id="getNewCaseType" parameterType="int" resultMap="casetype">
+	<![CDATA[ 
+		select tb2.fid id, tb2.fname name, detailcasetypeid,tb3.fname detailcasetypename
+		  from (select t1.inicasetypeid, t1.detailcasetypeid
+		          from t_com_rel_inicasetype t1, t_com_investigation t2
+		         where t2.id = #{id}
+		           and t1.complainid = t2.caseid
+		           and t1.inicasetypeid >= 20) tb1,
+		       t_com_inicasetype tb2,t_com_detailcasetype tb3 
+		 where tb2.fid(+) = tb1.inicasetypeid and tb3.fid(+) =tb1.detailcasetypeid 
+		 order by tb2.fid, detailcasetypeid
+		 ]]>
+	</select>
+	
+	<!-- 
+		<select id="getCaseDetailType" parameterType="java.util.ArrayList" resultMap="caseDetailType">
+			select fid,fname from t_com_detailcasetype i where i.fid in 
+			
+			<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+		        #{item}
+		    </foreach>
+		     
+		</select>
+	 -->
+	 
+	 <!-- 反欺诈提报合规 -->
+	 <insert id="SaveInvestigationLoanAnti" parameterType="map">
+	 	 <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   			SELECT T_COM_INVESTIGATION_SEQ.NEXTVAL FROM DUAL 
+		</selectKey>
+		
+		insert into t_com_investigation(id,content,createtime,investigationfrom,parentid) values
+		(
+			#{id,jdbcType=INTEGER},#{feedbackinfo,jdbcType=VARCHAR},SYSDATE,2,#{parentid,jdbcType=INTEGER}
+		)
+	 </insert>
+	 
+	 <!-- 得到调查的数量 -->
+	 <select id="getInvestigationCountByComeIntoCode" parameterType="String" resultType="int">
+	 	select count(1)
+		  from t_com_investigation i
+		 where i.parentid is null
+		   and i.caseid in (select c.fid
+		                      from t_com_complain c
+		                     where c.casecomeintocode = #{code,jdbcType=VARCHAR}
+		                       and c.ftempstatus = 1)	
+	 </select>
+	 
+	 <!-- 得到调查的父ID -->
+	 <select id="getInvestigationIdByComeIntoCode" parameterType="String" resultType="int">
+	 	select i.id
+		  from t_com_investigation i
+		 where i.parentid is null
+		   and i.caseid in (select c.fid
+		                      from t_com_complain c
+		                     where c.casecomeintocode = #{code,jdbcType=VARCHAR}
+		                       and c.ftempstatus = 1)
+	 </select>
+	 
+	 <resultMap type="com.creditease.eas.compliance.bean.NextCommunicateTimeForEmail" id="NextCommunicateTime">
+	 	<result property="toEmail" column="fresponsibleemail" jdbcType="VARCHAR"/>
+	 	<collection property="content" ofType="com.creditease.eas.compliance.bean.NextCommunicateTimeContent">
+	 		<id property="fid" column="fid" jdbcType="DECIMAL"/>
+	 		<result property="fnumber" column="fnumber" jdbcType="VARCHAR"/>
+	 		<result property="fdetaildescrip" column="fdetaildescrip" jdbcType="VARCHAR"/>
+	 		<result property="fresponsiblename" column="fresponsiblename" jdbcType="VARCHAR"/>
+	 		<result property="lastcommunicatetime" column="lastcommunicatetime" jdbcType="VARCHAR"/>
+	 		<result property="investigatonid" column="investigatonid" jdbcType="VARCHAR"/>
+	 	</collection>
+	 </resultMap>
+	 
+	 <select id="getNextCommunicateMap" parameterType="map" resultMap="NextCommunicateTime">
+	 	select t1.fid,
+		       t1.fnumber,
+		       t1.fdetaildescrip,
+		       t1.fresponsiblename,
+		       t1.fresponsibleemail,
+		       to_char(t2.nextcommunicatetime, 'yyyy-mm-dd hh24:mi:ss') lastcommunicatetime,
+		       t2.investigatonid 
+		  from t_com_complain t1
+		 inner join (select caseid, max(v.nextcommunicatetime) nextcommunicatetime,
+		 			  min(v.id) investigatonid
+		               from t_com_investigation v 
+		               
+		              where v.nextcommunicatetime &gt;=
+		                    TO_DATE('${communicateStartTime}', 'yyyy-mm-dd hh24:mi:ss')
+		                and v.nextcommunicatetime &lt;=
+		                    TO_DATE('${communicateEndTime}', 'yyyy-mm-dd hh24:mi:ss')
+		               
+		 group by v.caseid) t2 on t1.fid = t2.caseid 
+		 where t1.fresponsibleemail is not null 
+		 order by t1.fid desc
+	 </select>
+	
+	
+</mapper>

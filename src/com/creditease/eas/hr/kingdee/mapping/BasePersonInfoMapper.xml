@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.hr.kingdee.dao.BasePersonInfoMapper" >
+
+ <select id="getPersonInfoByNumber" resultType="Map" parameterType="string">
+  <![CDATA[  
+	select p.fnumber         usercode,
+       p.fname_l2        username,
+       case when p.fgender='2' then '女'
+            when p.fgender='1' then '男'
+       end
+       as sex,
+       cast(p.fbirthday as date) birthday,
+       A.fname_l2        orgname,
+       m.cfmail          email,
+       A.fdisplayname_l2 allorgname,
+       works.fname_l2    workplace,
+       city.fname_l2     city,
+       a.fid        fid
+  from t_bd_person P
+  inner join T_ORG_PositionMember Pm on P.fid = Pm.FPersonID
+                                   and pm.fisprimary = 1
+  join T_ORG_Position Po on Po.fid = Pm.FPositionID
+                        and Po.Fdeletedstatus = 1
+  left join t_hr_bdemployeetype emp on emp.fid=P.Femployeetypeid  and emp.finservice='1'
+  left join ct_hr_workplace works on works.fid=p.cfworkplaceid
+  left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+  left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+  left join CT_HR_Ygszd	city on city.fid=p.cfygszdid 
+  where P.FDeletedStatus = 1
+   and po.fnumber not like '%.%'
+   and p.fnumber = #{fnumber}
+  ]]> 
+  </select>
+  
+ <select id="getTopOrgName" resultType="string" parameterType="string">
+ <![CDATA[  
+select fname_l2 as orgtopname from (select tp.fid,tp.fname_l2,tp.flevel
+  from t_org_admin tp
+connect by prior tp.fparentid=tp.fid
+ start with fid=#{orgid}) where flevel='3'
+ ]]> 
+  </select>
+  <!-- 
+  		根据基本的参数查询人员的信息
+  		只查询主值的信息
+   -->
+   <select id="queryPersonInfoByParams" resultType="map" parameterType="map">
+	 select p.fnumber  fnumber,p.fname_l2 fname,
+	 A.fdisplayname_l2 fdisplayname,works.fname_l2  fworkplace,city.fname_l2 fcityname
+	  from t_bd_person P
+	  inner join T_ORG_PositionMember Pm on P.fid = Pm.FPersonID  and pm.fisprimary = 1
+	  join T_ORG_Position Po on Po.fid = Pm.FPositionID  
+	  left join t_hr_bdemployeetype emp on emp.fid=P.Femployeetypeid  and emp.finservice='1'
+	  left join ct_hr_workplace works on works.fid=p.cfworkplaceid
+	  left join t_Org_Admin A on A.Fid = Po.Fadminorgunitid
+	  left join T_HR_PersonContactMethod m on m.fpersonid = p.fid
+	  left join CT_HR_Ygszd	city on city.fid=p.cfygszdid 
+	  where P.FDeletedStatus = 1  and Po.Fdeletedstatus = 1 and po.fnumber not like '%.%'
+	  and A.fnumber not like '%.%' and A.FIsSealUp  = 0 
+ 		<if test="fnumber != null and fnumber != ''">
+			and p.FNUMBER = #{fnumber}
+		</if>
+		<if test="fname != null and fname != ''">
+			and p.fname_l2 like #{fname}
+		</if>
+		<if test="fid != null and fid != ''">
+			and p.fid = #{fid}
+		</if>
+		<if test="femail != null and femail != ''">
+			and m.cfmail = #{femail}
+		</if>
+  </select>
+</mapper>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.projectmanage.dao.PmInfoMapper">
+	<resultMap id="BaseResultMap" type="com.creditease.eas.projectmanage.bean.PmInfo">
+		<id column="FID" property="id" jdbcType="INTEGER" />
+		<result column="PMNAME" property="pmName" jdbcType="VARCHAR" />
+		<result column="USERID" property="userId" jdbcType="INTEGER" />
+		<result column="PMEMAIL" property="pmEmail" jdbcType="VARCHAR" />
+		<result column="FCREATEUSERID" property="fCreateUserId" jdbcType="INTEGER" />
+		<result column="FCREATETIME" property="fCreateTime" jdbcType="DATE" />
+		<result column="LASTUPDATERID" property="lastupdaterId" jdbcType="INTEGER" />
+		<result column="LASTUPDATETIME" property="lastupdateTime" jdbcType="DATE" />
+		<result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+		<result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+		<result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+		<result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+		<result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		FID,PMNAME,USERID,PMEMAIL,FCREATEUSERID,FCREATETIME
+ 	</sql>
+ 	
+	<sql id="BaseWhereCondition">
+		<if test="userName != null and userName!=''">
+			and pmName like '${userName}'
+		</if>
+	</sql>
+	
+	<sql id="Order_Rule">
+		order by FID desc
+ 	</sql>
+ 	
+	<!-- 查询正常数据总数目 -->
+	<select id="getTotalCountsByParams" resultType="int">
+		select count(fid) from t_pro_pm where 1=1
+		<include refid="BaseWhereCondition" />
+	</select>
+
+	<!-- 返回数据集合 -->
+	<select id="queryPageByParams" resultMap="BaseResultMap" parameterType="map">
+		Select * FROM(Select ROWNUM as ROWNO,
+		<include refid="Base_Column_List" />
+		from t_pro_pm
+		<where>
+			ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+			<include refid="BaseWhereCondition" />
+		</where>
+		)
+		where ROWNO &gt;= #{startRow,jdbcType=INTEGER}
+		<include refid="Order_Rule" />
+	</select>
+
+	<!-- 条件查询 -->
+	<select id="getPMInfoById" resultMap="BaseResultMap" parameterType="Integer">
+		Select * from t_pro_pm where fid=#{id,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 修改邮箱 -->
+	<update id="updatePmEmail" parameterType="com.creditease.eas.projectmanage.bean.PmInfo">
+		update t_pro_pm set PMEMAIL=#{pmEmail},LASTUPDATERID=#{lastupdaterId},LASTUPDATETIME=SYSDATE
+		where FID=#{id}
+	</update>
+	
+	<!-- 根据用户ID查询PM信息 -->
+	<select id="queryPmInfoByUserId" resultMap="BaseResultMap" parameterType="Integer">
+		select * from t_pro_pm where userId = #{userId,jdbcType=INTEGER}
+	</select>
+	
+	<!-- 新增PM信息 -->
+	<insert id="insertPmInfo" parameterType="com.creditease.eas.projectmanage.bean.PmInfo">
+	<selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   		select COMMON_SEQ.NEXTVAL from dual
+	</selectKey>
+	insert into t_pro_pm(fid,PMNAME,USERID,PMEMAIL,FCREATEUSERID,FCREATETIME) 
+	values(#{id,jdbcType=INTEGER},#{pmName,jdbcType=VARCHAR},#{userId,jdbcType=INTEGER},
+	#{pmEmail,jdbcType=VARCHAR},#{fCreateUserId,jdbcType=INTEGER},SYSDATE)
+	</insert>
+	
+	<!-- 删除PM信息 -->
+	<delete id="deletePmInfo" parameterType="Integer">
+		delete t_pro_pm pm where pm.userid = #{userId,jdbcType=INTEGER}
+	</delete>
+	<!-- 查到所有管理员 -->
+	<select id="selectByRoleid" resultMap="BaseResultMap">
+	 select pm.* from t_pro_pm pm ,t_user_role ur
+     where pm.userid = ur.user_id
+     and ur.role_id='567'
+	</select>
+</mapper>

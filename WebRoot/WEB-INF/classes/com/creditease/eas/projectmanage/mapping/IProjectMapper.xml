@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.projectmanage.dao.IProjectMapper" >
+  <resultMap id="BaseResultMap" type="com.creditease.eas.projectmanage.bean.ProjectManage" >
+    <id column="FID" property="fid" jdbcType="INTEGER" />
+    <result column="LOANNUMBER" property="loanNumber" jdbcType="VARCHAR" />
+    <result column="COMPANYNAME" property="companyName" jdbcType="VARCHAR" />
+    <result column="HEAD" property="head" jdbcType="VARCHAR" />
+    <result column="LOANWAYID" property="loanWayId" jdbcType="INTEGER"/>
+    <result column="LOANTIME" property="loanTime" jdbcType="DATE"/>
+    <result column="EXPIRETIME" property="expireTime" jdbcType="DATE" />
+    <result column="TERM" property="term" jdbcType="INTEGER" />
+    <result column="INTERESTTIME" property="interestTime" jdbcType="DATE" />
+    <result column="MONEY" property="money" jdbcType="INTEGER" />
+    <result column="MLYINTEREST" property="mlyinterest" jdbcType="INTEGER" />
+    <result column="MMANGEXPENSE" property="mMangExpense" jdbcType="INTEGER" />
+    <result column="AUTHENTICATION" property="authentication" jdbcType="VARCHAR" />
+    <result column="LENDERS" property="lenders" jdbcType="VARCHAR" />
+    <result column="BORROWER" property="borrower" jdbcType="VARCHAR" />
+    <result column="REPAYMENTWAYID" property="repaymentWayId" jdbcType="INTEGER" />
+    <result column="REPAYMENTACCOUNT" property="repaymentAccount" jdbcType="VARCHAR" />
+    <result column="BANKACCOUNT" property="bankAccount" jdbcType="VARCHAR" />
+    <result column="ACCOUNT" property="account" jdbcType="VARCHAR" />
+    <result column="REPAYMENTMONEY" property="repaymentMoney" jdbcType="VARCHAR" />
+    <result column="STATEFID" property="stateFid" jdbcType="INTEGER" />
+    <result column="PMUSERID" property="pmUserId" jdbcType="INTEGER" />
+    <result column="FCREATEUSERID" property="fcreateuserId" jdbcType="INTEGER" />
+    <result column="FCREATETIME" property="fcreateTime" jdbcType="DATE" />
+    <result column="LASTUPDATERID" property="lastupdaterId" jdbcType="INTEGER" />
+    <result column="LASTUPDATETIME" property="lastupdateTime" jdbcType="DATE" />
+    <result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+    <result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+    <result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+    <result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+    <result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+    <result column="FEXT6" property="fext6" jdbcType="VARCHAR" />
+    <result column="FEXT7" property="fext7" jdbcType="VARCHAR" />
+    <result column="FEXT8" property="fext8" jdbcType="VARCHAR" />
+    <result column="FEXT9" property="fext9" jdbcType="VARCHAR" />
+    <result column="FEXT10" property="fext10" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List">
+        FID,LOANNUMBER,COMPANYNAME,HEAD,LOANWAYID,LOANTIME,EXPIRETIME,TERM,INTERESTTIME,MONEY,MLYINTEREST,
+        MMANGEXPENSE,AUTHENTICATION,LENDERS,BORROWER,REPAYMENTWAYID,REPAYMENTACCOUNT,BANKACCOUNT,ACCOUNT,
+        REPAYMENTMONEY,STATEFID,PMUSERID,FCREATEUSERID,FCREATETIME,
+        FEXT1,FEXT2,FEXT3,FEXT4,FEXT5,FEXT6,FEXT7,FEXT8,FEXT9,FEXT10
+  </sql>
+  <sql id="preview_condition">
+   <if test="loanNumber != null and loanNumber != ''"> and LOANNUMBER like '%${loanNumber}%'</if>
+   <if test="companyName != null and companyName != ''"> and COMPANYNAME like '%${companyName}%'</if>
+   <if test="pmUserId != null and pmUserId != ''"> and PMUSERID ='${pmUserId}' </if>
+   <if test="loanWayId != null and loanWayId != ''"> and LOANWAYID = '${loanWayId}'</if>
+   <if test="startloanTime !=null and startloanTime != ''"> and LOANTIME &gt;= TO_DATE('${startloanTime}','yyyy-mm-dd')</if>
+   <if test="endloanTime !=null and endloanTime != ''"> and LOANTIME &lt;= TO_DATE('${endloanTime}','yyyy-mm-dd')</if>
+   <if test="startexpireTime !=null and startexpireTime != ''"> and EXPIRETIME &gt;= TO_DATE('${startexpireTime}','yyyy-mm-dd hh24:mi:ss')</if>
+   <if test="endexpireTime !=null and endexpireTime != ''"> and EXPIRETIME &lt;= TO_DATE('${endexpireTime}','yyyy-mm-dd hh24:mi:ss')</if>
+   <if test="mMangExpense != null and mMangExpense != ''"> and MMANGEXPENSE = '${mMangExpense}'</if>
+   <if test="authentication != null and authentication != ''"> and AUTHENTICATION like '%${authentication}%'</if>
+   <if test="repaymentWayId != null and repaymentWayId != ''"> and REPAYMENTWAYID = '${repaymentWayId}'</if>
+   <if test="startinterestTime !=null and startinterestTime != ''"> and  P.FID in (SELECT I.PROJECTFID FROM T_PRO_INTERESTTIME I WHERE I.LNTERESTTIME &gt;= TO_DATE('${startinterestTime}','yyyy-mm-dd hh24:mi:ss')) </if>
+   <if test="endinterestTime !=null and endinterestTime != ''">  and P.FID in (SELECT I.PROJECTFID FROM T_PRO_INTERESTTIME I WHERE I.LNTERESTTIME &lt;= TO_DATE('${endinterestTime}','yyyy-mm-dd hh24:mi:ss')) </if>
+   <if test="lenders != null and lenders != ''"> and LENDERS like '%${lenders}%'</if>
+   <if test="borrower != null and borrower != ''"> and BORROWER like '%${borrower}%'</if>
+   <if test="repaymentAccount != null and repaymentAccount != ''"> and REPAYMENTACCOUNT like '%${repaymentAccount}%'</if>
+   <if test="bankAccount != null and bankAccount != ''"> and BANKACCOUNT like '%${bankAccount}%'</if>
+   <if test="account !=null and account != ''"> and ACCOUNT like '%${account}%'</if>
+   <if test="term != null and term != '' "> and TERM = '${term}'</if>
+   <if test="state != null and state != ''"> and STATEFID = '${state}'</if>
+   <if test="starRepaymentMoney != null and starRepaymentMoney != ''"> and REPAYMENTMONEY &gt;= '${starRepaymentMoney}'</if>
+   <if test="endRepaymentMoney != null and endRepaymentMoney != ''"> and REPAYMENTMONEY &lt;= '${endRepaymentMoney}'</if>
+   <if test="starMoney != null and starMoney != ''"> and MONEY &gt;= '${starMoney}'</if>
+   <if test="endMoney != null and endMoney != ''"> and MONEY &lt;= '${endMoney}'</if>
+   <if test="mlyinterest != null and mlyinterest != ''">
+      <!-- 判断大于等于1，等于1，小于等于 -->
+       <if test="mlyinterest == 1"> and mlyinterest &gt;= '1'</if>
+       <if test="mlyinterest == 0"> and mlyinterest = '1'</if>
+       <if test="mlyinterest == -1"> and mlyinterest &gt;= '1'</if>
+   </if>
+  </sql>
+
+  <!-- 查询符合条件的数量 -->
+  <select id="getTotalCountsByParams" resultType="int"  parameterType="map">
+		SELECT COUNT(FID) FROM T_PRO_PROJECTMANAGE P
+ 		<where> 1=1 AND P.FEXT1=1<include refid="preview_condition" /> </where>
+	</select>
+	<!-- 查询符合条件的集合 -->
+	<select id="queryPageByParams" resultType="Map"
+	parameterType="map">
+	SELECT * FROM( SELECT m.*,ROWNUM as ROWNO FROM (SELECT P.*,L.LOANWAY,R.SITUATIONNAME,S.STATENAME FROM T_PRO_PROJECTMANAGE P 
+		LEFT JOIN T_PRO_LOANWAY L ON P.LOANWAYID=L.FID 
+		LEFT JOIN T_PRO_REPAYMENTWAY R ON P.REPAYMENTWAYID=R.FID
+		LEFT JOIN T_PRO_STATE S ON S.FID=P.STATEFID ORDER BY P.FID DESC) m
+		<where>
+     	ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+    	<include refid="preview_condition" /> AND FEXT1=1 
+  		</where> ) 
+     	<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	<select id="queryAllProject" resultType="map">
+	   SELECT * FROM T_PRO_PROJECTMANAGE WHERE 1=1 AND FEXT1=1
+	</select>
+	<!-- 新增项目信息 -->
+	<insert id="insert" parameterType="com.creditease.eas.projectmanage.bean.ProjectManage">
+	<selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   		select T_PRO_PROJECTMANAGE_SEQ.NEXTVAL from dual
+	</selectKey>
+	INSERT INTO T_PRO_PROJECTMANAGE(<include refid="Base_Column_List" />) values(#{fid,jdbcType=INTEGER},#{loanNumber,jdbcType=VARCHAR},
+	#{companyName,jdbcType=VARCHAR},#{head,jdbcType=VARCHAR},#{loanWayId,jdbcType=INTEGER},#{loanTime,jdbcType=DATE},#{expireTime,jdbcType=DATE},
+	#{term,jdbcType=INTEGER},#{interestTime,jdbcType=DATE},#{money,jdbcType=INTEGER},#{mlyinterest,jdbcType=INTEGER},#{mMangExpense,jdbcType=INTEGER},
+	#{authentication,jdbcType=VARCHAR},#{lenders,jdbcType=VARCHAR},#{borrower,jdbcType=VARCHAR},#{repaymentWayId,jdbcType=INTEGER},
+	#{repaymentAccount,jdbcType=VARCHAR},#{bankAccount,jdbcType=VARCHAR},#{account,jdbcType=VARCHAR},#{repaymentMoney,jdbcType=VARCHAR},
+	#{stateFid,jdbcType=INTEGER},#{pmUserId,jdbcType=INTEGER},#{fcreateuserId,jdbcType=INTEGER},SYSDATE,#{fext1,jdbcType=VARCHAR},#{fext2,jdbcType=VARCHAR},#{fext3,jdbcType=VARCHAR},#{fext4,jdbcType=VARCHAR},
+	#{fext5,jdbcType=VARCHAR},#{fext6,jdbcType=VARCHAR},#{fext7,jdbcType=VARCHAR},#{fext8,jdbcType=VARCHAR},#{fext9,jdbcType=VARCHAR},
+	#{fext10,jdbcType=VARCHAR})
+	</insert>
+
+	<!-- 加载出借方式 -->
+	<select  id="findCussource" resultType="Map">
+	 select * from t_pro_loanway
+	</select>
+	<!-- 加载还款方式 -->
+	<select id="selectSituationname" resultType="Map">
+	select * from t_pro_repaymentway
+	</select>
+	<!-- 加载项目状态 -->
+	<select id="selectState" resultType="Map">
+	 select * from t_pro_state
+	</select>
+	<!-- 加载贷后管理负责人(PM) -->
+	<select id="selectPm" resultType="Map">
+	 select * from t_pro_pm
+	</select>
+	<select id="edit" parameterType="int" resultType="com.creditease.eas.projectmanage.bean.ProjectManage">
+	SELECT * FROM T_PRO_PROJECTMANAGE where FID=#{fid}
+	</select>
+	<!-- 新增利息返还日信息 -->
+	<insert id="insertInterestTime" parameterType="Map">
+	 <selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   		select T_PRO_INTERESTTIME_SEQ.NEXTVAL from dual
+	  </selectKey>
+	  INSERT INTO T_PRO_INTERESTTIME(FID,PROJECTFID,LNTERESTTIME,STATE,FCREATEUSERID,FCREATETIME,FEXT1) values(#{fid},#{projectFid},#{lnterestTime},#{state},#{fcreateuserId},SYSDATE,#{fext1})
+	</insert>
+	<!-- 查询所有利息返还日 -->
+	<select id="queryAllIinterestTime" resultType="map">
+	 select to_char(LNTERESTTIME,'yyyy-mm-dd') LNTERESTTIME,FID,STATE from  T_PRO_INTERESTTIME WHERE FEXT1=1
+	</select>
+	<!-- 查询利息返还日 -->
+	<select id="queryIinterestTime" parameterType="map" resultType="map">
+	  select to_char(LNTERESTTIME,'yyyy-mm-dd') LNTERESTTIME,FID,STATE from  T_PRO_INTERESTTIME where projectFid=#{fid} ORDER BY LNTERESTTIME ASC
+	</select>
+	<update id="updateInTimeState" parameterType="map" >
+	  UPDATE T_PRO_INTERESTTIME SET STATE=#{state} WHERE FID=#{fid}
+	</update>
+	<!-- 修改项目信息 -->
+	<update id="update" parameterType="com.creditease.eas.projectmanage.bean.ProjectManage">
+	  UPDATE T_PRO_PROJECTMANAGE set LOANNUMBER=#{loanNumber,jdbcType=VARCHAR},COMPANYNAME=#{companyName,jdbcType=VARCHAR},HEAD=#{head,jdbcType=VARCHAR},
+	  LOANWAYID=#{loanWayId,jdbcType=INTEGER},LOANTIME=#{loanTime,jdbcType=DATE},EXPIRETIME=#{expireTime,jdbcType=DATE},TERM=#{term,jdbcType=INTEGER},
+	INTERESTTIME=#{interestTime,jdbcType=DATE},MONEY=#{money,jdbcType=INTEGER},MLYINTEREST=#{mlyinterest,jdbcType=INTEGER},MMANGEXPENSE=#{mMangExpense,jdbcType=INTEGER},
+	AUTHENTICATION=#{authentication,jdbcType=VARCHAR},LENDERS=#{lenders,jdbcType=VARCHAR},BORROWER=#{borrower,jdbcType=VARCHAR},REPAYMENTWAYID=#{repaymentWayId,jdbcType=INTEGER},
+	REPAYMENTACCOUNT=#{repaymentAccount,jdbcType=VARCHAR},BANKACCOUNT=#{bankAccount,jdbcType=VARCHAR},ACCOUNT=#{account,jdbcType=VARCHAR},REPAYMENTMONEY=#{repaymentMoney,jdbcType=VARCHAR},
+	STATEFID=#{stateFid,jdbcType=INTEGER},PMUSERID=#{pmUserId,jdbcType=INTEGER},LASTUPDATERID=#{lastupdaterId,jdbcType=INTEGER},LASTUPDATETIME=SYSDATE,FEXT1=#{fext1,jdbcType=VARCHAR},
+	FEXT2=#{fext2,jdbcType=VARCHAR},FEXT3=#{fext3,jdbcType=VARCHAR},FEXT4=#{fext4,jdbcType=VARCHAR},FEXT5=#{fext5,jdbcType=VARCHAR},FEXT6=#{fext6,jdbcType=VARCHAR},FEXT7=#{fext7,jdbcType=VARCHAR},
+	FEXT8=#{fext8,jdbcType=VARCHAR},FEXT9=#{fext9,jdbcType=VARCHAR},FEXT10=#{fext10,jdbcType=VARCHAR} WHERE FID=#{fid,jdbcType=INTEGER}
+	</update>
+	<!-- 查询贷款编号是否重复 -->
+	<select id="findExists" parameterType="map" resultType="int">
+		SELECT COUNT(${columnName}) FROM ${tableName} WHERE ${columnName} = #{columnValue} AND FEXT1 = 1
+	</select>
+	<!--  <select id="selectProjectByFid" resultType="map">
+	   select t.*,i.lnteresttime,i.FID IFID from T_PRO_PROJECTMANAGE t
+       left join t_pro_interesttime i on t.fid=i.projectfid where i.fid in
+	    <foreach item="item" index="index" collection="array" open="(" separator="," close=")"> 
+        	#{item}
+       </foreach>
+	</select>-->
+	<!--按利息返还日及出借方式，pm分组-->
+	<select id="selectProjectGroupBy" resultType="map">
+	SELECT T.HEAD,T.LOANWAYID,I.LNTERESTTIME,t.fext1 FROM T_PRO_PROJECTMANAGE T 
+    LEFT JOIN T_PRO_INTERESTTIME I ON T.FID=I.PROJECTFID GROUP BY I.LNTERESTTIME,T.HEAD,T.LOANWAYID,t.fext1
+    HAVING T.LOANWAYID IS NOT NULL AND I.LNTERESTTIME IS NOT NULL and t.fext1=1
+	</select>
+	<!-- 按利息返还日及出借方式，pm和fid查询数据 -->
+	<select id="selectProject" resultType="map" parameterType="map">
+	SELECT T.*,I.LNTERESTTIME FROM T_PRO_PROJECTMANAGE T 
+	LEFT JOIN T_PRO_INTERESTTIME I ON T.FID=I.PROJECTFID WHERE T.HEAD = '${head}' AND T.LOANWAYID = '${loanwayid}'
+    AND I.LNTERESTTIME = TO_DATE(substr('${lnteresttime}',0,19),'yyyy-mm-dd hh24:mi:ss') and i.fid in
+	    <foreach item="item" index="index" collection="ids" open="(" separator="," close=")"> 
+        	#{item}
+        </foreach>
+	</select>
+	<select id="selectByTimeFid" resultType="map" parameterType="int">
+	SELECT T.*,I.* FROM T_PRO_PROJECTMANAGE T 
+	LEFT JOIN T_PRO_INTERESTTIME I ON T.FID=I.PROJECTFID WHERE I.FID =#{fid} AND T.FEXT1=1 AND I.FEXT1=1
+	</select>
+	<!-- 导出项目信息  -->
+	<select id="seletAllPmForExp" resultType="Map" parameterType="map">
+		select pm.fid,
+       		pm.loannumber loanNumber,
+       		pm.companyname,
+       		pm.head,
+       		decode(pm.loanwayid, 1, 'p2p', 2, '有限合伙') loanway,
+       		to_char(pm.loantime, 'yyyy-MM-dd') loantime,
+       		to_char(pm.expiretime, 'yyyy-MM-dd') expiretime,
+       		pm.term,
+       		pm.money,
+       		pm.mlyinterest,
+       		pm.mmangexpense,
+       		pm.authentication,
+       		pm.lenders,
+       		pm.borrower,
+       		decode(pm.repaymentwayid, 1, '自动划扣', 2, '银行汇款') repaymentway,
+       		pm.repaymentaccount,
+       		pm.bankaccount,
+       		pm.account,
+       		pm.repaymentmoney,
+       		decode(pm.statefid,
+              	1,
+              	'风控审核通过',
+              	2,
+              	'合同签订',
+              	'3',
+              	'放款完毕',
+              	'4',
+              	'合同补齐',
+              	'5',
+              	'合同签订完毕',
+              	'6',
+              	'合同寄回完毕',
+              	'7',
+              	'存续',
+              	'8',
+              	'结清') state,
+  			to_char(pi.lnteresttime, 'yyyy-MM-dd') interesttime
+  			from t_pro_projectmanage pm
+  			left join T_PRO_INTERESTTIME pi
+    			on pm.fid = pi.projectfid
+ 			where 1 = 1 and pm.fext1 = 1 and pi.fext1 = 1
+ 			<if test="loanNumber != null and loanNumber != ''"> and pm.loannumber like '%${loanNumber}%' </if>
+ 			<if test="companyName != null and companyName != ''"> and pm.companyname like '%${companyName}%' </if>
+ 			<if test="pmUserId != null and pmUserId != ''"> and pm.pmuserid ='${pmUserId}' </if>
+ 			<if test="loanWayId != null and loanWayId != ''"> and pm.loanwayid = '${loanWayId}' </if>
+ 			<if test="startloanTime !=null and startloanTime != ''"> and pm.loantime &gt;= TO_DATE('${startloanTime}','yyyy-mm-dd') </if>
+ 			<if test="endloanTime !=null and endloanTime != ''"> and pm.loantime &lt;= TO_DATE('${endloanTime}','yyyy-mm-dd') </if>
+ 			<if test="startexpireTime !=null and startexpireTime != ''"> and pm.expiretime &gt;= TO_DATE('${startexpireTime}','yyyy-mm-dd') </if>
+ 			<if test="endexpireTime !=null and endexpireTime != ''"> and pm.expiretime &lt;= TO_DATE('${endexpireTime}','yyyy-mm-dd') </if>
+ 			<if test="mMangExpense != null and mMangExpense != ''"> and pm.mmangexpense = '${mMangExpense}' </if>
+ 			<if test="authentication != null and authentication != ''"> and pm.authentication like '%${authentication}%' </if>
+ 			<if test="repaymentWayId != null and repaymentWayId != ''"> and pm.repaymentwayid = '${repaymentWayId}' </if>
+ 			<if test="startinterestTime !=null and startinterestTime != ''"> and pi.lnteresttime &gt;= TO_DATE('${startinterestTime}','yyyy-mm-dd') </if>
+ 			<if test="endinterestTime !=null and endinterestTime != ''">  and pi.lnteresttime &lt;= TO_DATE('${endinterestTime}','yyyy-mm-dd') </if>
+ 			<if test="lenders != null and lenders != ''"> and pm.lenders like '%${lenders}%'</if>
+ 			<if test="borrower != null and borrower != ''"> and pm.borrower like '%${borrower}%'</if>
+ 			<if test="repaymentAccount != null and repaymentAccount != ''"> and pm.repaymentaccount like '%${repaymentAccount}%' </if>
+ 			<if test="bankAccount != null and bankAccount != ''"> and pm.bankaccount like '%${bankAccount}%' </if>
+ 			<if test="account !=null and account != ''"> and pm.account '%${account}%'</if>
+ 			<if test="term != null and term != '' "> and pm.term = '${term}' </if>
+   			<if test="state != null and state != ''"> and pm.statefid = '${state}' </if>
+   			<if test="starRepaymentMoney != null and starRepaymentMoney != ''"> and pm.repaymentmoney &gt;= '${starRepaymentMoney}' </if>
+   			<if test="endRepaymentMoney != null and endRepaymentMoney != ''"> and pm.repaymentmoney &lt;= '${endRepaymentMoney}' </if>
+   			<if test="starMoney != null and starMoney != ''"> and pm.money &gt;= '${starMoney}' </if>
+   			<if test="endMoney != null and endMoney != ''"> and pm.money &lt;= '${endMoney}' </if>
+   			<if test="mlyinterest != null and mlyinterest != ''">
+   				<if test="mlyinterest == 1">  and pm.mlyinterest &gt;= '1'</if>
+       			<if test="mlyinterest == 0">  and pm.mlyinterest = '1'</if>
+       			<if test="mlyinterest == -1"> and pm.mlyinterest &gt;= '1'</if>
+   			</if>
+ 			order by pm.fid desc, pi.lnteresttime desc
+	</select>
+	<!-- 删除项目信息(为删除) -->
+	<update id="deleteProject" parameterType="Integer">
+	  UPDATE T_PRO_PROJECTMANAGE SET FEXT1=0 WHERE FID=#{fid}
+	</update>
+	<!--删除利息返还日（为删除） -->
+	<update id="deleteTime" parameterType="Integer">
+	UPDATE T_PRO_INTERESTTIME SET FEXT1 = 0 WHERE PROJECTFID=#{fid}
+	</update>
+	<sql id="file_list">
+	<if test=" fid != null and fid != '' "> AND PROJECTFID = '${fid}'</if>
+	<if test="viewName != null and viewName != '' "> AND VIEWNAME LIKE '%${viewName}%'</if>
+	<if test="startDate != null and startDate != ''"> AND CREATETIME &gt;= TO_DATE('${startDate}','yyyy-mm-dd hh24:mi:ss')</if>
+	<if test="endDate != null and endDate != ''"> AND CREATETIME &lt;= TO_DATE('${endDate}','yyyy-mm-dd hh24:mi:ss')</if>
+	</sql>
+	<!--查询文件数量 -->
+	 <select id="queryFileNumber" resultType="int"  parameterType="map">
+		SELECT COUNT(FID) FROM T_PRO_AGREEMENTFILE 
+ 		<where> 1=1 <include refid="file_list" /> </where>
+	</select>
+	<!-- 查询文件集合 -->
+	<select id="queryFileList" resultType="map"  parameterType="map">
+		SELECT * FROM( SELECT m.*,ROWNUM as ROWNO FROM (SELECT T.* FROM T_PRO_AGREEMENTFILE T ORDER BY FID DESC ) m
+		<where>
+     	ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+    	<include refid="file_list" />
+  		</where> ) 
+     	<where>
+		<![CDATA[ROWNO >= #{startRow,jdbcType=INTEGER}]]> 
+		</where>
+	</select>
+	<!-- 新增文件信息 -->
+	<insert id="insertFile" parameterType="com.creditease.eas.projectmanage.bean.AgreementFile">
+	 <selectKey resultType="java.lang.Integer" keyProperty="fid" order="BEFORE"> 
+   	 	select COMMON_SEQ.NEXTVAL from dual
+	  </selectKey>
+		insert into T_PRO_AGREEMENTFILE(FID,FILENAME,FILEPATH,PROJECTFID,CREATERID,CREATETIME,CREATENAME,VIEWNAME) 
+			values(#{fid,jdbcType=INTEGER},#{fileName,jdbcType=VARCHAR},#{filePath,jdbcType=VARCHAR},
+			#{projectFid,jdbcType=INTEGER},#{createrId,jdbcType=INTEGER},SYSDATE,#{createName,jdbcType=VARCHAR},#{viewName,jdbcType=VARCHAR})
+	</insert>
+	<!-- 删除文件信息 -->
+	<delete id="deleteFile" parameterType="int">
+	DELETE FROM T_PRO_AGREEMENTFILE WHERE FID=#{fileFid}
+	</delete>
+	<!-- 根据id 查询文件信息 -->
+	<select id="findAgreementFile" resultType="com.creditease.eas.projectmanage.bean.AgreementFile">
+	 select * from T_PRO_AGREEMENTFILE where fid=#{fileFid}
+	</select>
+</mapper>

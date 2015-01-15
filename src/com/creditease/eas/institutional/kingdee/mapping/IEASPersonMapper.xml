@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditease.eas.institutional.kingdee.dao.IEASPersonDao" >
+	
+	
+	<!-- 查询所有需要的人员信息 -->
+	<select id="selectAllPerson" parameterType="map" resultType="com.creditease.eas.institutional.bean.EASPerson">
+	select
+		p.fnumber newId,p.fname_l2 name,ps.Fadminorgunitid levelOneOrg,cm.cfmail email,'true' enabled,pc.cfsecrettype grade,pm.fisprimary isPrimary
+	from t_bd_person p
+		left join T_HR_BDEmployeeType bt on p.FEmployeeTypeID = bt.fid
+		left join T_HR_PersonContactMethod cm on cm.fpersonid = p.fid
+		left join T_ORG_PositionMember pm on p.fid = pm.FPersonID 
+		left join T_ORG_Position ps on ps.fid = pm.FPositionID and ps.Fdeletedstatus = 1
+		left join T_ORG_admin ad on ad.fid = ps.Fadminorgunitid
+		left join CT_HR_Positionclass pc on ps.cfzwdjid = pc.fid
+	where ps.Fadminorgunitid is not null
+		and bt.fnumber not in (06,07,09,12,20,21)
+	<if test="beginNumber != null and beginNumber !=''"> 
+		and p.fnumber >= #{beginNumber}
+	</if>
+	<if test="endNumber != null and endNumber !=''">
+	 	and p.fnumber &lt;= #{endNumber}
+	</if>
+	<if test="orgName != null and orgName !=''">
+	 	and ad.fdisplayname_l2 like '%#{orgName}%'
+	</if>
+	</select>
+	<!-- 查询新增人员信息 -->
+	<select id="selectAddPerson" parameterType="map" resultType="com.creditease.eas.institutional.bean.EASPerson">
+	select
+		p.fnumber newId,p.fname_l2 name,ps.Fadminorgunitid levelOneOrg,cm.cfmail email,'true' enabled,pc.cfsecrettype grade,pm.fisprimary isPrimary
+	from t_bd_person p
+		left join T_HR_BDEmployeeType bt on p.FEmployeeTypeID = bt.fid
+		left join T_HR_PersonContactMethod cm on cm.fpersonid = p.fid
+		left join T_ORG_PositionMember pm on p.fid = pm.FPersonID 
+		left join T_ORG_Position ps on ps.fid = pm.FPositionID and ps.Fdeletedstatus = 1
+		left join T_ORG_admin ad on ad.fid = ps.Fadminorgunitid
+		left join CT_HR_Positionclass pc on ps.cfzwdjid = pc.fid
+	where ps.Fadminorgunitid is not null
+		and bt.fnumber not in (06,07,09,12,20,21)
+	<if test="beginTime != null and beginTime !=''"> 
+		and p.fcreatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	<if test="endTime != null and endTime !=''">
+	 	and p.fcreatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	</if>
+	
+	</select>
+	<!-- 查询更新人员信息 -->
+	<select id="selectUpdatePerson" parameterType="map" resultType="com.creditease.eas.institutional.bean.EASPerson">
+		select 
+			p.fnumber newId,p.fname_l2 name,ps.Fadminorgunitid levelOneOrg,cm.cfmail email,'true' enabled,pc.cfsecrettype grade,pm.fisprimary isPrimary
+		from t_bd_person p
+			left join T_HR_BDEmployeeType bt on p.FEmployeeTypeID = bt.fid
+			left join T_HR_PersonContactMethod cm on cm.fpersonid = p.fid
+			left join T_ORG_PositionMember pm on p.fid = pm.FPersonID
+			left join T_ORG_Position ps on ps.fid = pm.FPositionID and ps.Fdeletedstatus = 1
+			left join T_ORG_admin ad on ad.fid = ps.Fadminorgunitid
+			left join CT_HR_Positionclass pc on ps.cfzwdjid = pc.fid
+		where ps.Fadminorgunitid is not null
+			and bt.fnumber not in (06,07,09,20,21)
+		<if test="beginTime != null and beginTime !=''"> 
+			and p.flastupdatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime != null and endTime !=''">
+	 		and p.flastupdatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	 	</if>
+	 	
+		union
+	
+		select
+			p.fnumber newId,p.fname_l2 name,ps.Fadminorgunitid levelOneOrg,cm.cfmail email,'true' enabled,pc.cfsecrettype grade,pm.fisprimary isPrimary
+		from T_HR_PersonContactMethod cm
+			join t_bd_person p on cm.fpersonid = p.fid
+			left join T_HR_BDEmployeeType bt on p.FEmployeeTypeID = bt.fid
+			left join T_ORG_PositionMember pm on p.fid = pm.FPersonID
+			left join T_ORG_Position ps on ps.fid = pm.FPositionID and ps.Fdeletedstatus = 1
+			left join T_ORG_admin ad on ad.fid = ps.Fadminorgunitid
+			left join CT_HR_Positionclass pc on ps.cfzwdjid = pc.fid
+		where ps.Fadminorgunitid is not null
+			and bt.fnumber not in (06,07,09,20,21)
+		<if test="beginTime != null and beginTime !=''"> 
+			and cm.flastupdatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime != null and endTime !=''">
+	 		and cm.flastupdatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	 	</if>
+	 	
+	 	union
+	 	
+	 	select
+			p.fnumber newId,p.fname_l2 name,ps.Fadminorgunitid levelOneOrg,cm.cfmail email,'true' enabled,pc.cfsecrettype grade,pm.fisprimary isPrimary
+		from CT_HR_Positionclass pc
+			join T_ORG_Position ps on ps.cfzwdjid = pc.fid and ps.Fdeletedstatus = 1
+			join T_ORG_PositionMember pm on ps.fid = pm.FPositionID
+			join t_bd_person p on p.fid = pm.FPersonID 
+			join T_HR_BDEmployeeType bt on p.FEmployeeTypeID = bt.fid
+			join T_HR_PersonContactMethod cm on cm.fpersonid = p.fid
+		where ps.Fadminorgunitid is not null
+			and bt.fnumber not in (06,07,09,12,20,21)
+		<if test="beginTime != null and beginTime !=''"> 
+			and pc.flastupdatetime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime != null and endTime !=''">
+	 		and pc.flastupdatetime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	 	</if>
+	</select>
+	<!-- 查询异动（所属部门的调整——添加新部门，删除旧部门记录）人员信息 -->
+	<select id="selectAlterPerson" parameterType="map" resultType="com.creditease.eas.institutional.bean.EASPerson">
+		select
+			p.fnumber newId,p.fname_l2 name,fb.FAdminOrgID levelOneOrg,fb.FOldAdminOrgID levelOldOrgList,cm.cfmail email,'true' enabled,pc.cfsecrettype grade,pm.fisprimary isPrimary
+		from T_HR_FluctuationBizBillEntry fb
+			join t_bd_person p on fb.fpersonid = p.fid
+			join T_ORG_PositionMember pm on pm.fpersonid = p.fid
+			left join T_HR_BDEmployeeType bt on p.FEmployeeTypeID = bt.fid
+			left join T_HR_PersonContactMethod cm on cm.fpersonid = p.fid
+			left join T_ORG_Position ps on fb.FPositionID = ps.fid
+			left join T_ORG_admin ad on ad.fid = fb.FAdminOrgID
+			left join CT_HR_Positionclass pc on ps.cfzwdjid = pc.fid
+		where 1 = 1
+			and bt.fnumber not in (06,07,09,20,21)
+		<if test="beginTime != null and beginTime !=''"> 
+			and fb.FBizDate >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime != null and endTime !=''">
+	 		and fb.FBizDate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	 	</if>
+	</select>
+	<!-- 查询信息无效（离职、退休、不在职）人员信息 -->
+	<select id="selectInvalidPerson" parameterType="map" resultType="com.creditease.eas.institutional.bean.EASPerson">
+		select 
+			p.fnumber newId
+		from T_HR_ResignBizBillEntry rb
+			join t_bd_person p on p.fid = rb.fpersonid
+			join T_ORG_admin ad on ad.fid = rb.FAdminOrgID
+		where 1 = 1
+		<if test="beginTime != null and beginTime !=''"> 
+			and rb.FBizDate >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime != null and endTime !=''">
+	 		and rb.FBizDate &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	 	</if>
+	 	
+		union
+
+		select 
+			fnumber newId
+		from t_bd_person
+		where 1=1
+			and FEmployeeTypeID in ('411N9fRIRbubSYPBHbLiNKKehbM=','00000000-0000-0000-0000-000000000008A29E85B3')
+		<if test="beginTime != null and beginTime !=''"> 
+			and FLastUpdateTime >= to_date(#{beginTime},'yyyy-MM-dd hh24:mi:ss')
+		</if>
+		<if test="endTime != null and endTime !=''">
+	 		and FLastUpdateTime &lt;= to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+	 	</if>
+	</select>
+	<!-- 查询人员兼职数据 -->
+	<select id="selectPersonAvocation" parameterType="map" resultType="com.creditease.eas.institutional.bean.EASPerson">
+	select
+		p.fnumber newId,p.fname_l2 name,ps.Fadminorgunitid levelOneOrg,cm.cfmail email,'true' enabled,pc.cfsecrettype grade,pm.fisprimary isPrimary
+	from t_bd_person p
+		left join T_HR_BDEmployeeType bt on p.FEmployeeTypeID = bt.fid
+		left join T_HR_PersonContactMethod cm on cm.fpersonid = p.fid
+		left join T_ORG_PositionMember pm on p.fid = pm.FPersonID and pm.fisprimary = 0
+		left join T_ORG_Position ps on ps.fid = pm.FPositionID and ps.Fdeletedstatus = 1
+		left join T_ORG_admin ad on ad.fid = ps.Fadminorgunitid
+		left join CT_HR_Positionclass pc on ps.cfzwdjid = pc.fid
+	where ps.Fadminorgunitid is not null
+		and bt.fnumber not in (06,07,09,12,20,21)
+	<if test="beginNumber != null and beginNumber !=''"> 
+		and p.fnumber >= #{beginNumber}
+	</if>
+	<if test="endNumber != null and endNumber !=''">
+	 	and p.fnumber &lt;= #{endNumber}
+	</if>
+	<if test="orgName != null and orgName !=''">
+	 	and ad.fdisplayname_l2 like '%#{orgName}%'
+	</if>
+	</select>
+</mapper>

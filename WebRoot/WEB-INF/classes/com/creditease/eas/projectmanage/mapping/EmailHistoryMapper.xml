@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditease.eas.projectmanage.dao.IEmailHistoryMapper">
+	<resultMap id="BaseResultMap"
+		type="com.creditease.eas.projectmanage.bean.EmailHistory">
+		<id column="FID" property="id" jdbcType="INTEGER" />
+		<result column="WARNTYPE" property="warnType" jdbcType="VARCHAR" />
+		<result column="LOANNUMBER" property="loanNumber" jdbcType="VARCHAR" />
+		<result column="HEAD" property="head" jdbcType="VARCHAR" />
+		<result column="LOANTIME" property="loanTime" jdbcType="DATE" />
+		<result column="EXPIRETIME" property="expireTime" jdbcType="DATE" />
+		<result column="INTERESTTIME" property="interestTime" jdbcType="DATE" />
+		<result column="SENDDATE" property="sendDate" jdbcType="DATE" />
+		<result column="SENDSTATE" property="sendState" jdbcType="VARCHAR" />
+		<result column="FEXT1" property="fext1" jdbcType="VARCHAR" />
+		<result column="FEXT2" property="fext2" jdbcType="VARCHAR" />
+		<result column="FEXT3" property="fext3" jdbcType="VARCHAR" />
+		<result column="FEXT4" property="fext4" jdbcType="VARCHAR" />
+		<result column="FEXT5" property="fext5" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		FID,WARNTYPE,LOANNUMBER,HEAD,LOANTIME,EXPIRETIME,INTERESTTIME,SENDDATE,SENDSTATE
+	</sql>
+
+	<sql id="BaseWhereCondition">
+		<if test="warnType != null and warnType != ''">
+			and WARNTYPE = '${warnType}'
+		</if>
+		<if test="loanNo != null and loanNo != ''">
+			and LOANNUMBER like '${loanNo}'
+		</if>
+		<if test="head != null and head != ''">
+			and HEAD like '${head}'
+		</if>
+		<if test="loanTimeStart != null and loanTimeStart != ''">
+		    and LOANTIME &gt;= TO_DATE('${loanTimeStart}','yyyy-mm-dd')
+		</if>
+		<if test="loanTimeEnd != null and loanTimeEnd != ''">
+			and LOANTIME &lt;= TO_DATE('${loanTimeEnd}','yyyy-mm-dd')
+		</if>
+		<if test="expireTimeStart != null and expireTimeStart != ''">
+		    and EXPIRETIME &gt;= TO_DATE('${expireTimeStart}','yyyy-mm-dd')
+		</if>
+		<if test="expireTimeEnd != null and expireTimeEnd != ''">
+			and EXPIRETIME &lt;= TO_DATE('${expireTimeEnd}','yyyy-mm-dd')
+		</if>
+		<if test="interestTimeStart != null and interestTimeStart != ''">
+		    and INTERESTTIME &gt;= TO_DATE('${interestTimeStart}','yyyy-mm-dd')
+		</if>
+		<if test="interestTimeEnd != null and interestTimeEnd != ''">
+			and INTERESTTIME &lt;= TO_DATE('${interestTimeEnd}','yyyy-mm-dd')
+		</if>
+		<if test="sendState != null and sendState != ''">
+			and SENDSTATE = ${sendState}
+		</if>
+	</sql>
+
+	<sql id="Order_Rule">
+		order by FID desc
+ 	</sql>
+
+	<!-- 查询预警发送记录总数目 -->
+	<select id="getEmailHistoryTotalCounts" resultType="int">
+		select count(fid) from T_PRO_EMAILHISTORY where 1=1
+		<include refid="BaseWhereCondition" />
+	</select>
+
+	<!-- 返回数据集合 -->
+	<select id="queryAllEmailHistoryList" resultType="map" parameterType="map">
+		select * from (Select t.*, ROWNUM as ROWNO FROM(Select
+		FID,WARNTYPE,LOANNUMBER,HEAD,LOANTIME,EXPIRETIME,INTERESTTIME,to_char(SENDDATE,'yyyy-mm-dd hh24:mi:ss') SENDDATE,SENDSTATE
+		from T_PRO_EMAILHISTORY
+		<where>
+			1=1 <include refid="BaseWhereCondition" />
+			<include refid="Order_Rule" />
+		</where>
+		)t
+		<where>
+		ROWNUM &lt;= #{endRow,jdbcType=INTEGER}
+		</where>
+		)
+		where ROWNO &gt;= #{startRow,jdbcType=INTEGER}
+		
+	</select>
+	<!-- 添加邮件发送记录 -->
+	<insert id="insertEmailHistory" parameterType="com.creditease.eas.projectmanage.bean.EmailHistory">
+	 <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE"> 
+   	 	select COMMON_SEQ.NEXTVAL from dual
+	  </selectKey>
+		insert into T_PRO_EMAILHISTORY(<include refid="Base_Column_List"/>) 
+			values(#{id,jdbcType=INTEGER},#{warnType,jdbcType=VARCHAR},#{loanNumber,jdbcType=VARCHAR},
+			#{head,jdbcType=VARCHAR},#{loanTime,jdbcType=DATE},#{expireTime,jdbcType=DATE},
+			#{interestTime,jdbcType=DATE},SYSDATE,#{sendState,jdbcType=VARCHAR})
+	</insert>
+</mapper>
